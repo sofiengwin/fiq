@@ -1,0 +1,79 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/leagues?current=true&team=33&type=league
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Key:
+      - fcc0de36de0119b7886c6b8742ee0317
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 19 Dec 2025 06:26:39 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '89'
+      X-Envoy-Upstream-Service-Time:
+      - '11'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZgQWz4tdNy6e48F%2FRSXHj8RIA3oJCbIJdMV%2BSl1c9FKUhi8bmS5gxRJ3jNKS42FHvjWI9dNxiotYdhhVasC%2Bdx7K9UrBfcrN2eqZRKHaYpsU6gPXi7E%3D"}]}'
+      Cf-Ray:
+      - 9b04d464edda8411-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"leagues","parameters":{"current":"true","team":"33","type":"league"},"errors":[],"results":2,"paging":{"current":1,"total":1},"response":[{"league":{"id":1022,"name":"Premier
+        League - Summer Series","type":"League","logo":"https:\/\/media.api-sports.io\/football\/leagues\/1022.png"},"country":{"name":"England","code":"GB-ENG","flag":"https:\/\/media.api-sports.io\/flags\/gb-eng.svg"},"seasons":[{"year":2024,"start":"2025-07-26","end":"2025-08-03","current":true,"coverage":{"fixtures":{"events":true,"lineups":true,"statistics_fixtures":false,"statistics_players":false},"standings":false,"players":false,"top_scorers":false,"top_assists":false,"top_cards":false,"injuries":false,"predictions":true,"odds":false}}]},{"league":{"id":39,"name":"Premier
+        League","type":"League","logo":"https:\/\/media.api-sports.io\/football\/leagues\/39.png"},"country":{"name":"England","code":"GB-ENG","flag":"https:\/\/media.api-sports.io\/flags\/gb-eng.svg"},"seasons":[{"year":2025,"start":"2025-08-15","end":"2026-05-24","current":true,"coverage":{"fixtures":{"events":true,"lineups":true,"statistics_fixtures":true,"statistics_players":true},"standings":true,"players":true,"top_scorers":true,"top_assists":true,"top_cards":true,"injuries":true,"predictions":true,"odds":true}}]}]}'
+  recorded_at: Fri, 19 Dec 2025 06:26:39 GMT
+recorded_with: VCR 6.3.1

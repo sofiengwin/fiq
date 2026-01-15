@@ -21,7 +21,10 @@ gem "solid_queue"
 gem "solid_cable"
 gem "sidekiq"
 gem "lograge"
-
+gem "activeadmin"
+gem "devise"
+gem "sprockets-rails" # Required for ActiveAdmin in Rails 8.1
+gem "rails_admin", "~> 3.0"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -50,4 +53,8 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "vcr"
+  gem "webmock"
 end
+gem "sassc-rails"

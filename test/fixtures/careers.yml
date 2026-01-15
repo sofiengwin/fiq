@@ -3,11 +3,7 @@
 one:
   player: one
   team: one
-  start_date: 2025-11-21
-  end_date: 2025-11-21
 
 two:
   player: two
   team: two
-  start_date: 2025-11-21
-  end_date: 2025-11-21

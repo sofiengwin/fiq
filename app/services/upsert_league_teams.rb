@@ -1,18 +1,39 @@
 class UpsertLeagueTeams < ApplicationService
-  def initialize(name:, code:, country_id:, national:, external_id:, logo_url:)
-    @name = name
-    @code = code
-    @country_id = country_id
-    @national = national
-    @external_id = external_id
+  def initialize(league_id:, season:, competition_name:)
+    @league_id = league_id
+    @season = season
+    @competition_name = competition_name
   end
 
   def call
-    Team.find_or_create_by!(external_id: @external_id) do |league_team|
-      league_team.name = @name
-      league_team.code = @code
-      league_team.country_id = @country_id
-      league_team.national = @national
+    result = fetch_teams
+    result.map do |team|
+      UpsertTeam.call(
+        external_id: team[:team][:id],
+        name: team[:team][:name],
+        code: team[:team][:code],
+        country: country(name: team[:team][:country]),
+        competition: competition
+      )
+    end
+  end
+
+  private
+
+  def fetch_teams
+    FootballClient.call(end_point: "teams?league=#{@league_id}&season=#{@season}")
+  end
+
+  def country(name:)
+    @country ||= Country.find_or_create_by!(name: name)
+  end
+
+  def competition
+    return nil if @league_id.blank?
+
+    Competition.find_or_create_by!(external_id: @league_id) do |competition|
+      competition.name = @competition_name
+      competition.country_id = @country.id
     end
   end
 end

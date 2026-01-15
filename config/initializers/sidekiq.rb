@@ -1,12 +1,4 @@
 SIDEKIQ_REDIS_URL = ENV["REDIS_URL_SIDEKIQ"]
-puts SIDEKIQ_REDIS_URL
-puts SIDEKIQ_REDIS_URL
-puts SIDEKIQ_REDIS_URL
-puts SIDEKIQ_REDIS_URL
-puts SIDEKIQ_REDIS_URL
-puts SIDEKIQ_REDIS_URL
-pp ActiveRecord::Base.connection_db_config.configuration_hash
-pp Rails.env
 
 sidekiq_redis = { url: SIDEKIQ_REDIS_URL }
 

@@ -55,3 +55,19 @@ bin/rails g model League name:string external_id:string country:references
 bin/rails g model Country name:string code:string
 bin/rails g model Player name:string position:string first_name:string last_name:string team:references external_id:string age:integer appearances:integer
 bin/rails g model Career player:references team:references start_date:date end_date:date
+bin/rails g model Competition name:string external_id:string country:references
+bin/rails g migration teams_competitions team:references competition:references
+
+
+
+
+
+uri = URI("https://v3.football.api-sports.io/players/squads?team=33")
+
+request = Net::HTTP::Get.new(uri)
+request["x-rapidapi-host"] = "v3.football.api-sports.io"
+request["x-rapidapi-key"] = "fcc0de36de0119b7886c6b8742ee0317"
+
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
+  http.request(request)
+end

@@ -1,0 +1,229 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/transfers?player=19465&team=42
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Key:
+      - fcc0de36de0119b7886c6b8742ee0317
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 22 Dec 2025 23:26:54 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '48'
+      X-Envoy-Upstream-Service-Time:
+      - '5'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Fsb81vXe6M4lsmQLJP0v4K7MmdFdF3c3VmnOO6mtfYRFIc4j5zT8Sim4eFUj06OPaLIEBAA0fDrGZ73uKwiU8pid95CZtg9%2F5W2%2BXmdQSk3sBs%2FFfoE%3D"}]}'
+      Cf-Ray:
+      - 9b236306eb50eef3-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"transfers","parameters":{"player":"19465","team":"42"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"player":{"id":19465,"name":"David
+        Raya"},"update":"2025-07-29T11:46:10+00:00","transfers":[{"date":"2024-07-04","type":"\u20ac
+        31.9M","teams":{"in":{"id":42,"name":"Arsenal","logo":"https:\/\/media.api-sports.io\/football\/teams\/42.png"},"out":{"id":55,"name":"Brentford","logo":"https:\/\/media.api-sports.io\/football\/teams\/55.png"}}},{"date":"2024-07-01","type":"N\/A","teams":{"in":{"id":55,"name":"Brentford","logo":"https:\/\/media.api-sports.io\/football\/teams\/55.png"},"out":{"id":42,"name":"Arsenal","logo":"https:\/\/media.api-sports.io\/football\/teams\/42.png"}}},{"date":"2023-08-15","type":"Loan","teams":{"in":{"id":42,"name":"Arsenal","logo":"https:\/\/media.api-sports.io\/football\/teams\/42.png"},"out":{"id":55,"name":"Brentford","logo":"https:\/\/media.api-sports.io\/football\/teams\/55.png"}}}]}]}'
+  recorded_at: Mon, 22 Dec 2025 23:26:54 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=19465
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Key:
+      - fcc0de36de0119b7886c6b8742ee0317
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 22 Dec 2025 23:26:55 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '8'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '47'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=wAkAdBFo0QIGRqo8hcz%2F6Ikqyje5EpS9UwzI49DI%2FjfsKmHtW9ZUl2GxEHV1K1Q0bPpnahhHP6HAKTzRWJtncnMCJqcO8Qantw4IhBlgQBJwINB6CsM%3D"}]}'
+      Cf-Ray:
+      - 9b2363093c7490ee-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"19465"},"errors":[],"results":12,"paging":{"current":1,"total":1},"response":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]}'
+  recorded_at: Mon, 22 Dec 2025 23:26:55 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=55
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Key:
+      - fcc0de36de0119b7886c6b8742ee0317
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 22 Dec 2025 23:26:55 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '7'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '46'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=vSzh7M%2FzxrZOD7U1shgU2ZOBsoiuK3rJt5C7ytMea5%2Fav6KfMeAe26oQMVp8ASfTvE8lW7QFddmi%2FPS6x8DXJo%2FBYiwfEZS4djYi3PaYF6WYTbMOQeY%3D"}]}'
+      Cf-Ray:
+      - 9b23630ace8c8426-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"55"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":55,"name":"Brentford","code":"BRE","country":"England","founded":1889,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/55.png"},"venue":{"id":10503,"name":"Gtech
+        Community Stadium","address":"166 Lionel Rd N, Brentford","city":"Brentford,
+        Middlesex","capacity":17250,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/10503.png"}}]}'
+  recorded_at: Mon, 22 Dec 2025 23:26:55 GMT
+recorded_with: VCR 6.3.1
