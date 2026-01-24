@@ -16,7 +16,7 @@ jobs:
           password: ${{secrets.DOCKER_TOKEN}}
 
       - name: build and push docker image to registry
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: sofiencloud/fiq:latest
