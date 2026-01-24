@@ -3,6 +3,13 @@ require "net/http"
 require "openssl"
 
 class FootballClient < ApplicationService
+  extend Limiter::Mixin
+
+  limit_method(:call, rate: 10, interval: 60, balanced: true) do
+    Rails.logger.info("FootballClient rate limit exceeded")
+    raise StandardError, "Rate limit exceeded"
+  end
+
   BASE_URL = "https://v3.football.api-sports.io/"
   def initialize(end_point:)
     @end_point = end_point
@@ -24,8 +31,8 @@ class FootballClient < ApplicationService
 
   def make_request
     request = Net::HTTP::Get.new(@url)
-    request["x-rapidapi-host"] = "v3.football.api-sports.io"
-    request["x-rapidapi-key"] = "fcc0de36de0119b7886c6b8742ee0317"
+    request["x-rapidapi-host"] = Rails.application.credentials.development[:football_api][:host]
+    request["x-rapidapi-key"] = Rails.application.credentials.development[:football_api][:api_key]
 
     Net::HTTP.start(@url.hostname, @url.port, use_ssl: @url.scheme == "https") do |http|
       http.request(request)

@@ -16,8 +16,16 @@ module ActiveSupport
   end
 end
 
-
 VCR.configure do |config|
-  config.cassette_library_dir = "fixtures/vcr_cassettes"
+  config.cassette_library_dir = "test/fixtures/vcr_cassettes"
   config.hook_into :webmock
+
+  # Filter out sensitive data
+  config.filter_sensitive_data("<FOOTBALL_API_KEY>") do
+    Rails.application.credentials.development[:football_api][:api_key]
+  end
+
+  config.filter_sensitive_data("<FOOTBALL_API_HOST>") do
+    Rails.application.credentials.development[:football_api][:host]
+  end
 end
