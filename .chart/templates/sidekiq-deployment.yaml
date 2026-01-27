@@ -1,0 +1,30 @@
+{{- if .Values.sidekiq.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fiq.fullname" . }}-sidekiq
+  labels:
+    {{- include "fiq.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sidekiq
+spec:
+  replicas: {{ .Values.sidekiq.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "fiq.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: sidekiq
+  template:
+    metadata:
+      labels:
+        {{- include "fiq.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: sidekiq
+    spec:
+      containers:
+        - name: sidekiq
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["bundle", "exec", "sidekiq"]
+          {{- with .Values.sidekiq.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
