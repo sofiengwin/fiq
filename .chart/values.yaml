@@ -39,4 +39,5 @@ env:
   DATABASE_URL: "postgresql://user:password@postgres-host:5432/fiq_production"
   REDIS_URL_SIDEKIQ: "redis://redis-host:6379/0"
   API_FOOTBALL_KEY: "your-api-football-key"
+  RAILS_SECRET_KEY_BASE: "your-secret-key-base"
 
