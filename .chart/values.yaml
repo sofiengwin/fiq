@@ -12,8 +12,6 @@ service:
   type: ClusterIP
   port: 80
 
-replicaCount: 1
-
 resources: {}
   # limits:
   #   cpu: 100m
