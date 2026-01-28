@@ -32,3 +32,13 @@ sidekiq:
     # requests:
     #   cpu: 250m
     #   memory: 256Mi
+
+env:
+  RAILS_ENV: production
+  RACK_ENV: production
+  RAILS_LOG_TO_STDOUT: "true"
+  RAILS_SERVE_STATIC_FILES: "true"
+  DATABASE_URL: "postgresql://user:password@postgres-host:5432/fiq_production"
+  REDIS_URL_SIDEKIQ: "redis://redis-host:6379/0"
+  API_FOOTBALL_KEY: "your-api-football-key"
+
