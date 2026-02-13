@@ -3,28 +3,4 @@
 /* Source paths for Tailwind to scan */
 @source "../../views/**/*.html.erb";
 @source "../../helpers/**/*.rb";
-@source "../../../app/javascript/**/*.js";;
-  transition: all 0.2s ease;
-}
-
-.kahoot-answer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
-  pointer-events: none;
-}
-
-.kahoot-answer:hover {
-  transform: scale(1.03);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Timer circle animation */
-.timer-circle {
-  transition: stroke-dashoffset 1s linear;
-}
-
+@source "../../../app/javascript/**/*.js";
