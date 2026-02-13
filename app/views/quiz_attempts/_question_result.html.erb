@@ -1,56 +1,51 @@
-<div class="question-result text-center py-8 animate-bounce-in">
+<div class="question-result text-center py-8">
   <!-- Result Icon -->
   <div class="mb-6">
     <% if response.correct? %>
-      <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-kahoot-green/30 border-4 border-kahoot-green animate-pulse-glow">
-        <span class="text-7xl">✅</span>
+      <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-500/20 border-4 border-green-500">
+        <span class="text-5xl">✅</span>
       </div>
     <% else %>
-      <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-kahoot-red/30 border-4 border-kahoot-red animate-shake">
-        <span class="text-7xl">❌</span>
+      <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-500/20 border-4 border-red-500">
+        <span class="text-5xl">❌</span>
       </div>
     <% end %>
   </div>
 
   <!-- Score Awarded -->
-  <h2 class="text-5xl font-black text-white mb-4">
+  <h2 class="text-4xl font-bold text-white mb-2">
     <% if response.correct? %>
-      <span class="text-kahoot-green">+<%= response.score_awarded %></span> points!
+      +<%= response.score_awarded %> points!
     <% else %>
-      <span class="text-kahoot-red">0</span> points
+      0 points
     <% end %>
   </h2>
 
   <!-- Streak Info -->
   <% if response.quiz_attempt.streak > 1 %>
-    <div class="inline-flex items-center gap-2 bg-kahoot-orange/30 border-2 border-kahoot-orange px-6 py-3 rounded-full mb-6">
-      <span class="text-3xl">🔥</span>
-      <span class="text-2xl font-black text-white"><%= response.quiz_attempt.streak %> in a row!</span>
-    </div>
+    <p class="text-yellow-400 text-lg mb-4">
+      🔥 <%= response.quiz_attempt.streak %> in a row!
+    </p>
   <% end %>
 
   <!-- Correct Answers -->
-  <div class="bg-white/10 rounded-3xl p-8 mt-6 max-w-2xl mx-auto border-2 border-kahoot-purple-light/30">
-    <h3 class="text-lg font-bold text-white/80 mb-4 flex items-center justify-center gap-2">
-      <span class="text-xl">✓</span> Correct answer<%= response.question.answer_options.correct.count > 1 ? "s" : "" %>:
-    </h3>
-    <div class="flex flex-wrap justify-center gap-3">
+  <div class="bg-white/10 rounded-xl p-6 mt-6 max-w-2xl mx-auto">
+    <h3 class="text-lg font-medium text-purple-300 mb-4">Correct answer<%= response.question.answer_options.correct.count > 1 ? "s" : "" %>:</h3>
+    <div class="flex flex-wrap justify-center gap-2">
       <% response.question.answer_options.correct.each do |answer| %>
-        <span class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-kahoot-green text-white font-bold text-lg">
-          <%= kahoot_answer_shape(answer.color) %> <%= answer.text %>
+        <span class="inline-block px-4 py-2 rounded-lg bg-green-600/50 text-green-200 font-medium">
+          <%= answer_shape(answer.color) %> <%= answer.text %>
         </span>
       <% end %>
     </div>
     
     <% user_selected = response.selected_answers %>
     <% if user_selected.any? && !response.correct? %>
-      <h3 class="text-lg font-bold text-white/80 mt-8 mb-4 flex items-center justify-center gap-2">
-        <span class="text-xl">✗</span> Your answer<%= user_selected.count > 1 ? "s" : "" %>:
-      </h3>
-      <div class="flex flex-wrap justify-center gap-3">
+      <h3 class="text-lg font-medium text-purple-300 mt-6 mb-4">Your answer<%= user_selected.count > 1 ? "s" : "" %>:</h3>
+      <div class="flex flex-wrap justify-center gap-2">
         <% user_selected.each do |answer| %>
-          <span class="inline-flex items-center gap-2 px-5 py-3 rounded-xl <%= answer.is_correct ? 'bg-kahoot-green' : 'bg-kahoot-red' %> text-white font-bold text-lg">
-            <%= kahoot_answer_shape(answer.color) %> <%= answer.text %>
+          <span class="inline-block px-4 py-2 rounded-lg <%= answer.is_correct ? 'bg-green-600/50 text-green-200' : 'bg-red-600/50 text-red-200' %> font-medium">
+            <%= answer_shape(answer.color) %> <%= answer.text %>
           </span>
         <% end %>
       </div>
@@ -59,12 +54,12 @@
 
   <!-- Next Question Button -->
   <% if next_question %>
-    <%= link_to quiz_attempt_path(response.quiz_attempt), data: { turbo_frame: "question-frame" }, class: "kahoot-btn inline-flex items-center gap-3 mt-10 bg-kahoot-blue hover:bg-kahoot-blue-light text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl" do %>
-      Next Question <span class="text-2xl">→</span>
+    <%= link_to quiz_attempt_path(response.quiz_attempt), data: { turbo_frame: "question-frame" }, class: "inline-block mt-8 bg-purple-600 hover:bg-purple-500 text-white px-12 py-4 rounded-xl font-bold text-xl transition" do %>
+      Next Question →
     <% end %>
   <% else %>
-    <%= link_to results_quiz_attempt_path(response.quiz_attempt), class: "kahoot-btn inline-flex items-center gap-3 mt-10 bg-kahoot-green hover:bg-kahoot-green-light text-white px-12 py-5 rounded-2xl font-black text-xl shadow-2xl" do %>
-      <span class="text-2xl">📊</span> See Results
+    <%= link_to results_quiz_attempt_path(response.quiz_attempt), class: "inline-block mt-8 bg-green-600 hover:bg-green-500 text-white px-12 py-4 rounded-xl font-bold text-xl transition" do %>
+      📊 See Results
     <% end %>
   <% end %>
 </div>

@@ -1,10 +1,8 @@
 <%= form_with model: quiz, class: "space-y-6" do |f| %>
   <% if quiz.errors.any? %>
-    <div class="bg-kahoot-red/20 border-2 border-kahoot-red rounded-2xl p-5 animate-shake">
-      <h3 class="text-white font-bold mb-2 flex items-center gap-2">
-        <span>⚠️</span> Please fix the following errors:
-      </h3>
-      <ul class="list-disc list-inside text-white/80 text-sm space-y-1">
+    <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+      <h3 class="text-red-200 font-medium mb-2">Please fix the following errors:</h3>
+      <ul class="list-disc list-inside text-red-300 text-sm">
         <% quiz.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -12,38 +10,32 @@
     </div>
   <% end %>
 
-  <div class="bg-white/10 border-2 border-kahoot-purple-light/40 rounded-3xl p-8 space-y-6">
+  <div class="bg-white/10 border border-purple-500/30 rounded-xl p-6 space-y-6">
     <div>
-      <%= f.label :title, class: "block text-white font-bold mb-3 text-lg" %>
-      <%= f.text_field :title, class: "w-full bg-white/10 border-2 border-kahoot-purple-light/40 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-kahoot-yellow focus:border-kahoot-yellow font-medium text-lg", placeholder: "Enter quiz title..." %>
+      <%= f.label :title, class: "block text-purple-200 font-medium mb-2" %>
+      <%= f.text_field :title, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "Enter quiz title..." %>
     </div>
 
     <div>
-      <%= f.label :description, class: "block text-white font-bold mb-3 text-lg" %>
-      <%= f.text_area :description, rows: 3, class: "w-full bg-white/10 border-2 border-kahoot-purple-light/40 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-kahoot-yellow focus:border-kahoot-yellow font-medium", placeholder: "Optional description..." %>
+      <%= f.label :description, class: "block text-purple-200 font-medium mb-2" %>
+      <%= f.text_area :description, rows: 3, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "Optional description..." %>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-kahoot-blue/20 border-2 border-kahoot-blue rounded-2xl p-5">
-        <%= f.label :time_limit_seconds, class: "block text-white font-bold mb-3" do %>
-          <span class="flex items-center gap-2"><span class="text-xl">⏱️</span> Time per question (seconds)</span>
-        <% end %>
-        <%= f.number_field :time_limit_seconds, min: 5, max: 120, class: "w-full bg-white/10 border-2 border-kahoot-blue/50 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-kahoot-yellow font-bold text-xl text-center" %>
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <%= f.label :time_limit_seconds, "Time per question (seconds)", class: "block text-purple-200 font-medium mb-2" %>
+        <%= f.number_field :time_limit_seconds, min: 5, max: 120, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" %>
       </div>
 
-      <div class="bg-kahoot-yellow/20 border-2 border-kahoot-yellow rounded-2xl p-5">
-        <%= f.label :scoring_mode, class: "block text-white font-bold mb-3" do %>
-          <span class="flex items-center gap-2"><span class="text-xl">🏆</span> Scoring Mode</span>
-        <% end %>
-        <%= f.select :scoring_mode, [["Partial Credit", "partial_credit"], ["All or Nothing", "all_or_nothing"]], {}, class: "w-full bg-white/10 border-2 border-kahoot-yellow/50 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-kahoot-yellow font-bold cursor-pointer" %>
+      <div>
+        <%= f.label :scoring_mode, class: "block text-purple-200 font-medium mb-2" %>
+        <%= f.select :scoring_mode, [["Partial Credit", "partial_credit"], ["All or Nothing", "all_or_nothing"]], {}, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" %>
       </div>
     </div>
   </div>
 
-  <div class="flex flex-col sm:flex-row justify-end gap-4">
-    <%= link_to (quiz.persisted? ? quiz_path(quiz) : quizzes_path), class: "kahoot-btn bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-center" do %>
-      Cancel
-    <% end %>
-    <%= f.submit (quiz.persisted? ? "Update Quiz" : "Create Quiz"), class: "kahoot-btn bg-kahoot-green hover:bg-kahoot-green-light text-white px-8 py-4 rounded-xl font-bold cursor-pointer shadow-lg" %>
+  <div class="flex justify-end gap-4">
+    <%= link_to "Cancel", quiz.persisted? ? quiz_path(quiz) : quizzes_path, class: "bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition" %>
+    <%= f.submit quiz.persisted? ? "Update Quiz" : "Create Quiz", class: "bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-medium transition cursor-pointer" %>
   </div>
 <% end %>
