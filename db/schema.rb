@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_12_064149) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_13_045425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_admin_comments", force: :cascade do |t|
+    t.bigint "author_id"
+    t.string "author_type"
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.string "namespace"
+    t.bigint "resource_id"
+    t.string "resource_type"
+    t.datetime "updated_at", null: false
+    t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author"
+    t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
+    t.index ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource"
+  end
 
   create_table "answer_options", force: :cascade do |t|
     t.string "color"
@@ -23,6 +37,66 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_064149) do
     t.string "text"
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_answer_options_on_question_id"
+  end
+
+  create_table "careers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.daterange "duration"
+    t.bigint "football_team_id", null: false
+    t.bigint "player_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["duration"], name: "index_careers_on_duration", using: :gist
+    t.index ["football_team_id"], name: "index_careers_on_football_team_id"
+    t.index ["player_id"], name: "index_careers_on_player_id"
+  end
+
+  create_table "competitions", force: :cascade do |t|
+    t.bigint "country_id"
+    t.datetime "created_at", null: false
+    t.string "external_id"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["country_id"], name: "index_competitions_on_country_id"
+    t.index ["external_id"], name: "index_competitions_on_external_id", unique: true
+  end
+
+  create_table "competitions_football_teams", id: false, force: :cascade do |t|
+    t.bigint "competition_id", null: false
+    t.bigint "football_team_id", null: false
+    t.index ["competition_id", "football_team_id"], name: "idx_comp_team"
+    t.index ["football_team_id", "competition_id"], name: "idx_team_comp"
+  end
+
+  create_table "countries", force: :cascade do |t|
+    t.string "code"
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_countries_on_name", unique: true
+  end
+
+  create_table "football_teams", force: :cascade do |t|
+    t.string "code"
+    t.bigint "country_id"
+    t.datetime "created_at", null: false
+    t.string "external_id"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["country_id"], name: "index_football_teams_on_country_id"
+    t.index ["external_id"], name: "index_football_teams_on_external_id", unique: true
+  end
+
+  create_table "players", force: :cascade do |t|
+    t.integer "age"
+    t.integer "appearances", default: 0
+    t.datetime "created_at", null: false
+    t.string "external_id"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "name", null: false
+    t.string "position"
+    t.datetime "updated_at", null: false
+    t.index ["external_id"], name: "index_players_on_external_id", unique: true
   end
 
   create_table "questions", force: :cascade do |t|
@@ -79,6 +153,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_12_064149) do
   end
 
   add_foreign_key "answer_options", "questions"
+  add_foreign_key "careers", "football_teams"
+  add_foreign_key "careers", "players"
+  add_foreign_key "competitions", "countries"
+  add_foreign_key "football_teams", "countries"
   add_foreign_key "questions", "quizzes"
   add_foreign_key "quiz_attempts", "quizzes"
   add_foreign_key "response_answers", "answer_options"

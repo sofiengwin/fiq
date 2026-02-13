@@ -1,0 +1,5 @@
+# VCR cassettes directory
+# Place recorded API responses here organized by endpoint type:
+# - league/
+# - player/
+# - team/
