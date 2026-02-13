@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: fiq_full
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fiq_full_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "54321:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bin/dev
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://fiq_full:password@db:5432/fiq_full_development
+      RAILS_ENV: development
+    tty: true
+    stdin_open: true
+
+volumes:
+  postgres_data:
+  bundle_cache:

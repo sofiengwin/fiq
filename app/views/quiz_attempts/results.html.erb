@@ -1,0 +1,73 @@
+<% content_for(:title) { "Results - #{@attempt.quiz.title}" } %>
+
+<div class="max-w-4xl mx-auto">
+  <!-- Final Score Card -->
+  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 text-center mb-8">
+    <h1 class="text-4xl font-bold text-white mb-4">🎉 Quiz Complete!</h1>
+    
+    <div class="inline-flex items-center justify-center w-40 h-40 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-6">
+      <div class="text-center">
+        <p class="text-5xl font-bold text-white"><%= @results[:percentage] %>%</p>
+      </div>
+    </div>
+
+    <p class="text-3xl font-bold text-white mb-2">
+      <%= @results[:total_score] %> / <%= @results[:max_possible_score] %> points
+    </p>
+    
+    <p class="text-purple-300">
+      <%= @results[:responses].count { |r| r[:correct] } %> of <%= @results[:responses].count %> questions correct
+    </p>
+  </div>
+
+  <!-- Question Breakdown -->
+  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-6 mb-8">
+    <h2 class="text-2xl font-bold text-white mb-6">Question Breakdown</h2>
+    
+    <div class="space-y-4">
+      <% @results[:responses].each_with_index do |result, index| %>
+        <div class="flex items-center gap-4 p-4 rounded-lg <%= result[:correct] ? 'bg-green-500/10' : 'bg-red-500/10' %>">
+          <div class="flex-shrink-0">
+            <% if result[:correct] %>
+              <span class="text-2xl">✅</span>
+            <% else %>
+              <span class="text-2xl">❌</span>
+            <% end %>
+          </div>
+          
+          <div class="flex-1">
+            <p class="text-white font-medium">
+              <%= index + 1 %>. <%= result[:question].text %>
+            </p>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <% result[:selected_answers].each do |answer| %>
+                <span class="text-xs px-2 py-1 rounded <%= answer.is_correct ? 'bg-green-600/50 text-green-200' : 'bg-red-600/50 text-red-200' %>">
+                  <%= answer.text %>
+                </span>
+              <% end %>
+              <% if result[:selected_answers].empty? %>
+                <span class="text-xs px-2 py-1 rounded bg-gray-600/50 text-gray-300">No answer</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="flex-shrink-0 text-right">
+            <p class="text-lg font-bold <%= result[:correct] ? 'text-green-400' : 'text-red-400' %>">
+              +<%= result[:score] %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-center gap-4">
+    <%= button_to quiz_attempts_path(quiz_id: @attempt.quiz.id), method: :post, class: "bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition" do %>
+      🔄 Retake Quiz
+    <% end %>
+    <%= link_to quizzes_path, class: "bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg transition border border-white/20" do %>
+      🔍 Browse Quizzes
+    <% end %>
+  </div>
+</div>

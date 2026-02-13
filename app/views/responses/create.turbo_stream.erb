@@ -1,0 +1,21 @@
+<turbo-stream action="replace" target="question-frame">
+  <template>
+    <% if @attempt.completed? %>
+      <div class="text-center py-16 bg-white/10 rounded-2xl border border-purple-500/30">
+        <h2 class="text-4xl font-bold text-white mb-4">🎉 Quiz Complete!</h2>
+        <p class="text-purple-200 text-xl mb-8">Your final score: <%= @attempt.total_score %></p>
+        <%= link_to results_quiz_attempt_path(@attempt), class: "bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition" do %>
+          📊 See Results
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "quiz_attempts/question_result", response: @response, next_question: @attempt.current_question %>
+    <% end %>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="update" target="score-display">
+  <template>
+    Score: <%= @attempt.total_score %>
+  </template>
+</turbo-stream>

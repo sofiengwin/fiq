@@ -1,0 +1,28 @@
+<% content_for(:title) { "#{@attempt.quiz.title} - Playing" } %>
+
+<div class="max-w-4xl mx-auto" data-controller="quiz-player">
+  <!-- Progress Bar -->
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-purple-300">Question <%= @progress[:answered] + 1 %> of <%= @progress[:total] %></span>
+      <span class="text-white font-bold" id="score-display">Score: <%= @attempt.total_score %></span>
+    </div>
+    <div class="bg-purple-800/50 rounded-full h-3">
+      <div class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: <%= @progress[:percentage] %>%"></div>
+    </div>
+  </div>
+
+  <turbo-frame id="question-frame">
+    <% if @current_question %>
+      <%= render "quiz_attempts/question", question: @current_question, attempt: @attempt %>
+    <% else %>
+      <div class="text-center py-16 bg-white/10 rounded-2xl border border-purple-500/30">
+        <h2 class="text-4xl font-bold text-white mb-4">🎉 Quiz Complete!</h2>
+        <p class="text-purple-200 text-xl mb-8">Your final score: <%= @attempt.total_score %></p>
+        <%= link_to results_quiz_attempt_path(@attempt), class: "bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition" do %>
+          📊 See Results
+        <% end %>
+      </div>
+    <% end %>
+  </turbo-frame>
+</div>

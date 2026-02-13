@@ -1,0 +1,15 @@
+<%= link_to quiz_path(quiz), class: "block bg-white/10 hover:bg-white/15 border border-purple-500/30 rounded-xl p-6 transition transform hover:scale-[1.02]" do %>
+  <h3 class="text-xl font-bold text-white mb-2"><%= quiz.title %></h3>
+  <% if quiz.description.present? %>
+    <p class="text-purple-200 text-sm mb-4 line-clamp-2"><%= quiz.description %></p>
+  <% end %>
+  <div class="flex items-center gap-4 text-sm text-purple-300">
+    <span>📝 <%= pluralize(quiz.question_count, "question") %></span>
+    <span>⏱️ <%= quiz.time_limit_seconds %>s per question</span>
+  </div>
+  <div class="mt-4">
+    <span class="inline-block bg-purple-600/50 text-purple-200 text-xs px-2 py-1 rounded">
+      <%= quiz.scoring_mode.humanize %>
+    </span>
+  </div>
+<% end %>
