@@ -9,7 +9,7 @@
         <% end %>
       </div>
     <% else %>
-      <%= render "quiz_attempts/question_result", response: @response, next_question: @attempt.current_question %>
+      <%= render partial: "quiz_attempts/question_result", formats: [:html], locals: { response: @response, next_question: @attempt.current_question } %>
     <% end %>
   </template>
 </turbo-stream>
