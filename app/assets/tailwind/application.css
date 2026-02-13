@@ -4,3 +4,101 @@
 @source "../../views/**/*.html.erb";
 @source "../../helpers/**/*.rb";
 @source "../../../app/javascript/**/*.js";
+
+/* Kahoot-inspired color theme */
+@theme {
+  --color-kahoot-purple: #46178F;
+  --color-kahoot-purple-dark: #2D0F5C;
+  --color-kahoot-purple-light: #6B3FA0;
+  --color-kahoot-red: #E21B3C;
+  --color-kahoot-red-light: #E83C55;
+  --color-kahoot-blue: #1368CE;
+  --color-kahoot-blue-light: #2E7EE0;
+  --color-kahoot-yellow: #D89E00;
+  --color-kahoot-yellow-light: #F0B800;
+  --color-kahoot-green: #26890C;
+  --color-kahoot-green-light: #32A80F;
+  --color-kahoot-orange: #FF9100;
+  --color-kahoot-pink: #FF3366;
+}
+
+/* Kahoot-style animations */
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(70, 23, 143, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(70, 23, 143, 0.8); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Kahoot-style button hover effects */
+.kahoot-btn {
+  transition: all 0.2s ease;
+  transform-origin: center;
+}
+
+.kahoot-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.kahoot-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Kahoot answer card styles */
+.kahoot-answer {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.kahoot-answer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+  pointer-events: none;
+}
+
+.kahoot-answer:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Timer circle animation */
+.timer-circle {
+  transition: stroke-dashoffset 1s linear;
+}
+

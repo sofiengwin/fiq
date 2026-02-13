@@ -1,8 +1,10 @@
 <%= form_with model: [quiz, question], class: "space-y-6", data: { controller: "question-form" } do |f| %>
   <% if question.errors.any? %>
-    <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
-      <h3 class="text-red-200 font-medium mb-2">Please fix the following errors:</h3>
-      <ul class="list-disc list-inside text-red-300 text-sm">
+    <div class="bg-kahoot-red/20 border-2 border-kahoot-red rounded-2xl p-5 animate-shake">
+      <h3 class="text-white font-bold mb-2 flex items-center gap-2">
+        <span>⚠️</span> Please fix the following errors:
+      </h3>
+      <ul class="list-disc list-inside text-white/80 text-sm space-y-1">
         <% question.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -10,56 +12,66 @@
     </div>
   <% end %>
 
-  <div class="bg-white/10 border border-purple-500/30 rounded-xl p-6 space-y-6">
+  <div class="bg-white/10 border-2 border-kahoot-purple-light/40 rounded-3xl p-8 space-y-6">
     <div>
-      <%= f.label :text, "Question Text", class: "block text-purple-200 font-medium mb-2" %>
-      <%= f.text_area :text, rows: 3, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "Enter your question..." %>
+      <%= f.label :text, class: "block text-white font-bold mb-3 text-lg" do %>
+        <span class="flex items-center gap-2"><span class="text-xl">❓</span> Question Text</span>
+      <% end %>
+      <%= f.text_area :text, rows: 3, class: "w-full bg-white/10 border-2 border-kahoot-purple-light/40 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-kahoot-yellow focus:border-kahoot-yellow font-medium text-lg", placeholder: "Enter your question..." %>
     </div>
 
     <div>
-      <%= f.label :image_url, "Image URL (optional)", class: "block text-purple-200 font-medium mb-2" %>
-      <%= f.text_field :image_url, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "https://example.com/image.jpg" %>
+      <%= f.label :image_url, class: "block text-white font-bold mb-3" do %>
+        <span class="flex items-center gap-2"><span class="text-xl">🖼️</span> Image URL (optional)</span>
+      <% end %>
+      <%= f.text_field :image_url, class: "w-full bg-white/10 border-2 border-kahoot-purple-light/40 rounded-xl px-5 py-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-kahoot-yellow focus:border-kahoot-yellow font-medium", placeholder: "https://example.com/image.jpg" %>
     </div>
 
-    <div class="grid grid-cols-2 gap-6">
-      <div>
-        <%= f.label :points, class: "block text-purple-200 font-medium mb-2" %>
-        <%= f.number_field :points, min: 100, step: 100, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-kahoot-yellow/20 border-2 border-kahoot-yellow rounded-2xl p-5">
+        <%= f.label :points, class: "block text-white font-bold mb-3" do %>
+          <span class="flex items-center gap-2"><span class="text-xl">⭐</span> Points</span>
+        <% end %>
+        <%= f.number_field :points, min: 100, step: 100, class: "w-full bg-white/10 border-2 border-kahoot-yellow/50 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-kahoot-yellow font-bold text-xl text-center" %>
       </div>
 
-      <div>
-        <%= f.label :time_limit_seconds, "Time Limit (seconds, optional)", class: "block text-purple-200 font-medium mb-2" %>
-        <%= f.number_field :time_limit_seconds, min: 5, max: 120, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "Leave blank to use quiz default" %>
+      <div class="bg-kahoot-blue/20 border-2 border-kahoot-blue rounded-2xl p-5">
+        <%= f.label :time_limit_seconds, class: "block text-white font-bold mb-3" do %>
+          <span class="flex items-center gap-2"><span class="text-xl">⏱️</span> Time Limit (seconds)</span>
+        <% end %>
+        <%= f.number_field :time_limit_seconds, min: 5, max: 120, class: "w-full bg-white/10 border-2 border-kahoot-blue/50 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-kahoot-yellow font-bold text-xl text-center", placeholder: "Quiz default" %>
       </div>
     </div>
   </div>
 
   <!-- Answer Options -->
-  <div class="bg-white/10 border border-purple-500/30 rounded-xl p-6">
-    <h3 class="text-xl font-bold text-white mb-4">Answer Options</h3>
-    <p class="text-purple-300 text-sm mb-6">Add 2-6 answer options. Mark at least one as correct.</p>
+  <div class="bg-white/10 border-2 border-kahoot-purple-light/40 rounded-3xl p-8">
+    <h3 class="text-2xl font-black text-white mb-2 flex items-center gap-2">
+      <span>🎯</span> Answer Options
+    </h3>
+    <p class="text-white/60 text-sm mb-6">Add 2-6 answer options. Mark at least one as correct.</p>
 
     <div class="space-y-4" data-question-form-target="answers">
       <%= f.fields_for :answer_options do |answer_f| %>
-        <div class="flex items-center gap-4 bg-white/5 rounded-lg p-4">
+        <div class="flex items-center gap-4 rounded-2xl p-4 <%= kahoot_answer_bg_class(answer_f.object.color || Question::COLORS[answer_f.index % 6]) %>">
           <% color = answer_f.object.color || Question::COLORS[answer_f.index % 6] %>
-          <div class="w-4 h-4 rounded <%= answer_color_class(color) %>"></div>
+          <span class="text-3xl"><%= kahoot_answer_shape(color) %></span>
           
           <%= answer_f.hidden_field :color, value: color %>
           <%= answer_f.hidden_field :order_index, value: answer_f.index %>
           
           <div class="flex-1">
-            <%= answer_f.text_field :text, class: "w-full bg-white/10 border border-purple-500/30 rounded-lg px-3 py-2 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500", placeholder: "Answer text..." %>
+            <%= answer_f.text_field :text, class: "w-full bg-white/20 border-2 border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white font-bold", placeholder: "Answer text..." %>
           </div>
           
-          <label class="flex items-center gap-2 cursor-pointer">
-            <%= answer_f.check_box :is_correct, class: "w-5 h-5 rounded border-purple-500/30 bg-white/10 text-green-500 focus:ring-purple-500" %>
-            <span class="text-purple-300 text-sm">Correct</span>
+          <label class="flex items-center gap-2 cursor-pointer bg-white/20 px-4 py-2 rounded-xl">
+            <%= answer_f.check_box :is_correct, class: "w-6 h-6 rounded border-2 border-white bg-white/10 text-kahoot-green focus:ring-white" %>
+            <span class="text-white font-bold text-sm">Correct</span>
           </label>
           
           <% if question.persisted? && answer_f.object.persisted? %>
             <%= answer_f.check_box :_destroy, { class: "hidden" }, "1", "0" %>
-            <button type="button" onclick="this.previousElementSibling.value='1'; this.closest('div').style.display='none';" class="text-red-400 hover:text-red-300">
+            <button type="button" onclick="this.previousElementSibling.value='1'; this.closest('div').style.display='none';" class="text-white hover:text-white/70 text-2xl">
               🗑️
             </button>
           <% end %>
@@ -68,8 +80,10 @@
     </div>
   </div>
 
-  <div class="flex justify-end gap-4">
-    <%= link_to "Cancel", edit_quiz_path(quiz), class: "bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium transition" %>
-    <%= f.submit question.persisted? ? "Update Question" : "Add Question", class: "bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-medium transition cursor-pointer" %>
+  <div class="flex flex-col sm:flex-row justify-end gap-4">
+    <%= link_to edit_quiz_path(quiz), class: "kahoot-btn bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-center" do %>
+      Cancel
+    <% end %>
+    <%= f.submit (question.persisted? ? "Update Question" : "Add Question"), class: "kahoot-btn bg-kahoot-green hover:bg-kahoot-green-light text-white px-8 py-4 rounded-xl font-bold cursor-pointer shadow-lg" %>
   </div>
 <% end %>

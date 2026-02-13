@@ -1,10 +1,15 @@
 <% content_for(:title) { "Add Question - #{@quiz.title}" } %>
 
 <div class="max-w-4xl mx-auto">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-4xl font-bold text-white">Add Question</h1>
-    <%= link_to edit_quiz_path(@quiz), class: "text-purple-300 hover:text-white transition" do %>
-      ← Back to Quiz
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div>
+      <h1 class="text-4xl md:text-5xl font-black text-white flex items-center gap-3">
+        <span class="text-5xl">➕</span> Add Question
+      </h1>
+      <p class="text-white/70 mt-2">Adding to: <span class="text-kahoot-yellow font-bold"><%= @quiz.title %></span></p>
+    </div>
+    <%= link_to edit_quiz_path(@quiz), class: "kahoot-btn bg-white/10 hover:bg-white/20 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2" do %>
+      <span>←</span> Back to Quiz
     <% end %>
   </div>
   

@@ -2,39 +2,64 @@ module ApplicationHelper
   # Kahoot-style colors for answer options
   def answer_color_class(color)
     case color
-    when "red"    then "bg-red-500"
-    when "blue"   then "bg-blue-500"
-    when "green"  then "bg-green-500"
-    when "yellow" then "bg-yellow-500"
-    when "orange" then "bg-orange-500"
-    when "purple" then "bg-purple-500"
+    when "red"    then "bg-kahoot-red"
+    when "blue"   then "bg-kahoot-blue"
+    when "green"  then "bg-kahoot-green"
+    when "yellow" then "bg-kahoot-yellow"
+    when "orange" then "bg-kahoot-orange"
+    when "purple" then "bg-kahoot-purple"
     else "bg-gray-500"
     end
   end
 
+  # Legacy method for backwards compatibility
   def answer_button_class(color)
-    base = "w-full p-6 rounded-xl font-bold text-white text-xl transition transform hover:scale-[1.02] focus:outline-none focus:ring-4"
+    kahoot_answer_button_class(color)
+  end
+
+  # Kahoot-inspired large answer buttons
+  def kahoot_answer_button_class(color)
+    base = "w-full min-h-[100px] p-6 rounded-2xl font-bold text-white flex items-center transition-all duration-200"
     color_class = case color
-    when "red"    then "bg-red-500 hover:bg-red-400 focus:ring-red-300"
-    when "blue"   then "bg-blue-500 hover:bg-blue-400 focus:ring-blue-300"
-    when "green"  then "bg-green-500 hover:bg-green-400 focus:ring-green-300"
-    when "yellow" then "bg-yellow-500 hover:bg-yellow-400 focus:ring-yellow-300"
-    when "orange" then "bg-orange-500 hover:bg-orange-400 focus:ring-orange-300"
-    when "purple" then "bg-purple-500 hover:bg-purple-400 focus:ring-purple-300"
-    else "bg-gray-500 hover:bg-gray-400 focus:ring-gray-300"
+    when "red"    then "bg-kahoot-red hover:bg-kahoot-red-light"
+    when "blue"   then "bg-kahoot-blue hover:bg-kahoot-blue-light"
+    when "green"  then "bg-kahoot-green hover:bg-kahoot-green-light"
+    when "yellow" then "bg-kahoot-yellow hover:bg-kahoot-yellow-light"
+    when "orange" then "bg-kahoot-orange hover:brightness-110"
+    when "purple" then "bg-kahoot-purple hover:bg-kahoot-purple-light"
+    else "bg-gray-500 hover:bg-gray-400"
     end
     "#{base} #{color_class}"
   end
 
+  # Legacy method for backwards compatibility
   def answer_shape(color)
+    kahoot_answer_shape(color)
+  end
+
+  # Kahoot-style shapes for each answer color
+  def kahoot_answer_shape(color)
     case color
-    when "red"    then "▲"
-    when "blue"   then "◆"
-    when "green"  then "●"
-    when "yellow" then "■"
-    when "orange" then "★"
-    when "purple" then "⬡"
+    when "red"    then "▲"  # Triangle
+    when "blue"   then "◆"  # Diamond
+    when "green"  then "●"  # Circle
+    when "yellow" then "■"  # Square
+    when "orange" then "★"  # Star
+    when "purple" then "⬡"  # Hexagon
     else "○"
+    end
+  end
+
+  # Kahoot background colors with opacity for form answer rows
+  def kahoot_answer_bg_class(color)
+    case color
+    when "red"    then "bg-kahoot-red/80"
+    when "blue"   then "bg-kahoot-blue/80"
+    when "green"  then "bg-kahoot-green/80"
+    when "yellow" then "bg-kahoot-yellow/80"
+    when "orange" then "bg-kahoot-orange/80"
+    when "purple" then "bg-kahoot-purple/80"
+    else "bg-gray-500/80"
     end
   end
 end
