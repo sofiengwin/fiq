@@ -1,0 +1,832 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/transfers?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:50 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '299'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7437'
+      X-Envoy-Upstream-Service-Time:
+      - '7'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=fHybAZ0ls%2BlbkIRq1nQ3aAHdQ%2B8N%2Bs7bgMO8usWWvJ1kQZf6MrJ7z7tAQlFaMqHQDAemuKfS3Ey7A8kplwDR%2FOUG8cdU%2FobLh4KsID4KHxsGlWouJY0ahQ%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb3623dd7883f9-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"transfers","parameters":{"player":"866"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"player":{"id":866,"name":"J.
+        Cuadrado"},"update":"2025-11-10T00:27:37+00:00","transfers":[{"date":"2024-08-26","type":"Free","teams":{"in":{"id":499,"name":"Atalanta","logo":"https:\/\/media.api-sports.io\/football\/teams\/499.png"},"out":{"id":505,"name":"Inter","logo":"https:\/\/media.api-sports.io\/football\/teams\/505.png"}}},{"date":"2023-07-19","type":"Free","teams":{"in":{"id":505,"name":"Inter","logo":"https:\/\/media.api-sports.io\/football\/teams\/505.png"},"out":{"id":496,"name":"Juventus","logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"}}},{"date":"2017-07-01","type":"\u20ac
+        20M","teams":{"in":{"id":496,"name":"Juventus","logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"},"out":{"id":49,"name":"Chelsea","logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"}}},{"date":"2016-08-31","type":"Loan","teams":{"in":{"id":496,"name":"Juventus","logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"},"out":{"id":49,"name":"Chelsea","logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"}}},{"date":"2016-07-01","type":"N\/A","teams":{"in":{"id":49,"name":"Chelsea","logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"},"out":{"id":496,"name":"Juventus","logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"}}},{"date":"2015-08-25","type":"Loan","teams":{"in":{"id":496,"name":"Juventus","logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"},"out":{"id":49,"name":"Chelsea","logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"}}},{"date":"2015-02-02","type":"\u20ac
+        34M","teams":{"in":{"id":49,"name":"Chelsea","logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"},"out":{"id":502,"name":"Fiorentina","logo":"https:\/\/media.api-sports.io\/football\/teams\/502.png"}}},{"date":"2011-08-04","type":"Loan","teams":{"in":{"id":867,"name":"Lecce","logo":"https:\/\/media.api-sports.io\/football\/teams\/867.png"},"out":{"id":494,"name":"Udinese","logo":"https:\/\/media.api-sports.io\/football\/teams\/494.png"}}},{"date":"2009-07-03","type":"N\/A","teams":{"in":{"id":494,"name":"Udinese","logo":"https:\/\/media.api-sports.io\/football\/teams\/494.png"},"out":{"id":1128,"name":"Independiente
+        Medellin","logo":"https:\/\/media.api-sports.io\/football\/teams\/1128.png"}}},{"date":"2025-08-06","type":"Free
+        Transfer","teams":{"in":{"id":801,"name":"Pisa","logo":"https:\/\/media.api-sports.io\/football\/teams\/801.png"},"out":{"id":499,"name":"Atalanta","logo":"https:\/\/media.api-sports.io\/football\/teams\/499.png"}}}]}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:50 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/teams?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:51 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '298'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7436'
+      X-Envoy-Upstream-Service-Time:
+      - '5'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=n%2BVEB5GUXtF%2BBz75CsLn4Bv05k2koEwQeos0wTPUxsrF%2BCCkLEEO8eUy4HvKow6EP2gfsXJJmmBpGkkx4X%2B4QS8KNvL9VCPHGmJPRU7tDP636qcLCe8%3D"}]}'
+      Cf-Ray:
+      - 9cdb36254ed55768-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/teams","parameters":{"player":"866"},"errors":[],"results":10,"paging":{"current":1,"total":1},"response":[{"team":{"id":8,"name":"Colombia","logo":"https:\/\/media.api-sports.io\/football\/teams\/8.png"},"seasons":[2026,2023,2022,2021,2019,2018,2017,2016,2015,2014,2013,2012,2011,2010]},{"team":{"id":801,"name":"Pisa","logo":"https:\/\/media.api-sports.io\/football\/teams\/801.png"},"seasons":[2025]},{"team":{"id":499,"name":"Atalanta","logo":"https:\/\/media.api-sports.io\/football\/teams\/499.png"},"seasons":[2024]},{"team":{"id":505,"name":"Inter","logo":"https:\/\/media.api-sports.io\/football\/teams\/505.png"},"seasons":[2023]},{"team":{"id":496,"name":"Juventus","logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"},"seasons":[2022,2021,2020,2019,2018,2017,2016,2015]},{"team":{"id":49,"name":"Chelsea","logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"},"seasons":[2014]},{"team":{"id":502,"name":"Fiorentina","logo":"https:\/\/media.api-sports.io\/football\/teams\/502.png"},"seasons":[2013,2012]},{"team":{"id":867,"name":"Lecce","logo":"https:\/\/media.api-sports.io\/football\/teams\/867.png"},"seasons":[2011]},{"team":{"id":494,"name":"Udinese","logo":"https:\/\/media.api-sports.io\/football\/teams\/494.png"},"seasons":[2010,2009]},{"team":{"id":1128,"name":"Independiente
+        Medellin","logo":"https:\/\/media.api-sports.io\/football\/teams\/1128.png"},"seasons":[2008]}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:51 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:51 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '297'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7435'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=uSegtziFaZtWYjMMLieiocIhrmOnbDq%2FGeWYRnnRGu2ALFkZ49kgfftKU9U4yGfVnmaEFnbHXW7A%2FPA8ZDc2W6L2EPKM7DOXTcKyEDGLCc1hnGmm7zPtKw%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb36299ca4d916-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:51 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=1128
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:51 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '296'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7434'
+      X-Envoy-Upstream-Service-Time:
+      - '9'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=y5mIaw8r3FbYn7b9rPqLx9Tym2Y7Cm56tfpSo0JTRmqRPWxXk4HrfYDlvFZnDSnAgfvOADFK7z4nWPMsqnIB9gxKpsCDLm4LHjYTgC8f%2BcSSFhVd0MgkPA%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb362b2ef0b872-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"1128"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":1128,"name":"Independiente
+        Medellin","code":"MED","country":"Colombia","founded":1913,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/1128.png"},"venue":{"id":380,"name":"Estadio
+        Atanasio Girardot","address":"Entre carreras 70 y 73 y las Calles 48 y 50","city":"Medell\u00edn","capacity":45943,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/380.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:51 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=494
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:51 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '295'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7433'
+      X-Envoy-Upstream-Service-Time:
+      - '8'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=92nq9JwDnXMU0SwHAxFDw%2BQwnGt7Uq3cZAMRm587tBKkinx6vxqvtA59gNO2t9DXaa81LeZ8wMkkVksdNNS6Rqb9sk8XH2s6iJ1Z2tQUirkJYoNc5Z8%3D"}]}'
+      Cf-Ray:
+      - 9cdb362cffde804a-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"494"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":494,"name":"Udinese","code":"UDI","country":"Italy","founded":1896,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/494.png"},"venue":{"id":20416,"name":"Bluenergy
+        Stadium","address":"Piazza le Repubblica Argentina, 3","city":"Udine","capacity":25952,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/20416.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:51 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=867
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:52 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '294'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7432'
+      X-Envoy-Upstream-Service-Time:
+      - '7'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=L%2BH1Fn8iK9eoczi4VDCluYuBmdmX9dnoLoQh6DHbo765foOh45L9IVImC7qFjpnd3z1XUeLCWJTDx%2B1irzkuVo8kc4qJsAPbR9hxH%2F9Vqwi581vM2z4%3D"}]}'
+      Cf-Ray:
+      - 9cdb362e8e2423f4-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"867"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":867,"name":"Lecce","code":"LEC","country":"Italy","founded":1908,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/867.png"},"venue":{"id":911,"name":"Stadio
+        Comunale Via del Mare","address":"Viale dello Stadio","city":"Lecce","capacity":33876,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/911.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:52 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=49
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:52 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '293'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7431'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=f2ULdBo7R%2FynHHZpu1o9cyPL%2FU8JiY%2FlhDEQNztDPhYYmWxzFYC06lrhc7ck5LTLDC6pErIvFjOxcRqA0xTL%2FjDLV%2BZLgd%2BerEjTvEAHAPbTIhiA3vk%3D"}]}'
+      Cf-Ray:
+      - 9cdb36300ab0c25f-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"49"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":49,"name":"Chelsea","code":"CHE","country":"England","founded":1905,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/49.png"},"venue":{"id":519,"name":"Stamford
+        Bridge","address":"Fulham Road","city":"London","capacity":41841,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/519.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:52 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=496
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:52 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '292'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7430'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FeVY7WmowyjJzMhpdegSwfjz3X%2B77ULXW3Rut4ghFZs%2BOdw5z2N%2Bun6wJlNONC%2BO5aVHYkTRex9i4XXB1nQ%2Fh0V7CU2aHh%2BvDKXL8GmxxjUYAYm1F1c%3D"}]}'
+      Cf-Ray:
+      - 9cdb36318e7d58e5-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"496"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":496,"name":"Juventus","code":"JUV","country":"Italy","founded":1897,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/496.png"},"venue":{"id":909,"name":"Allianz
+        Stadium","address":"Strada Comunale di Altessano 131","city":"Torino","capacity":45666,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/909.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:52 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=505
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:52 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '291'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7429'
+      X-Envoy-Upstream-Service-Time:
+      - '8'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=YfYxs1Ko3%2FC7COjY6ekRcOqI17jxOHuZg%2BL3Y6iCQ8dlOjiMwk%2FsiKyAsCTpgQWWsb5y4PoRREzwFqIy9xO84MyHkyLh28UGKnnuaj7IvXr0J8P5RC7XYQ%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb36330e78b4a4-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"505"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":505,"name":"Inter","code":"INT","country":"Italy","founded":1908,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/505.png"},"venue":{"id":907,"name":"Stadio
+        Giuseppe Meazza","address":"Via Piccolomini 5","city":"Milano","capacity":80018,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/907.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:52 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=499
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:53 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '290'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7428'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Ql3CCKrbegTS9%2FChT4RJutXpwH1qkWKOBMWx6kT6PU0L1Or3QQQTBygDJ2yA9iqYJeXH2LVogrfoJ2coHA7kGsxdMtwGYApIsQL7zhrUG3zS1qR7u0w%3D"}]}'
+      Cf-Ray:
+      - 9cdb36349dc7d325-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"499"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":499,"name":"Atalanta","code":"ATA","country":"Italy","founded":1907,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/499.png"},"venue":{"id":879,"name":"Gewiss
+        Stadium","address":"Viale Giulio Cesare 18","city":"Bergamo","capacity":21300,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/879.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:53 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=801
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 08:31:53 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '289'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7427'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=TaeV7SJtbI82bx4ND8OS0ci9DTm2r8t7JPkuW83AR9QUQBVdsPpc%2FD9O2P4bH%2FiR6q7xkPOkLxH8w0YUAzFBi0YkQpAmsyqRbhecXQr%2BgfOXYB3YH6A%3D"}]}'
+      Cf-Ray:
+      - 9cdb36360c594675-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"801"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":801,"name":"Pisa","code":"PIS","country":"Italy","founded":1909,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/801.png"},"venue":{"id":925,"name":"Arena
+        Garibaldi - Stadio Romeo Anconetani","address":"Via di Gello, 25","city":"Pisa","capacity":17500,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/925.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 08:31:53 GMT
+recorded_with: VCR 6.4.0
