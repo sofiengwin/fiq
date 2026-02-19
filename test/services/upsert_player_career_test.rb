@@ -126,4 +126,62 @@ class UpsertPlayerCareerTest < ActiveSupport::TestCase
       end
     end
   end
+
+  # Tests for player with external_id 886
+  test "creates careers for player with external_id 886" do
+    player_886 = Player.create!(
+      name: "Player 886",
+      external_id: "886",
+      first_name: "Test",
+      last_name: "Player"
+    )
+
+    VCR.use_cassette("upsert_player_career_886", record: :none) do
+      assert_difference -> { Career.count }, 2 do
+        UpsertPlayerCareer.call(player: player_886)
+      end
+
+      player_886.reload
+      assert player_886.careers.any?, "Player 886 should have careers after upsert"
+    end
+  end
+
+  test "player 886 careers have valid durations" do
+    player_886 = Player.create!(
+      name: "Player 886",
+      external_id: "886",
+      first_name: "Test",
+      last_name: "Player"
+    )
+
+    VCR.use_cassette("upsert_player_career_886", record: :none) do
+      UpsertPlayerCareer.call(player: player_886)
+
+      player_886.careers.each do |career|
+        assert career.duration.present?, "Career should have a duration"
+        assert career.duration.begin.present?, "Career should have a start date"
+        assert career.football_team.present?, "Career should be associated with a team"
+      end
+    end
+  end
+
+  test "player 886 does not duplicate careers on second run" do
+    player_886 = Player.create!(
+      name: "Player 886",
+      external_id: "886",
+      first_name: "Test",
+      last_name: "Player"
+    )
+
+    VCR.use_cassette("upsert_player_career_886", record: :none) do
+      UpsertPlayerCareer.call(player: player_886)
+      initial_career_count = player_886.careers.count
+
+      UpsertPlayerCareer.call(player: player_886)
+      player_886.reload
+
+      assert_equal initial_career_count, player_886.careers.count,
+        "Running upsert twice should not create duplicate careers"
+    end
+  end
 end

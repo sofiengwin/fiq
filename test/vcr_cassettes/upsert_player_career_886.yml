@@ -1,0 +1,706 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/transfers?player=886
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:27 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '299'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7398'
+      X-Envoy-Upstream-Service-Time:
+      - '7'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Z5htwKHzxJGiUUt2Q57UNv995%2BmEu%2FnlU%2Bvd93lfs2vdwLWdoptabNxxejbXiMBHw9iSr1%2FEwzqYd%2Bvsh97rPj9a%2BLCyJSrT9n6sbphE74hYViqkTqI%3D"}]}'
+      Cf-Ray:
+      - 9cdb7316eba1b218-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"transfers","parameters":{"player":"886"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"player":{"id":886,"name":"Diogo
+        Dalot"},"update":"2025-07-29T11:42:20+00:00","transfers":[{"date":"2021-07-01","type":"N\/A","teams":{"in":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"out":{"id":489,"name":"AC
+        Milan","logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"}}},{"date":"2020-10-04","type":"Loan","teams":{"in":{"id":489,"name":"AC
+        Milan","logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"},"out":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"}}},{"date":"2018-06-08","type":"N\/A","teams":{"in":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"out":{"id":212,"name":"FC
+        Porto","logo":"https:\/\/media.api-sports.io\/football\/teams\/212.png"}}}]}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:26 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/teams?player=886
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:27 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '298'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7397'
+      X-Envoy-Upstream-Service-Time:
+      - '7'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=04ilNAmSLP2C2%2BQfT1cejQONyAPvo2pX%2B%2BwOnu7uJ31Jol1RBjCUoJXSPtY82FHqRz5xZs4uXTmmyx8azC5izGtXoSU5Wf%2Fo4Q%2FjG5lj2AMuR%2FZ9dzw%3D"}]}'
+      Cf-Ray:
+      - 9cdb73185d2a5a49-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/teams","parameters":{"player":"886"},"errors":[],"results":10,"paging":{"current":1,"total":1},"response":[{"team":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"seasons":[2025,2024,2023,2022,2021,2020,2019,2018]},{"team":{"id":27,"name":"Portugal","logo":"https:\/\/media.api-sports.io\/football\/teams\/27.png"},"seasons":[2024,2023,2022,2021,2020]},{"team":{"id":8216,"name":"Portugal
+        U21","logo":"https:\/\/media.api-sports.io\/football\/teams\/8216.png"},"seasons":[2023,2021,2019]},{"team":{"id":489,"name":"AC
+        Milan","logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"},"seasons":[]},{"team":{"id":10299,"name":"Portugal
+        U20","logo":"https:\/\/media.api-sports.io\/football\/teams\/10299.png"},"seasons":[2019,2017]},{"team":{"id":212,"name":"FC
+        Porto","logo":"https:\/\/media.api-sports.io\/football\/teams\/212.png"},"seasons":[2017]},{"team":{"id":243,"name":"FC
+        Porto B","logo":"https:\/\/media.api-sports.io\/football\/teams\/243.png"},"seasons":[2016]},{"team":{"id":10343,"name":"Portugal
+        U19","logo":"https:\/\/media.api-sports.io\/football\/teams\/10343.png"},"seasons":[2017,2016]},{"team":{"id":7922,"name":"Porto
+        U19","logo":"https:\/\/media.api-sports.io\/football\/teams\/7922.png"},"seasons":[2015]},{"team":{"id":17971,"name":"Portugal
+        U17","logo":"https:\/\/media.api-sports.io\/football\/teams\/17971.png"},"seasons":[2016,2015]}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:27 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=886
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:27 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '297'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7396'
+      X-Envoy-Upstream-Service-Time:
+      - '7'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=e0HYfgghW5TP3pN29IJekDWAZWKvdu%2FlcuTokgQQ9w5lOrjhFsmTOrDMs%2Bk3ZJ7mVfXZhhLHwiIegsg1igVG8gzK8%2BmAcEWpL22h9%2FTnzfR71z5oMhEdcw%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb7319d836d214-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"886"},"errors":[],"results":11,"paging":{"current":1,"total":1},"response":[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:27 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=27
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:27 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '296'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7395'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=o6AJvz5E2pWmc2t%2FVSt8KVAZqprDYU5hhZyXm8YhVmPzFkLX%2FqxpTzGzzLJqYYC31fsCK%2BgSsJFy%2BRUbVbkQ7lXwC5uvirabYTqGycUzjAty238IXv08Jw%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb731b4c071447-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"27"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":27,"name":"Portugal","code":"POR","country":"Portugal","founded":1914,"national":true,"logo":"https:\/\/media.api-sports.io\/football\/teams\/27.png"},"venue":{"id":1262,"name":"Est\u00e1dio
+        Nacional","address":null,"city":"Jamor, Oeiras","capacity":38000,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/1262.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:27 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=33
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:27 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '295'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7394'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=R8jSbkrnwHnVBJuJlziaIp009IlpaXGeR1RzFeqQSylUDswD%2F59wLHB9CGampWvpcTqcotJc6a5ZySqF1kjObxxBaZmuVODQJ81ZqVJRD5aNvez1Omk%3D"}]}'
+      Cf-Ray:
+      - 9cdb731cd8182c3d-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"33"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":33,"name":"Manchester
+        United","code":"MUN","country":"England","founded":1878,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"venue":{"id":556,"name":"Old
+        Trafford","address":"Sir Matt Busby Way","city":"Manchester","capacity":76212,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/556.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:27 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=489
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:28 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '294'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7393'
+      X-Envoy-Upstream-Service-Time:
+      - '6'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=XffQA5XM7N1Qyt3w5sA2pHftCpsyqow8nNPeAf0I6X9oQclvIEadBNTSqFydEeSxtNbsifOKK%2FviSnkhE8nU78qi6vHniyP4KGk8wqoSW65MeZq7QQd%2FXg%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb731e6c58c6c5-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"489"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":489,"name":"AC
+        Milan","code":"MIL","country":"Italy","founded":1899,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"},"venue":{"id":907,"name":"Stadio
+        Giuseppe Meazza","address":"Via Piccolomini 5","city":"Milano","capacity":80018,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/907.png"}}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:28 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/transfers?player=886
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:28 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '293'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7392'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=CFRUolFU7qGlRVURrLTLIl8raOBjS0hWShYFNTmmlGIDMyK%2BWFzzDExtFGgGK4WJAB2y6u9ojXAQHHisPV%2FheT9z0Us2OKF5W%2FeD%2FPjUprZLeeg8USU%3D"}]}'
+      Cf-Ray:
+      - 9cdb731feb018d3e-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"transfers","parameters":{"player":"886"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"player":{"id":886,"name":"Diogo
+        Dalot"},"update":"2025-07-29T11:42:20+00:00","transfers":[{"date":"2021-07-01","type":"N\/A","teams":{"in":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"out":{"id":489,"name":"AC
+        Milan","logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"}}},{"date":"2020-10-04","type":"Loan","teams":{"in":{"id":489,"name":"AC
+        Milan","logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"},"out":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"}}},{"date":"2018-06-08","type":"N\/A","teams":{"in":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"out":{"id":212,"name":"FC
+        Porto","logo":"https:\/\/media.api-sports.io\/football\/teams\/212.png"}}}]}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:28 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/teams?player=886
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:28 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '292'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7391'
+      X-Envoy-Upstream-Service-Time:
+      - '5'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FbN%2BMI3TynlJ5kR24lRI895tjYoqm5tLwqDPdGPAF8xeUA%2BupTyfiMkvObXMFVMQYSaDKjC5z3OcWjhjRLTfnwf2GtdcqHyKC1SefmNuAATDvxXgbl3TpQ%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb73214ec70de0-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/teams","parameters":{"player":"886"},"errors":[],"results":10,"paging":{"current":1,"total":1},"response":[{"team":{"id":33,"name":"Manchester
+        United","logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"seasons":[2025,2024,2023,2022,2021,2020,2019,2018]},{"team":{"id":27,"name":"Portugal","logo":"https:\/\/media.api-sports.io\/football\/teams\/27.png"},"seasons":[2024,2023,2022,2021,2020]},{"team":{"id":8216,"name":"Portugal
+        U21","logo":"https:\/\/media.api-sports.io\/football\/teams\/8216.png"},"seasons":[2023,2021,2019]},{"team":{"id":489,"name":"AC
+        Milan","logo":"https:\/\/media.api-sports.io\/football\/teams\/489.png"},"seasons":[]},{"team":{"id":10299,"name":"Portugal
+        U20","logo":"https:\/\/media.api-sports.io\/football\/teams\/10299.png"},"seasons":[2019,2017]},{"team":{"id":212,"name":"FC
+        Porto","logo":"https:\/\/media.api-sports.io\/football\/teams\/212.png"},"seasons":[2017]},{"team":{"id":243,"name":"FC
+        Porto B","logo":"https:\/\/media.api-sports.io\/football\/teams\/243.png"},"seasons":[2016]},{"team":{"id":10343,"name":"Portugal
+        U19","logo":"https:\/\/media.api-sports.io\/football\/teams\/10343.png"},"seasons":[2017,2016]},{"team":{"id":7922,"name":"Porto
+        U19","logo":"https:\/\/media.api-sports.io\/football\/teams\/7922.png"},"seasons":[2015]},{"team":{"id":17971,"name":"Portugal
+        U17","logo":"https:\/\/media.api-sports.io\/football\/teams\/17971.png"},"seasons":[2016,2015]}]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:28 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=886
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 14 Feb 2026 09:13:28 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '300'
+      X-Ratelimit-Remaining:
+      - '291'
+      X-Ratelimit-Requests-Limit:
+      - '7500'
+      X-Ratelimit-Requests-Remaining:
+      - '7390'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=RRN0R1fvIqOFKBl%2BauRt%2BRf344KoAfwWCIzViuUndrwMXz9kEJ6eTQnTOEIOTpFJRulqdSseTiXVzuBqj0qcZPjFDanB9tK5uETHxZhE1tUCbYKOiFNVow%3D%3D"}]}'
+      Cf-Ray:
+      - 9cdb7322bcb7adab-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"886"},"errors":[],"results":11,"paging":{"current":1,"total":1},"response":[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]}'
+  recorded_at: Sat, 14 Feb 2026 09:13:28 GMT
+recorded_with: VCR 6.4.0
