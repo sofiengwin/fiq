@@ -21,7 +21,11 @@ class Player < ApplicationRecord
 
   def format_duration(range)
     start_date = range.begin&.strftime("%Y") || "?"
-    end_date = range.end&.strftime("%Y") || "Present"
+    end_date = if range.end.nil? || range.end.is_a?(Float)
+      "Present"
+    else
+      range.end.strftime("%Y")
+    end
     "#{start_date} - #{end_date}"
   end
 end

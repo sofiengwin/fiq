@@ -3,7 +3,8 @@ class Career < ApplicationRecord
   belongs_to :football_team
 
   validates :duration, presence: true
-  validate :no_overlapping_careers
+  validates :appearances, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validate :no_overlapping_careers_for_same_team
 
   # Scope to find teammates with overlapping careers
   scope :overlapping_teammates, ->(min_years: 2) {
@@ -27,15 +28,18 @@ class Career < ApplicationRecord
 
   private
 
-  def no_overlapping_careers
-    return unless player && duration
+  # Only prevent overlapping careers for the SAME team
+  # Players can be at different teams simultaneously (e.g., Porto B + Porto first team)
+  def no_overlapping_careers_for_same_team
+    return unless player && duration && football_team_id
 
     overlapping = player.careers
+      .where(football_team_id: football_team_id)
       .where.not(id: id)
       .where("duration && ?::daterange", "[#{duration.begin},#{duration.end})")
 
     if overlapping.exists?
-      errors.add(:duration, "overlaps with an existing career")
+      errors.add(:duration, "overlaps with an existing career at the same team")
     end
   end
 end

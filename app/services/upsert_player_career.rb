@@ -16,17 +16,9 @@ class UpsertPlayerCareer < ApplicationService
     sorted_transfers = transfers.sort_by { |t| t[:date] }
     fmt_transfers = format_transfers(sorted_transfers)
 
-    # Identify first and last team from /players/teams endpoint
-    # API returns "seasons" as an array, use min/max to find first/last
-    sorted_career_teams = career_teams.sort_by { |t| t[:seasons]&.min || t[:season] || 0 }
-    first_team_data = sorted_career_teams.first
-    last_team_data = sorted_career_teams.last
-
-    # Add first team (youth/academy) if not in transfers
-    add_first_team(first_team_data, sorted_transfers) if first_team_data
-
-    # Add last/current team if not in transfers
-    add_last_team(last_team_data, sorted_transfers) if last_team_data && last_team_data != first_team_data
+    # Process career teams with season gap detection
+    # This creates separate career entries for non-consecutive seasons
+    process_career_teams_with_gaps(career_teams)
 
     # Process transfers (preferred source for middle career)
     merged_transfers = merge_consecutive_careers(fmt_transfers)
@@ -56,10 +48,11 @@ class UpsertPlayerCareer < ApplicationService
         )
         next if exact_match
 
-        # Check if creating this career would overlap with ANY existing career
-        # This can happen due to data inconsistencies from the API
-        overlaps_with_any = @player.careers.any? { |c| careers_overlap?(c.duration, new_duration) }
-        next if overlaps_with_any
+        # Only check for overlap with careers at the SAME team
+        overlaps_with_same_team = @player.careers
+          .where(football_team_id: team.id)
+          .any? { |c| careers_overlap?(c.duration, new_duration) }
+        next if overlaps_with_same_team
 
         @player.careers.create!(
           football_team_id: team.id,
@@ -93,64 +86,74 @@ class UpsertPlayerCareer < ApplicationService
     FootballClient.call(end_point: "teams?id=#{team_id}")
   end
 
-  def add_first_team(first_team_data, sorted_transfers)
-    first_team_api_id = first_team_data.dig(:team, :id)
-    return unless first_team_api_id
+  # Process career teams with gap detection to split non-consecutive seasons
+  # e.g., seasons [2016, 2017, 2020, 2021] becomes two career entries:
+  # - 2016-2018 (first spell)
+  # - 2020-2022 (second spell, e.g., after loan return)
+  def process_career_teams_with_gaps(career_teams)
+    career_teams.each do |team_data|
+      team_api_id = team_data.dig(:team, :id)
+      next unless team_api_id
 
-    # Check if this team already exists in transfers
-    transfer_team_ids = sorted_transfers.map { |t| t.dig(:teams, :in, :id) }.compact
-    return if transfer_team_ids.include?(first_team_api_id)
+      seasons = team_data[:seasons]
+      next if seasons.blank?
 
-    team = find_or_create_team(
-      team_external_id: first_team_api_id,
-      team_name: first_team_data.dig(:team, :name)
-    )
-    return unless team
+      team = find_or_create_team(
+        team_external_id: team_api_id,
+        team_name: team_data.dig(:team, :name)
+      )
+      next unless team
 
-    # End date is the first transfer date (when player left)
-    first_transfer_date = sorted_transfers.first ? fmt_date(sorted_transfers.first[:date]) : nil
-    first_season = first_team_data[:seasons]&.min || first_team_data[:season]
-    return unless first_season.is_a?(Integer)
-    start_date = Date.new(first_season, 7, 1)
+      # Group consecutive seasons
+      season_groups = group_consecutive_seasons(seasons)
 
-    return if @player.careers.exists?(football_team_id: team.id)
-
-    @player.careers.create!(
-      football_team_id: team.id,
-      duration: start_date..first_transfer_date
-    )
+      season_groups.each do |group|
+        create_career_for_season_group(team, group)
+      end
+    end
   end
 
-  def add_last_team(last_team_data, sorted_transfers)
-    last_team_api_id = last_team_data.dig(:team, :id)
-    return unless last_team_api_id
+  # Groups consecutive seasons together
+  # [2016, 2017, 2020, 2021] → [[2016, 2017], [2020, 2021]]
+  def group_consecutive_seasons(seasons)
+    return [] if seasons.blank?
 
-    # Check if this team already exists in transfers
-    transfer_team_ids = sorted_transfers.map { |t| t.dig(:teams, :in, :id) }.compact
-    return if transfer_team_ids.include?(last_team_api_id)
+    seasons.sort.chunk_while { |a, b| b - a == 1 }.to_a
+  end
 
-    team = find_or_create_team(
-      team_external_id: last_team_api_id,
-      team_name: last_team_data.dig(:team, :name)
-    )
-    return unless team
+  def create_career_for_season_group(team, season_group)
+    return if season_group.blank?
 
-    # Start from last transfer date or season start, no end date (still at club)
-    last_transfer_date = sorted_transfers.last ? fmt_date(sorted_transfers.last[:date]) : nil
-    last_season = last_team_data[:seasons]&.min || last_team_data[:season]
-    start_date = if last_transfer_date
-      last_transfer_date
-    elsif last_season.is_a?(Integer)
-      Date.new(last_season, 7, 1)
+    first_season = season_group.min
+    last_season = season_group.max
+
+    # Start date is July 1 of first season (typical season start)
+    start_date = Date.new(first_season, 7, 1)
+
+    # End date depends on whether this is the current season
+    active_seasons = fetch_active_seasons
+    is_current = active_seasons.present? && last_season >= active_seasons.max
+
+    end_date = if is_current
+      nil # Still at club
     else
-      return
+      Date.new(last_season + 1, 6, 30) # End of season
     end
 
-    return if @player.careers.exists?(football_team_id: team.id)
+    new_duration = start_date..end_date
+
+    # Check if this exact career already exists
+    return if @player.careers.exists?(football_team_id: team.id, duration: new_duration)
+
+    # Only check for overlap with careers at the SAME team
+    overlaps_with_same_team = @player.careers
+      .where(football_team_id: team.id)
+      .any? { |c| careers_overlap?(c.duration, new_duration) }
+    return if overlaps_with_same_team
 
     @player.careers.create!(
       football_team_id: team.id,
-      duration: start_date..nil
+      duration: new_duration
     )
   end
 
