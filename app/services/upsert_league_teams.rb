@@ -36,3 +36,5 @@ class UpsertLeagueTeams < ApplicationService
     end
   end
 end
+
+# UpsertLeagueTeams.call(league_id: 39, season: 2023, competition_name: "Premier League")

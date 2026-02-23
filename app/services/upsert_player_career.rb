@@ -1,4 +1,15 @@
 class UpsertPlayerCareer < ApplicationService
+  RESERVE_TEAM_PATTERNS = [
+    /\sB$/i,           # Porto B, Barcelona B
+    /\sII$/i,          # German reserve teams
+    /\sU\d{2}$/i,      # U21, U23
+    /\sCastilla$/i,    # Real Madrid Castilla
+    /\sReserves?$/i,   # Manchester United Reserves
+    /\sYouth$/i,       # Youth teams
+    /\sJuvenil$/i,     # Spanish youth
+    /\sJunior/i       # Junior teams
+  ].freeze
+
   def initialize(player:, team: nil)
     @player = player
     @team = team
@@ -90,10 +101,18 @@ class UpsertPlayerCareer < ApplicationService
   # e.g., seasons [2016, 2017, 2020, 2021] becomes two career entries:
   # - 2016-2018 (first spell)
   # - 2020-2022 (second spell, e.g., after loan return)
+  def senior_team?(team_name)
+    return true if team_name.blank?
+    RESERVE_TEAM_PATTERNS.none? { |pattern| team_name.match?(pattern) }
+  end
+
   def process_career_teams_with_gaps(career_teams)
     career_teams.each do |team_data|
       team_api_id = team_data.dig(:team, :id)
       next unless team_api_id
+
+      team_name = team_data.dig(:team, :name)
+      next unless senior_team?(team_name)
 
       seasons = team_data[:seasons]
       next if seasons.blank?
@@ -182,6 +201,7 @@ class UpsertPlayerCareer < ApplicationService
     transfers.each_with_index do |transfer, index|
       destination_team = transfer[:teams][:in]
       next if destination_team.nil?
+      next unless senior_team?(destination_team[:name])
 
       start_date = fmt_date(transfer[:date])
       end_date = if index == transfers.length - 1
