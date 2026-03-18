@@ -13,7 +13,6 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile.dev
     command: bin/dev
     volumes:
       - .:/rails
@@ -24,6 +23,27 @@ services:
       - db
     environment:
       DATABASE_URL: postgres://fiq_full:password@db:5432/fiq_full_development
+      DB_HOST: db
+      POSTGRES_USER: fiq_full
+      POSTGRES_PASSWORD: password
+      RAILS_ENV: development
+    tty: true
+    stdin_open: true
+
+  solid_queue:
+    build:
+      context: .
+    command: bin/jobs
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://fiq_full:password@db:5432/fiq_full_development
+      DB_HOST: db
+      POSTGRES_USER: fiq_full
+      POSTGRES_PASSWORD: password
       RAILS_ENV: development
     tty: true
     stdin_open: true

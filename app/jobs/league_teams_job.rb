@@ -35,3 +35,6 @@ class LeagueTeamsJob < ApplicationJob
     end
   end
 end
+
+
+# LeagueTeamsJob.perform_later(39, 2026, "Premier League")

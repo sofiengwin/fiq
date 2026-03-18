@@ -23,5 +23,6 @@ module FiqFull
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.solid_queue.logger = ActiveSupport::Logger.new(STDOUT)
   end
 end

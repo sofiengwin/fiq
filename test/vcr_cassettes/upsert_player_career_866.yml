@@ -1057,4 +1057,1721 @@ http_interactions:
       encoding: ASCII-8BIT
       string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
   recorded_at: Sat, 14 Feb 2026 08:31:59 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=8
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:15 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '93'
+      X-Envoy-Upstream-Service-Time:
+      - '12'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Af%2FYmatxiVKqAdVSG4vww9akch%2BELaSMo7k2%2BPiIsHv%2Bvz5pt4i5OsNHiE7Kkrs6YMrDpC23sqHw7KQlHzGdLrcMcnM3q02YRlxVQ9J12IDKGAegCnw%3D"}]}'
+      Cf-Ray:
+      - 9da86de44f692ae2-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"8"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":8,"name":"Colombia","code":"COL","country":"Colombia","founded":1924,"national":true,"logo":"https:\/\/media.api-sports.io\/football\/teams\/8.png"},"venue":{"id":366,"name":"Estadio
+        Metropolitano Roberto Mel\u00e9ndez","address":"Intersecci\u00f3n de la Avenida
+        Circunvalar con la Calle 45","city":"Barranquilla","capacity":49612,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/366.png"}}]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:15 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:15 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '8'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '92'
+      X-Envoy-Upstream-Service-Time:
+      - '8'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2F7%2BiDq5eyzOjDTKHKQnEm3Km4BrOqY%2FD7ZqymXlMxKF0HTaH%2FFdz2Kg8MZg5i%2BAk%2BE44Yfq7WX77HyGGu%2FwPdlMy7s9cVbhrARTzPPS%2FRZmBtuBdDISwoQ%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86de7ba79adab-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:15 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:15 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '7'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '91'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=3WHliSh0QUdU%2FMHTaX02Qd9tr4FSM8w%2FMwc4%2F3mG3K7Eadv7JRWqF2hlsqli9GuXJY1RSZVnDeSKVYJeIw1HzNLJH7GUZRXiBJBWl6w%2FLcs%2BSlHgeJc%3D"}]}'
+      Cf-Ray:
+      - 9da86de9fce79bc6-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:15 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:16 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '6'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '90'
+      X-Envoy-Upstream-Service-Time:
+      - '5'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Gj32ktE118RBwBf4pfMR1dPoPt0Vx431NtoaeGwqGXAyrfBKf8w6lhGzwrqRhUkFvwHRs6N6SmN%2BamQH%2BrmIILItjE%2FUMbBu9uqL%2BhYdQ1eSGoGrI5I%3D"}]}'
+      Cf-Ray:
+      - 9da86deb7ea12c3d-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:16 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:16 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '5'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '89'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=CRVsq%2B9tZWYkoGShqWMS4O3xpcMgXyoBm6SeCZTb91wQXygeCXbQoXjgKUww9jbcjbCkH6Fnew6ZxbX%2FztOddYmtgplSz78k67QU5jL7c2PyYrvMfqI%3D"}]}'
+      Cf-Ray:
+      - 9da86decfedc23f4-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:16 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:16 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '4'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '88'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Dv8JGO%2FNb4eT4bRjS1WZWak7lZV9cjASE3NmZ%2BX5G%2FsALzS2XD%2BhAYEPvUpH3eOC8JYNVRGoV7yUQiGrhiHrVGbJ7%2BGklSBUG8N7c0qDMCMx46cSO2c%3D"}]}'
+      Cf-Ray:
+      - 9da86dee784abe80-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:16 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:16 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '3'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '87'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=KFS%2FPX8267njcPH0Kz31aEI%2FXVaXZDVKiotsNfQSvCqm%2FgslFpMbifjkrx0VaPNzR7Sf5y05f2Nv6%2FzJcmnsiCYr6KcYJG2AWp2as4qVDVR9vKSGurQ%3D"}]}'
+      Cf-Ray:
+      - 9da86deffac75d34-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:16 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '2'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '86'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=3e2XPQ6bCdCaNsOYgDgHE5ciRx32NT4agcf3XoFrBuGT8bRT4Td7BevJoFBal7sRBhaZXfxeHZstce4qMGhrBLge8zxHqa6fDA3PYT1f3Eq5QbG9yE8%3D"}]}'
+      Cf-Ray:
+      - 9da86df16d501e19-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:16 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '1'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '85'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=95IwmfzJv5i1Klc5c5rvSfc%2B1PVAbwIzfDuxQwf58VGp7ZD22hTf07iwyaz3O8OOdaLs5dZiNQshvogqz84IPaytPRTG8ORtiqpidpdsT8P77LiXg%2FCtdw%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86df2f9c470f4-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:17 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '0'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '84'
+      X-Envoy-Upstream-Service-Time:
+      - '5'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=rOMM8v%2BFwhirbTvmJoiS0FEAgcz8mQxntUNqU8u4qLZv9SmzHu%2FTb4e5NSle8hje6min7rG8D8OPDPTTvYlxSPfIBrDd%2BucU3sKBinkYNUswFHvTFAE%3D"}]}'
+      Cf-Ray:
+      - 9da86df47fce7daf-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":[],"results":19,"paging":{"current":1,"total":1},"response":[2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:17 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:17 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=GhApSruiXU4%2BjgB20vFTV8rQSFzHh0oSi3Fngdhhb2OnN1I8p3NuYBjvgehxrbnA8DAuV3fCsC%2BRb3aUGP5hks3sw%2FR8RJaiy5rxCKs4bMzoSZrZsaY%3D"}]}'
+      Cf-Ray:
+      - 9da86df60e40295d-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:17 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:18 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=rp8rrcAXoVcnVLWEPAjddzUYPO48s9xiR5NpsyzpLe31dU4ZF%2BKTxGBcwAVpBiv0ME03qPuRaFGtBsyZoI%2FZ5AXB53w4cA9FHY2fesCU%2F%2F%2Bf9IzJvHM%3D"}]}'
+      Cf-Ray:
+      - 9da86df9ca51eef3-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:18 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:18 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=q%2BM1Ig0Ze1UZIRkywlfZt%2FvKm9Wug5pTYvuif2zwq7%2BjhAYaU3nKYTfEI%2BxzCZOlDlSFCMp%2Fsvo%2FeQCue5Qs4vIWfNrvyEccnW%2FuefKyaC52vE1tT6o%3D"}]}'
+      Cf-Ray:
+      - 9da86dfb792ac12d-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:18 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:18 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=yaInXnAV2hLCoc%2BfCvwXOcnIBRosE4gBPn0agDpTlIdab1An1oEA9cCvXCxnbC8382rkz%2BHwAKQeGRV9ZwfrDI4TIGtj2kzIzjbyNrKiwkEHO%2B2Itd8%3D"}]}'
+      Cf-Ray:
+      - 9da86dfcdd8fd85f-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:18 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:19 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZCtIfCUM6fW9yfqPHDvn8XSjkpkYQwUBQmqYrBDVnxSujcet%2FypDY6MJXQyFH%2BnMVR8Vd2RlHRZ4XPQkEnfYa67ozNgBmJCdR%2Fu%2FUj3NNELYsR8lxBU%3D"}]}'
+      Cf-Ray:
+      - 9da86dfe3fd6be80-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:19 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:19 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=sOGpK3M%2B%2B071UKNUgHW2vag%2FPN97dwPYo%2BI4bqXWofTVIcaD%2FtaLV8DiCoh%2BFZXepOndyHn3BA8gUW1dfqYhEzo5Rf8flrauGKeaZvgTBHz7cYCzYAE%3D"}]}'
+      Cf-Ray:
+      - 9da86dffb95fb3af-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:19 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:19 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=LMm6tRKbm5Y3mr7GFnWLa6YVAZtbOIYIs1Lf%2BGZVkjJQrWx3BXgUBjM9MWc%2FqAgswKntmkAG%2FzEyHtx8qpK8f1LGs7fcsj9BlR%2BBSdfUG%2BjUNbhPIDP5PA%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86e013cb05c9d-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:19 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:19 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Hk7kxUXrKm2LKbwIz9%2FDhSZLYKBXTCFzaqd3flqKVB5k56T%2F4NoU4SfrxLvkfT2s4vcSmOgFbv7aB5%2FGZe4B0Hc5f11cYvmOUFtLpv2%2BwkM1jc64XNQ%3D"}]}'
+      Cf-Ray:
+      - 9da86e02bf81497b-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:19 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:20 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=IimgjmIQOJV6ser8DAieeCrlDMeJ3EszA99%2BN8auXQ6FQN20bhYbzp7z9gtUbixPFOS3Ow1m7nzPZ6eOlSdf%2B2jOVX3VpNKiLEFYxiMaRIHxyq9PYbHW0g%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86e041e002194-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:19 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:20 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=v9pcFOWhS7fziIJa7qbpBQtIT%2FuGt8i90LLBRAUCfNmT9xx1JbRF6SEYMA5ClGMEA7Ug8wAYipW5VQ4i2LkEbS4iFn%2Bo%2BkcUhrigixOYUzZf9ywrlJ7ihA%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86e05acfb6e1b-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:20 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:20 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=VxtM0Ig7%2B%2BSjAl49GxcuKizzQ73UlX11%2B4X0yxjmqqC66bKUYVdL1A6sjFvWV%2Bci4flRVw3f2XNYsWegGzmfrYM1xCcP1pBPP3aq8E%2BhtQmj7uvmQcGjYg%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86e072d17b646-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:20 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:20 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=7SHj1N7IbQXuFX%2FKbQVJnV9w8rIqexwvoOS50l5qTeg2cXkB4nAPFSE%2BG9JVEa0YFQwiE71vhsAwwUcowyfBl%2F%2FuWkuB4ClG9LYHwNcRi0Op4q4%2F3oI%3D"}]}'
+      Cf-Ray:
+      - 9da86e08bd875768-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:20 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/players/seasons?player=866
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Mar 2026 06:16:20 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '10'
+      X-Ratelimit-Remaining:
+      - '9'
+      X-Ratelimit-Requests-Limit:
+      - '100'
+      X-Ratelimit-Requests-Remaining:
+      - '99'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=U6eqa36CYQVOIra9UBHoTaCwcRcNCDfkW0L881kU18x%2F8XjnVjh2butAs9qz8LQJhUFaAwTQsyFOc6jugdLfjhGx%2BBom1rd26Gt4yP8aTheJoOmqUBWpOA%3D%3D"}]}'
+      Cf-Ray:
+      - 9da86e0a2a475fbe-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
+        many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
+  recorded_at: Wed, 11 Mar 2026 06:16:20 GMT
 recorded_with: VCR 6.4.0

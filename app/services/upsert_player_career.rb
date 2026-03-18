@@ -16,61 +16,18 @@ class UpsertPlayerCareer < ApplicationService
   end
 
   def call
-    transfers_data = fetch_player_transfers
     career_teams_data = fetch_player_teams
-
-    transfers = extract_transfers(transfers_data)
     career_teams = career_teams_data || []
 
-    return if transfers.blank? && career_teams.blank?
+    return if career_teams.blank?
 
-    sorted_transfers = transfers.sort_by { |t| t[:date] }
-    fmt_transfers = format_transfers(sorted_transfers)
+    # Build transfer date lookup from transfers endpoint
+    @transfer_dates = build_transfer_date_lookup
+    pp @transfer_dates
 
     # Process career teams with season gap detection
-    # This creates separate career entries for non-consecutive seasons
+    # Uses transfer dates to determine precise start_date and end_date
     process_career_teams_with_gaps(career_teams)
-
-    # Process transfers (preferred source for middle career)
-    merged_transfers = merge_consecutive_careers(fmt_transfers)
-
-    merged_transfers.each do |transfer|
-      team = find_or_create_team(
-        team_external_id: transfer[:id],
-        team_name: transfer[:name]
-      )
-      next if team.nil? || transfer[:start_date].nil?
-
-      new_duration = transfer[:start_date]..transfer[:end_date]
-
-      # Find existing career that overlaps with this transfer period for the SAME team
-      existing_career = @player.careers
-        .where(football_team_id: team.id)
-        .find { |c| careers_overlap?(c.duration, new_duration) }
-
-      if existing_career
-        # Update duration if transfer data provides more info
-        existing_career.update!(duration: new_duration)
-      else
-        # Check if this exact career period already exists
-        exact_match = @player.careers.find_by(
-          football_team_id: team.id,
-          duration: new_duration
-        )
-        next if exact_match
-
-        # Only check for overlap with careers at the SAME team
-        overlaps_with_same_team = @player.careers
-          .where(football_team_id: team.id)
-          .any? { |c| careers_overlap?(c.duration, new_duration) }
-        next if overlaps_with_same_team
-
-        @player.careers.create!(
-          football_team_id: team.id,
-          duration: new_duration
-        )
-      end
-    end
 
     @player.careers.reload
   rescue StandardError => e
@@ -97,15 +54,87 @@ class UpsertPlayerCareer < ApplicationService
     FootballClient.call(end_point: "teams?id=#{team_id}")
   end
 
-  # Process career teams with gap detection to split non-consecutive seasons
-  # e.g., seasons [2016, 2017, 2020, 2021] becomes two career entries:
-  # - 2016-2018 (first spell)
-  # - 2020-2022 (second spell, e.g., after loan return)
+  # Build a lookup of transfer dates by team_id
+  # Returns { team_id => { arrivals: [dates], departures: [dates] } }
+  def build_transfer_date_lookup
+    transfers_data = fetch_player_transfers
+    transfers = extract_transfers(transfers_data)
+    return {} if transfers.blank?
+
+    lookup = Hash.new { |h, k| h[k] = { arrivals: [], departures: [] } }
+
+    transfers.each do |transfer|
+      date = fmt_date(transfer[:date])
+      next unless date
+
+      team_in = transfer.dig(:teams, :in)
+      team_out = transfer.dig(:teams, :out)
+
+      if team_in && team_in[:id]
+        lookup[team_in[:id]][:arrivals] << date
+      end
+
+      if team_out && team_out[:id]
+        lookup[team_out[:id]][:departures] << date
+      end
+    end
+
+    # Sort dates for each team
+    lookup.each_value do |dates|
+      dates[:arrivals].sort!
+      dates[:departures].sort!
+    end
+
+    lookup
+  end
+
+  # Find the best start_date from transfers for a given team and season range
+  def find_transfer_start_date(team_id, first_season)
+    return nil unless @transfer_dates[team_id]
+
+    arrivals = @transfer_dates[team_id][:arrivals]
+    return nil if arrivals.blank?
+
+    season_start = Date.new(first_season, 7, 1)
+    season_end = Date.new(first_season + 1, 6, 30)
+
+    # Find arrival closest to or just before the first season
+    # Look for arrivals within a reasonable window (1 year before season start to season end)
+    window_start = season_start - 1.year
+    relevant_arrivals = arrivals.select { |d| d >= window_start && d <= season_end }
+
+    # Return the closest arrival to season start
+    relevant_arrivals.min_by { |d| (d - season_start).abs }
+  end
+
+  # Find the best end_date from transfers for a given team and season range
+  def find_transfer_end_date(team_id, last_season)
+    return nil unless @transfer_dates[team_id]
+
+    departures = @transfer_dates[team_id][:departures]
+    return nil if departures.blank?
+
+    season_end = Date.new(last_season + 1, 6, 30)
+
+    # Find departure closest to or just after the last season end
+    # Look for departures within a reasonable window (season start to 1 year after)
+    window_start = Date.new(last_season, 7, 1)
+    window_end = season_end + 1.year
+    relevant_departures = departures.select { |d| d >= window_start && d <= window_end }
+
+    # Return the closest departure to season end
+    relevant_departures.min_by { |d| (d - season_end).abs }
+  end
+
   def senior_team?(team_name)
     return true if team_name.blank?
     RESERVE_TEAM_PATTERNS.none? { |pattern| team_name.match?(pattern) }
   end
 
+  # Process career teams with gap detection to split non-consecutive seasons
+  # e.g., seasons [2016, 2017, 2020, 2021] becomes two career entries:
+  # - 2016-2018 (first spell)
+  # - 2020-2022 (second spell, e.g., after loan return)
   def process_career_teams_with_gaps(career_teams)
     career_teams.each do |team_data|
       team_api_id = team_data.dig(:team, :id)
@@ -127,7 +156,7 @@ class UpsertPlayerCareer < ApplicationService
       season_groups = group_consecutive_seasons(seasons)
 
       season_groups.each do |group|
-        create_career_for_season_group(team, group)
+        create_career_for_season_group(team, team_api_id, group)
       end
     end
   end
@@ -140,14 +169,15 @@ class UpsertPlayerCareer < ApplicationService
     seasons.sort.chunk_while { |a, b| b - a == 1 }.to_a
   end
 
-  def create_career_for_season_group(team, season_group)
+  def create_career_for_season_group(team, team_api_id, season_group)
     return if season_group.blank?
 
     first_season = season_group.min
     last_season = season_group.max
 
-    # Start date is July 1 of first season (typical season start)
-    start_date = Date.new(first_season, 7, 1)
+    # Try to get precise dates from transfers, fall back to season defaults
+    start_date = find_transfer_start_date(team_api_id, first_season) ||
+                 Date.new(first_season, 7, 1)
 
     # End date depends on whether this is the current season
     active_seasons = fetch_active_seasons
@@ -156,7 +186,8 @@ class UpsertPlayerCareer < ApplicationService
     end_date = if is_current
       nil # Still at club
     else
-      Date.new(last_season + 1, 6, 30) # End of season
+      find_transfer_end_date(team_api_id, last_season) ||
+        Date.new(last_season + 1, 6, 30) # End of season
     end
 
     new_duration = start_date..end_date
@@ -194,80 +225,6 @@ class UpsertPlayerCareer < ApplicationService
 
   def fetch_active_seasons
     FootballClient.call(end_point: "players/seasons?player=#{@player.external_id}")
-  end
-
-  def format_transfers(transfers)
-    fmt_transfers = []
-    transfers.each_with_index do |transfer, index|
-      destination_team = transfer[:teams][:in]
-      next if destination_team.nil?
-      next unless senior_team?(destination_team[:name])
-
-      start_date = fmt_date(transfer[:date])
-      end_date = if index == transfers.length - 1
-        latest_career_end_date
-      else
-        fmt_date(transfers[index + 1][:date])
-      end
-
-      next if end_date && start_date && end_date < start_date
-
-      fmt_transfers << destination_team.merge(
-        start_date: start_date,
-        end_date: end_date
-      )
-    end
-    fmt_transfers
-  end
-
-  def merge_consecutive_careers(transfers)
-    return [] if transfers.empty?
-    merged = []
-
-    # Sort all transfers by start_date first to process chronologically
-    sorted_transfers = transfers.sort_by { |t| t[:start_date] }
-
-    # Track which transfers have been processed
-    processed = Array.new(sorted_transfers.length, false)
-
-    sorted_transfers.each_with_index do |transfer, i|
-      next if processed[i]
-
-      current = transfer.dup
-      processed[i] = true
-
-      # Look for consecutive transfers to the same team (no gap)
-      sorted_transfers.each_with_index do |next_transfer, j|
-        next if j <= i || processed[j]
-        next if next_transfer[:id] != current[:id]
-
-        current_end = current[:end_date]
-        next_start = next_transfer[:start_date]
-
-        # Only merge if they are truly consecutive (same end/start date or 1 day gap)
-        # This means the player stayed at the club without going elsewhere
-        if current_end && next_start && (next_start - current_end).abs <= 1
-          # Extend the current career
-          current[:end_date] = next_transfer[:end_date]
-          processed[j] = true
-        end
-      end
-
-      merged << current
-    end
-
-    merged.sort_by { |t| t[:start_date] }
-  end
-
-  def latest_career_end_date
-    active_seasons = fetch_active_seasons
-    return nil if active_seasons.blank?
-
-    if Time.zone.now.year >= active_seasons.last
-      nil
-    else
-      Date.new(active_seasons.last, 12, 31)
-    end
   end
 
   def country(name:)

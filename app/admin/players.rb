@@ -8,7 +8,7 @@ ActiveAdmin.register Player do
   end
 
   action_item :fetch_career, only: :show do
-    link_to "Fetch Career", fetch_career_admin_player_path(resource), method: :post
+    button_to "Fetch Career", fetch_career_admin_player_path(resource), method: :post
   end
 
   index do

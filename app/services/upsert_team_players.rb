@@ -11,6 +11,8 @@ class UpsertTeamPlayers < ApplicationService
     return [] if players_data.blank?
 
     players_data.map do |player_params|
+      player_profile = fetch_player_profile(player_params[:id])
+      next if player_profile.blank? || player_profile[0].nil?
       player = Player.find_or_create_by(external_id: player_params[:id]) do |p|
         p.name = player_params[:name]
         p.position = player_params[:position]
@@ -33,5 +35,9 @@ class UpsertTeamPlayers < ApplicationService
 
   def fetch_players
     FootballClient.call(end_point: "players/squads?team=#{@team.external_id}")
+  end
+
+  def fetch_player_profile(player_id)
+    FootballClient.call(end_point: "players/profile?player=#{player_id}")
   end
 end

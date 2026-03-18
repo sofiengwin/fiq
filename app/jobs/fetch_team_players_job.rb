@@ -7,7 +7,8 @@ class FetchTeamPlayersJob < ApplicationJob
 
     # Chain: queue career fetch for each player
     players.each do |player|
-      FetchPlayerCareerJob.perform_later(player.id, team_id)
+      # FetchPlayerCareerJob.perform_later(player.id, team_id)
+      FetchPlayerCareerBraveJob.perform_later(player.id)
     end
   end
 end
