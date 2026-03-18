@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: sofiencloud/fiq
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: "fiq"
+fullnameOverride: "fiq"
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+sidekiq:
+  enabled: false
+  replicaCount: 1
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+
+env:
+  RAILS_ENV: production
+  RACK_ENV: production
+  RAILS_LOG_TO_STDOUT: "true"
+  RAILS_SERVE_STATIC_FILES: "true"
+  DATABASE_URL: "postgresql://user:password@postgres-host:5432/fiq_production"
+  REDIS_URL_SIDEKIQ: "redis://redis-host:6379/0"
+  API_FOOTBALL_KEY: "your-api-football-key"
+  SECRET_KEY_BASE: "your-secret-key-base"
+
