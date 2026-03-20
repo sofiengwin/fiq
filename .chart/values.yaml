@@ -36,8 +36,8 @@ env:
   RACK_ENV: production
   RAILS_LOG_TO_STDOUT: "true"
   RAILS_SERVE_STATIC_FILES: "true"
-  DATABASE_URL: "postgresql://user:password@postgres-host:5432/fiq_production"
-  REDIS_URL_SIDEKIQ: "redis://redis-host:6379/0"
-  API_FOOTBALL_KEY: "your-api-football-key"
   SECRET_KEY_BASE: "your-secret-key-base"
+  FIQ_FULL_DATABASE_USERNAME: "your-database-username"
+  FIQ_FULL_DATABASE_PASSWORD: "your-database-password"
+  DB_HOST: "fiq.godwinogbara.com"
 
