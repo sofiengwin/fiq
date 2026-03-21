@@ -96,9 +96,6 @@ production:
   primary: &primary_production
     <<: *default
     database: fiq_full_production
-    username: <%= ENV["FIQ_FULL_DATABASE_USERNAME"] %>
-    password: <%= ENV["FIQ_FULL_DATABASE_PASSWORD"] %>
-    host: <%= ENV.fetch("DB_HOST", "db") %>
   cache:
     <<: *primary_production
     database: fiq_full_production_cache

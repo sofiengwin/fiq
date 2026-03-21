@@ -37,7 +37,4 @@ env:
   RAILS_LOG_TO_STDOUT: "true"
   RAILS_SERVE_STATIC_FILES: "true"
   SECRET_KEY_BASE: "your-secret-key-base"
-  FIQ_FULL_DATABASE_USERNAME: "your-database-username"
-  FIQ_FULL_DATABASE_PASSWORD: "your-database-password"
-  DB_HOST: "fiq.godwinogbara.com"
 
