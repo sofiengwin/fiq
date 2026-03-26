@@ -22,7 +22,7 @@ class FootballClient < ApplicationService
 
   def call
     response = JSON.parse(make_request.body, symbolize_names: true)
-    raise StandardError, response[:error] if response[:error]
+    raise StandardError, response[:errors] if response[:errors].present?
     response[:response]
   rescue StandardError => e
     Rails.logger.error("FootballClient Error: #{e.message}")
