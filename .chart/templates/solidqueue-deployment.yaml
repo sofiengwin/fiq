@@ -1,34 +1,34 @@
-{{- if .Values.sidekiq.enabled }}
+{{- if .Values.solidqueue.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "fiq.fullname" . }}-sidekiq
+  name: {{ include "fiq.fullname" . }}-solidqueue
   labels:
     {{- include "fiq.labels" . | nindent 4 }}
-    app.kubernetes.io/component: sidekiq
+    app.kubernetes.io/component: solidqueue
 spec:
-  replicas: {{ .Values.sidekiq.replicaCount }}
+  replicas: {{ .Values.solidqueue.replicaCount }}
   selector:
     matchLabels:
       {{- include "fiq.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: sidekiq
+      app.kubernetes.io/component: solidqueue
   template:
     metadata:
       labels:
         {{- include "fiq.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: sidekiq
+        app.kubernetes.io/component: solidqueue
     spec:
       containers:
-        - name: sidekiq
+        - name: solidqueue
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["bundle", "exec", "sidekiq"]
+          command: ["bin/jobs"]
           env:
           {{- range $key, $value := .Values.env }}
           - name: {{ $key }}
             value: {{ $value | quote }}
           {{- end }}
-          {{- with .Values.sidekiq.resources }}
+          {{- with .Values.solidqueue.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}

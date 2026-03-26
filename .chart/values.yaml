@@ -20,8 +20,8 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-sidekiq:
-  enabled: false
+solidqueue:
+  enabled: true
   replicaCount: 1
   resources: {}
     # limits:
