@@ -12,6 +12,6 @@ class FetchTeamPlayersJob < ApplicationJob
   end
 end
 
-teams.each do |team|
-  FetchTeamPlayersJob.perform_later(team.id)
-end
+# teams.each do |team|
+#   FetchTeamPlayersJob.perform_later(team.id)
+# end
