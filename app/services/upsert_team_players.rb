@@ -38,6 +38,6 @@ class UpsertTeamPlayers < ApplicationService
   end
 
   def fetch_player_profile(player_id)
-    FootballClient.call(end_point: "players/profile?player=#{player_id}")
+    FootballClient.call(end_point: "players/profiles?player=#{player_id}")
   end
 end
