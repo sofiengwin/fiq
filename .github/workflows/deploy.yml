@@ -19,9 +19,27 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: sofiencloud/fiq:latest
+          tags: sofiencloud/fiq:${{ github.sha }}
       - name: Get and echo short commit SHA
         run: |
           full_sha="${{ github.sha }}"
           short_sha="${full_sha:0:7}"
           echo "Short commit SHA: ${short_sha}"
+
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/argocd
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password ${{ secrets.ARGOCD_PASSWORD }} \
+            --insecure
+
+      - name: Update image tag in ArgoCD
+        run: |
+          argocd app set fiq \
+            --parameter image.tag=${{ github.sha }}

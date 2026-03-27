@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: sofiencloud/fiq
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "latest"
 
 nameOverride: "fiq"
