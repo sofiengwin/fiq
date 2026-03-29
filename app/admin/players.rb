@@ -1,5 +1,5 @@
 ActiveAdmin.register Player do
-  permit_params :name, :position, :external_id, :first_name, :last_name, :age, :appearances
+  permit_params :name, :external_id, :first_name, :last_name
 
   # Custom action to fetch career data
   member_action :fetch_career, method: :post do
@@ -15,9 +15,9 @@ ActiveAdmin.register Player do
     selectable_column
     id_column
     column :name
-    column :position
+    column :first_name
+    column :last_name
     column :external_id
-    column :created_at
     actions
   end
 

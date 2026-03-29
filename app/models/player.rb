@@ -5,6 +5,10 @@ class Player < ApplicationRecord
   validates :name, presence: true
   validates :external_id, uniqueness: true, allow_nil: true
 
+  def self.ransackable_attributes(auth_object = nil)
+    [ "age", "appearances", "created_at", "external_id", "first_name", "id", "id_value", "last_name", "name", "position", "updated_at" ]
+  end
+
   def journey
     careers.includes(:football_team).order("careers.duration").map { |career|
       team_name = career.football_team.name
