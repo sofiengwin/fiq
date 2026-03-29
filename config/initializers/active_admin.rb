@@ -71,13 +71,13 @@ ActiveAdmin.setup do |config|
   #
   # This setting changes the method which Active Admin calls
   # within the application controller.
-  # For development, skip authentication
-  config.authentication_method = false
-  config.current_user_method = false
+  # # For development, skip authentication
+  # config.authentication_method = false
+  # config.current_user_method = false
 
   # For production with Devise:
-  # config.authentication_method = :authenticate_admin_user!
-  # config.current_user_method = :current_admin_user
+  config.authentication_method = :authenticate_admin!
+  config.current_user_method = :current_admin_user
 
   # == User Authorization
   #
@@ -126,13 +126,13 @@ ActiveAdmin.setup do |config|
   # will call the method to return the path.
   #
   # Default:
-  config.logout_link_path = :destroy_admin_user_session_path
+  config.logout_link_path = :new_session_path
 
   # This setting changes the http method used when rendering the
   # link. For example :get, :delete, :put, etc..
   #
   # Default:
-  # config.logout_link_method = :get
+  config.logout_link_method = :delete
 
   # == Root
   #

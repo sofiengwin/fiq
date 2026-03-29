@@ -8,12 +8,17 @@ class ApplicationController < ActionController::Base
 
   # ActiveAdmin authentication
   def authenticate_admin!
-    unless current_user&.admin?
+    pp "Authenticating admin user..."
+    pp current_admin_user
+    pp Current.user
+    unless current_admin_user&.admin?
       redirect_to root_path, alert: "You are not authorized to access this page."
     end
   end
 
-  def current_user
-    Current.user
+  def current_admin_user
+    if authenticated? && Current.user&.admin?
+      Current.user
+    end
   end
 end

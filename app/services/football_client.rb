@@ -5,11 +5,13 @@ require "openssl"
 class FootballClient < ApplicationService
   extend Limiter::Mixin
 
+  class FootballClientRateLimitExceeded < StandardError; end
+
   # Rate limit: 300 requests per minute (skip in test environment)
   unless Rails.env.test?
-    limit_method(:call, rate: 300, interval: 60, balanced: true) do
+    limit_method(:call, rate: 450, interval: 60, balanced: true) do
       Rails.logger.info("FootballClient rate limit exceeded")
-      raise StandardError, "Rate limit exceeded"
+      raise FootballClientRateLimitExceeded, "Rate limit exceeded"
     end
   end
 

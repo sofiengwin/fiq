@@ -17,4 +17,11 @@ class ApplicationJob < ActiveJob::Base
     Rails.logger.error "[#{job.class.name}] Failed: #{e.message}"
     raise
   end
+
+  def wait_time
+    last_execution = SolidQueue::ScheduledExecution.last
+    return Time.current if last_execution.nil?
+
+    last_execution.scheduled_at + 30.seconds
+  end
 end

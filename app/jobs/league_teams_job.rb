@@ -12,7 +12,8 @@ class LeagueTeamsJob < ApplicationJob
 
     # Chain: queue player fetch for each team
     teams.each do |team|
-      FetchTeamPlayersJob.perform_later(team.id)
+      pp wait_time
+      FetchTeamPlayersJob.set(wait_until: wait_time).perform_later(team.id)
     end
 
     # Recursively process next season
@@ -37,4 +38,5 @@ class LeagueTeamsJob < ApplicationJob
 end
 
 
-# LeagueTeamsJob.perform_later(39, 2026, "Premier League")
+# LeagueTeamsJob.perform_later(39, 2000, "Premier League")
+# LeagueTeamsJob.perform_later(140, 2026, "La Liga")
