@@ -4,6 +4,14 @@ class Country < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
 
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id code id_value name updated_at]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[football_teams competitions]
+  end
+
   # Configuration constant for leagues to track
   START = {
     "England" => {

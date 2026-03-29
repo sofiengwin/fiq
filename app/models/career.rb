@@ -6,6 +6,14 @@ class Career < ApplicationRecord
   validates :appearances, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validate :no_overlapping_careers_for_same_team
 
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id player_id football_team_id duration appearances created_at updated_at]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[football_team player]
+  end
+
   # Scope to find teammates with overlapping careers
   scope :overlapping_teammates, ->(min_years: 2) {
     joins(%(
