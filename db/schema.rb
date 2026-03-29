@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_19_060228) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_29_214226) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -153,6 +153,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_19_060228) do
     t.index ["quiz_attempt_id"], name: "index_responses_on_quiz_attempt_id"
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "admin_since"
+    t.datetime "created_at", null: false
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
   add_foreign_key "answer_options", "questions"
   add_foreign_key "careers", "football_teams"
   add_foreign_key "careers", "players"
@@ -164,4 +182,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_19_060228) do
   add_foreign_key "response_answers", "responses"
   add_foreign_key "responses", "questions"
   add_foreign_key "responses", "quiz_attempts"
+  add_foreign_key "sessions", "users"
 end
