@@ -47,7 +47,7 @@ gem "image_processing", "~> 1.2"
 gem "ruby-limiter"
 
 # Admin UI - Note: ActiveAdmin's assets are served directly via its engine
-gem "activeadmin", "~> 3.2"
+gem "activeadmin", "~> 3.5"
 gem "dartsass-rails"  # For compiling ActiveAdmin SCSS
 gem "devise"
 
