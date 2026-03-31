@@ -1,7 +1,7 @@
 class LeagueTeamsJob < ApplicationJob
   queue_as :team_sync
 
-  retry_on FootballClient::FootballClientRateLimitExceeded, wait: :exponentially_longer, attempts: 10
+  retry_on FootballClient::FootballClientRateLimitExceeded, wait: 30.seconds, attempts: 10
 
 
   def perform(external_league_id, season, competition_name)
@@ -15,7 +15,6 @@ class LeagueTeamsJob < ApplicationJob
 
     # Chain: queue player fetch for each team
     teams.each do |team|
-      pp wait_time
       FetchTeamPlayersJob.set(wait_until: wait_time).perform_later(team.id)
     end
 
@@ -43,3 +42,4 @@ end
 
 # LeagueTeamsJob.perform_later(39, 2000, "Premier League")
 # LeagueTeamsJob.perform_later(140, 2000, "La Liga")
+# LeagueTeamsJob.perform_later(61, 2000, "Ligue 1")

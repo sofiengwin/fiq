@@ -1,7 +1,7 @@
 class FetchTeamPlayersJob < ApplicationJob
   queue_as :team_sync
 
-  retry_on FootballClient::FootballClientRateLimitExceeded, wait: :exponentially_longer, attempts: 10
+  retry_on FootballClient::FootballClientRateLimitExceeded, wait: 30.seconds, attempts: 10
 
   def perform(team_id)
     team = FootballTeam.find(team_id)

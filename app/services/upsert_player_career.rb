@@ -166,7 +166,7 @@ class UpsertPlayerCareer < ApplicationService
   def group_consecutive_seasons(seasons)
     return [] if seasons.blank?
 
-    seasons.sort.chunk_while { |a, b| b - a == 1 }.to_a
+    seasons.map(&:to_i).sort.chunk_while { |a, b| b - a == 1 }.to_a
   end
 
   def create_career_for_season_group(team, team_api_id, season_group)
