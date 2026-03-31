@@ -1,6 +1,9 @@
 class LeagueTeamsJob < ApplicationJob
   queue_as :team_sync
 
+  retry_on FootballClient::FootballClientRateLimitExceeded, wait: :exponentially_longer, attempts: 10
+
+
   def perform(external_league_id, season, competition_name)
     return if Time.zone.now.year < season
 
@@ -39,4 +42,4 @@ end
 
 
 # LeagueTeamsJob.perform_later(39, 2000, "Premier League")
-# LeagueTeamsJob.perform_later(140, 2026, "La Liga")
+# LeagueTeamsJob.perform_later(140, 2000, "La Liga")

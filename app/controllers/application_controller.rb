@@ -8,17 +8,16 @@ class ApplicationController < ActionController::Base
 
   # ActiveAdmin authentication
   def authenticate_admin!
-    pp "Authenticating admin user..."
-    pp current_admin_user
-    pp Current.user
-    unless current_admin_user&.admin?
+    # Ensure session is set for ActiveAdmin controllers
+    Current.session ||= Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
+
+    unless Current.user&.admin?
       redirect_to root_path, alert: "You are not authorized to access this page."
     end
   end
 
   def current_admin_user
-    if authenticated? && Current.user&.admin?
-      Current.user
-    end
+    Current.session ||= Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
+    Current.user if Current.user&.admin?
   end
 end

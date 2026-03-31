@@ -1,8 +1,13 @@
 class FetchCareerAppearancesJob < ApplicationJob
   queue_as :default
 
+  retry_on FootballClient::FootballClientRateLimitExceeded, wait: :exponentially_longer, attempts: 10
+
   def perform(player_id)
     player = Player.find(player_id)
+
+    return unless has_no_career_data?(player)
+
     career_teams_data = fetch_player_teams(player)
 
     return if career_teams_data.blank?
@@ -45,5 +50,9 @@ class FetchCareerAppearancesJob < ApplicationJob
     end
 
     total
+  end
+
+  def has_no_career_data?(player)
+    player.careers.one? && player.careers.first.duration.nil?
   end
 end
