@@ -20,6 +20,12 @@ ActiveAdmin.register Competition do
     column :teams_count do |comp|
       comp.football_teams.count
     end
+    column :teams_count do |comp|
+      comp.football_teams.count
+    end
+    column :players_count do |comp|
+      comp.players.count
+    end
     actions
   end
 

@@ -1,6 +1,7 @@
 class Country < ApplicationRecord
   has_many :football_teams, dependent: :destroy
   has_many :competitions, dependent: :destroy
+  has_many :players, through: :football_teams
 
   validates :name, presence: true, uniqueness: true
 

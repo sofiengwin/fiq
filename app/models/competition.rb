@@ -1,6 +1,7 @@
 class Competition < ApplicationRecord
   belongs_to :country
   has_and_belongs_to_many :football_teams
+  has_many :players, through: :football_teams
 
   validates :name, presence: true
   validates :external_id, uniqueness: true, allow_nil: true

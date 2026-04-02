@@ -12,12 +12,16 @@ class ApplicationController < ActionController::Base
     Current.session ||= Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
 
     unless Current.user&.admin?
-      redirect_to root_path, alert: "You are not authorized to access this page."
+      redirect_to new_session_path, alert: "You are not authorized to access this page."
     end
   end
 
   def current_admin_user
     Current.session ||= Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
     Current.user if Current.user&.admin?
+  end
+
+  def access_denied(exception)
+    redirect_to new_session_path, alert: "You are not authorized to perform this action."
   end
 end

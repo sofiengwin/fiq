@@ -43,3 +43,5 @@ end
 # LeagueTeamsJob.perform_later(39, 2000, "Premier League")
 # LeagueTeamsJob.perform_later(140, 2000, "La Liga")
 # LeagueTeamsJob.perform_later(61, 2000, "Ligue 1")
+# LeagueTeamsJob.perform_later(78, 2000, "Bundesliga")
+# LeagueTeamsJob.perform_later(135, 2000, "Serie A")

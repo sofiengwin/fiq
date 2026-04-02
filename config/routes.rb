@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resource :session
+  get "logout", to: "sessions#logout", as: :logout
   resources :passwords, param: :token
   ActiveAdmin.routes(self)
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

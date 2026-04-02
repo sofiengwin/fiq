@@ -38,3 +38,8 @@ class UpsertLeagueTeams < ApplicationService
 end
 
 # UpsertLeagueTeams.call(league_id: 39, season: 2023, competition_name: "Premier League")
+#
+#
+# 500.times do |i|
+#   FootballClient.call(end_point: "teams?league=#{39}&season=#{2023}")
+# end
