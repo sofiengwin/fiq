@@ -24,8 +24,8 @@ class FootballClient < ApplicationService
 
   def call
     response = JSON.parse(make_request.body, symbolize_names: true)
-    if response[:errors]
-      if response[:errors][:rateLimit]
+    if response[:errors].present?
+      if response[:errors][:rateLimit].present?
         raise FootballClientRateLimitExceeded, "API rate limit exceeded: #{response[:errors][:rateLimit]}"
       else
         raise StandardError, "API error: #{response[:errors]}"
