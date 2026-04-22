@@ -44,6 +44,25 @@ class Country < ApplicationRecord
         league_id: 135,
         season: 2023
       }
+    },
+    "Belgium" => {
+      "Belgian Pro League" => {
+        league_id: 144,
+        season: 2023
+      }
+    },
+    "Portugal" => {
+      "Primeira Liga" => {
+        league_id: 94,
+        season: 2023
+      }
+    },
+    "Brazil" => {
+      "Brasil Serie A" => {
+        league_id: 71,
+        season: 2023
+      }
     }
+
   }.freeze
 end

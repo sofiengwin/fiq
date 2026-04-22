@@ -34,6 +34,49 @@ class Career < ApplicationRecord
     where("duration && ?::daterange", "[#{date_range.begin},#{date_range.end})")
   }
 
+  # ============================================================
+  # Quiz-related scopes
+  # ============================================================
+
+  # Find all players who played with a specific player
+  scope :teammates_of, ->(player_id) {
+    joins(%(
+      INNER JOIN careers c2 ON careers.football_team_id = c2.football_team_id
+      AND careers.player_id != c2.player_id
+      AND careers.duration && c2.duration
+    ))
+    .where("c2.player_id = ?", player_id)
+    .select("DISTINCT careers.player_id")
+  }
+
+  # Find teammates with configurable minimum overlap duration (1-4 years)
+  scope :teammates_with_min_overlap, ->(player_id, min_years: 1) {
+    min_years = min_years.clamp(1, 4)
+    min_days = min_years * 365
+
+    joins(%(
+      INNER JOIN careers c2 ON careers.football_team_id = c2.football_team_id
+      AND careers.player_id != c2.player_id
+      AND careers.duration && c2.duration
+      AND (LEAST(UPPER(careers.duration), UPPER(c2.duration)) -
+           GREATEST(LOWER(careers.duration), LOWER(c2.duration))) >= #{min_days}
+    ))
+    .where("c2.player_id = ?", player_id)
+  }
+
+  # Find the common teams where two players overlapped
+  scope :common_teams_between, ->(player1_id, player2_id) {
+    select("careers.football_team_id,
+            GREATEST(LOWER(careers.duration), LOWER(c2.duration)) as overlap_start,
+            LEAST(UPPER(careers.duration), UPPER(c2.duration)) as overlap_end")
+    .joins(%(
+      INNER JOIN careers c2 ON careers.football_team_id = c2.football_team_id
+      AND c2.player_id = #{ActiveRecord::Base.connection.quote(player2_id)}
+      AND careers.duration && c2.duration
+    ))
+    .where(player_id: player1_id)
+  }
+
   private
 
   # Only prevent overlapping careers for the SAME team
