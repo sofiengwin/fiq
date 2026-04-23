@@ -55,6 +55,7 @@ module QuizGenerators
           ON c1.football_team_id = c2.football_team_id
           AND c1.player_id < c2.player_id
           AND c1.duration && c2.duration
+          AND NOT upper_inf(c1.duration) AND NOT upper_inf(c2.duration)
         WHERE c1.duration IS NOT NULL AND c2.duration IS NOT NULL
         GROUP BY c1.football_team_id
         HAVING COUNT(DISTINCT c1.player_id) >= #{@group_size * 2}
@@ -71,6 +72,7 @@ module QuizGenerators
     def has_enough_overlapping_players?(team)
       careers = Career.where(football_team_id: team.id)
                       .where.not(duration: nil)
+                      .where("NOT upper_inf(duration)")
                       .includes(:player).to_a
 
       graph = build_overlap_graph(careers)
@@ -82,6 +84,7 @@ module QuizGenerators
       # Get all players at this team with finite duration data
       base_query = Career.where(football_team_id: team.id)
                          .where.not(duration: nil)
+                         .where("NOT upper_inf(duration)")
 
       base_query = base_query.where.not(player_id: @exclude_player_ids) if @exclude_player_ids.any?
 

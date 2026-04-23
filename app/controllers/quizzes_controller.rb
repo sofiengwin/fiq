@@ -9,6 +9,13 @@ class QuizzesController < ApplicationController
   end
 
   def show
+    pp "params"
+    pp "params"
+    pp "params"
+    pp "params"
+    pp params
+    pp params
+    pp @quiz
   end
 
   def new
