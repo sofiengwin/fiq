@@ -8,7 +8,7 @@ class FootballTeam < ApplicationRecord
   validates :external_id, uniqueness: true, allow_nil: true
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[code country_id created_at external_id id name updated_at]
+    %w[code country_id created_at external_id id name updated_at national]
   end
 
   def self.ransackable_associations(auth_object = nil)

@@ -17,6 +17,8 @@ ActiveAdmin.register FootballTeam do
     column :name
     column :code
     column :country
+    column :external_id
+    column :national
     column :players_count do |team|
       team.players.count
     end
@@ -29,6 +31,7 @@ ActiveAdmin.register FootballTeam do
       row :code
       row :country
       row :external_id
+      row :national
       row :competitions do |team|
         team.competitions.map(&:name).join(", ")
       end
