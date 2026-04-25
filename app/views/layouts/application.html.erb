@@ -31,6 +31,7 @@
           🎮 FIQ
         <% end %>
         <div class="flex items-center gap-4">
+          <%= link_to "⚡ Quick Play", play_path, class: "bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-medium transition" %>
           <%= link_to "Browse Quizzes", quizzes_path, class: "text-purple-200 hover:text-white transition" %>
           <%= link_to "Create Quiz", new_quiz_path, class: "bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg font-medium transition" %>
         </div>

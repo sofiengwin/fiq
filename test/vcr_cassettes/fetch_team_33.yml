@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=33
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 25 Apr 2026 06:19:28 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '450'
+      X-Ratelimit-Remaining:
+      - '449'
+      X-Ratelimit-Requests-Limit:
+      - '75000'
+      X-Ratelimit-Requests-Remaining:
+      - '74996'
+      X-Envoy-Upstream-Service-Time:
+      - '9'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cf-Ray:
+      - 9f1b3c8059215fbe-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"33"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":33,"name":"Manchester
+        United","code":"MUN","country":"England","founded":1878,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/33.png"},"venue":{"id":556,"name":"Old
+        Trafford","address":"Sir Matt Busby Way","city":"Manchester","capacity":76212,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/556.png"}}]}'
+  recorded_at: Sat, 25 Apr 2026 06:19:29 GMT
+recorded_with: VCR 6.4.0

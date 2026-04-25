@@ -999,4 +999,76 @@ http_interactions:
       encoding: ASCII-8BIT
       string: '{"get":"players\/seasons","parameters":{"player":"886"},"errors":[],"results":11,"paging":{"current":1,"total":1},"response":[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025]}'
   recorded_at: Wed, 11 Mar 2026 06:17:21 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=212
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 23 Apr 2026 08:54:38 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '450'
+      X-Ratelimit-Remaining:
+      - '439'
+      X-Ratelimit-Requests-Limit:
+      - '75000'
+      X-Ratelimit-Requests-Remaining:
+      - '74989'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cf-Ray:
+      - 9f0ba5096aa22c3d-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"212"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":212,"name":"FC
+        Porto","code":"POR","country":"Portugal","founded":1893,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/212.png"},"venue":{"id":1286,"name":"Est\u00e1dio
+        Do Drag\u00e3o","address":"Via Futebol Clube do Porto","city":"Porto","capacity":50399,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/1286.png"}}]}'
+  recorded_at: Thu, 23 Apr 2026 08:54:38 GMT
 recorded_with: VCR 6.4.0

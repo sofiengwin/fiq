@@ -1,0 +1,58 @@
+<% content_for(:title) { "Results - FIQ" } %>
+
+<div class="max-w-4xl mx-auto">
+  <!-- Results Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-5xl font-bold text-white mb-4">🎉 Quiz Complete!</h1>
+    
+    <!-- Score Circle -->
+    <div class="inline-flex items-center justify-center w-48 h-48 rounded-full bg-gradient-to-br <%= score_gradient_class(@percentage) %> mb-6">
+      <div class="text-center">
+        <div class="text-5xl font-bold text-white"><%= @percentage %>%</div>
+        <div class="text-white/80 text-sm">Score</div>
+      </div>
+    </div>
+
+    <div class="text-3xl font-bold text-white mb-2"><%= @total_score %> points</div>
+    <p class="text-purple-200 text-xl">
+      <%= @correct_count %> of <%= @total_questions %> correct
+    </p>
+  </div>
+
+  <!-- Question Breakdown -->
+  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-6 mb-8">
+    <h2 class="text-2xl font-bold text-white mb-6">Question Breakdown</h2>
+    
+    <div class="space-y-4">
+      <% @responses.each_with_index do |response, index| %>
+        <div class="flex items-center gap-4 p-4 rounded-lg <%= response["is_correct"] ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30' %>">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center <%= response["is_correct"] ? 'bg-green-500' : 'bg-red-500' %> text-white font-bold">
+            <%= response["is_correct"] ? '✓' : '✗' %>
+          </div>
+          <div class="flex-1">
+            <p class="text-white font-medium">Q<%= index + 1 %>: <%= response["prompt"] %></p>
+            <% if response["answer_hint"] %>
+              <p class="text-sm <%= response["is_correct"] ? 'text-green-300' : 'text-red-300' %>">
+                Answer: <%= response["answer_hint"] %>
+              </p>
+            <% end %>
+          </div>
+          <div class="flex-shrink-0 text-right">
+            <span class="text-white font-bold"><%= response["points"] %></span>
+            <span class="text-purple-300 text-sm">pts</span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-col sm:flex-row justify-center gap-4">
+    <%= link_to play_path, class: "bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-xl font-bold text-lg text-center transition" do %>
+      🔄 Play Again
+    <% end %>
+    <%= link_to quizzes_path, class: "bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg text-center transition border border-purple-500/30" do %>
+      📚 Browse Saved Quizzes
+    <% end %>
+  </div>
+</div>

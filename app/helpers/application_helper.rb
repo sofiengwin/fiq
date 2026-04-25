@@ -37,4 +37,14 @@ module ApplicationHelper
     else "○"
     end
   end
+
+  # Score-based gradient for results display
+  def score_gradient_class(percentage)
+    case percentage
+    when 80..100 then "from-green-500 to-green-700"
+    when 60..79  then "from-blue-500 to-blue-700"
+    when 40..59  then "from-yellow-500 to-yellow-700"
+    else "from-red-500 to-red-700"
+    end
+  end
 end

@@ -11,6 +11,7 @@ class UpsertTeam < ApplicationService
     team = FootballTeam.find_or_create_by!(external_id: @external_id) do |t|
       t.name = @name
       t.code = @code
+      t.national = @national
       t.country_id = @country.id
     end
 

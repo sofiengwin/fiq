@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_29_214226) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_25_062127) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -82,9 +82,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_214226) do
     t.datetime "created_at", null: false
     t.string "external_id"
     t.string "name", null: false
+    t.boolean "national", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["country_id"], name: "index_football_teams_on_country_id"
     t.index ["external_id"], name: "index_football_teams_on_external_id", unique: true
+  end
+
+  create_table "play_sessions", force: :cascade do |t|
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.integer "current_index", default: 0
+    t.jsonb "questions", default: []
+    t.string "quiz_type", default: "random"
+    t.jsonb "responses", default: []
+    t.string "session_id", null: false
+    t.datetime "started_at"
+    t.integer "streak", default: 0
+    t.integer "total_score", default: 0
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["session_id", "completed_at"], name: "index_play_sessions_on_session_id_and_completed_at"
+    t.index ["session_id"], name: "index_play_sessions_on_session_id"
+    t.index ["user_id"], name: "index_play_sessions_on_user_id"
   end
 
   create_table "players", force: :cascade do |t|
@@ -176,6 +195,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_214226) do
   add_foreign_key "careers", "players"
   add_foreign_key "competitions", "countries"
   add_foreign_key "football_teams", "countries"
+  add_foreign_key "play_sessions", "users"
   add_foreign_key "questions", "quizzes"
   add_foreign_key "quiz_attempts", "quizzes"
   add_foreign_key "response_answers", "answer_options"

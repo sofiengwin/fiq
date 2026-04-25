@@ -18,6 +18,16 @@ Rails.application.routes.draw do
   # Root path
   root "home#index"
 
+  # Dynamic quiz play (session-based, no persistence)
+  scope :play do
+    get    "/",         to: "play#index",    as: :play
+    post   "/",         to: "play#create",   as: :start_play
+    get    "/question", to: "play#question", as: :play_question
+    post   "/answer",   to: "play#answer",   as: :play_answer
+    get    "/results",  to: "play#results",  as: :play_results
+    delete "/",         to: "play#destroy",  as: :quit_play
+  end
+
   # Quiz resources with nested questions and answer options
   resources :quizzes do
     member do

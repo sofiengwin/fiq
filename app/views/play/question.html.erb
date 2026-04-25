@@ -1,0 +1,81 @@
+<% content_for(:title) { "Playing - FIQ" } %>
+
+<div class="max-w-4xl mx-auto">
+  <!-- Progress Bar -->
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-purple-300">Question <%= @progress[:current] %> of <%= @progress[:total] %></span>
+      <div class="flex items-center gap-4">
+        <% if @progress[:streak] > 0 %>
+          <span class="text-yellow-400 font-bold">🔥 <%= @progress[:streak] %> streak</span>
+        <% end %>
+        <span class="text-white font-bold">Score: <%= @progress[:score] %></span>
+      </div>
+    </div>
+    <div class="bg-purple-800/50 rounded-full h-3">
+      <div class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: <%= (@progress[:current] - 1) * 100 / @progress[:total] %>%"></div>
+    </div>
+  </div>
+
+  <!-- Question Card -->
+  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 mb-8">
+    <% if @question["players"].present? %>
+      <!-- Player Display for questions that show players -->
+      <div class="flex flex-wrap justify-center gap-4 mb-6">
+        <% @question["players"].each do |player| %>
+          <div class="bg-purple-800/50 rounded-lg px-4 py-2 text-white font-medium">
+            <%= player["name"] %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <h2 class="text-2xl font-bold text-white text-center">
+      <%= @question["prompt"] %>
+    </h2>
+
+    <p class="text-purple-300 text-center mt-4">
+      <span class="inline-block bg-purple-600/50 px-3 py-1 rounded-full text-sm">
+        1000 points
+      </span>
+      <% if Array(@question["correct_answer"]).length > 1 %>
+        <span class="inline-block bg-blue-600/50 px-3 py-1 rounded-full text-sm ml-2">
+          Select all that apply
+        </span>
+      <% end %>
+    </p>
+  </div>
+
+  <!-- Answer Form -->
+  <%= form_with url: play_answer_path, method: :post, class: "space-y-4", data: { controller: "answer-selection" } do |f| %>
+    <!-- Answer Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% colors = %w[red blue green yellow orange purple] %>
+      <% @question["options"].each_with_index do |option, index| %>
+        <% color = colors[index % colors.length] %>
+        <label class="block cursor-pointer" data-answer-selection-target="option">
+          <input type="checkbox" 
+                 name="selected_ids[]" 
+                 value="<%= option["id"] %>"
+                 class="sr-only peer"
+                 data-action="change->answer-selection#toggle">
+          <div class="<%= answer_button_class(color) %> peer-checked:ring-4 peer-checked:ring-white peer-checked:scale-105">
+            <span class="mr-3 text-2xl"><%= answer_shape(color) %></span>
+            <%= option["name"] %>
+          </div>
+        </label>
+      <% end %>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-center pt-4">
+      <%= f.submit "Submit Answer", 
+                   class: "bg-green-600 hover:bg-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-12 py-4 rounded-xl font-bold text-xl transition cursor-pointer" %>
+    </div>
+  <% end %>
+
+  <!-- Quit Button -->
+  <div class="text-center mt-6">
+    <%= button_to "Quit Game", quit_play_path, method: :delete, class: "text-red-400 hover:text-red-300 transition", data: { confirm: "Are you sure you want to quit?" } %>
+  </div>
+</div>

@@ -16,7 +16,7 @@
     <% end %>
   </div>
 
-  <turbo-frame id="quizzes">
+
     <% if @quizzes.any? %>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <% @quizzes.each do |quiz| %>
@@ -29,5 +29,5 @@
         <%= link_to "Create the first one!", new_quiz_path, class: "text-purple-400 hover:text-purple-300 underline" %>
       </div>
     <% end %>
-  </turbo-frame>
+
 </div>

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class QuizzesController < ApplicationController
+  allow_unauthenticated_access only: %i[index show]
   before_action :set_quiz, only: %i[show edit update destroy duplicate]
 
   def index
@@ -9,13 +10,6 @@ class QuizzesController < ApplicationController
   end
 
   def show
-    pp "params"
-    pp "params"
-    pp "params"
-    pp "params"
-    pp params
-    pp params
-    pp @quiz
   end
 
   def new

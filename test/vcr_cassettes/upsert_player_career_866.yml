@@ -2774,4 +2774,75 @@ http_interactions:
       string: '{"get":"players\/seasons","parameters":{"player":"866"},"errors":{"rateLimit":"Too
         many requests. Your rate limit is 10 requests per minute."},"results":0,"paging":{"current":1,"total":1},"response":[]}'
   recorded_at: Wed, 11 Mar 2026 06:16:20 GMT
+- request:
+    method: get
+    uri: https://v3.football.api-sports.io/teams?id=502
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - v3.football.api-sports.io
+      X-Rapidapi-Host:
+      - "<FOOTBALL_API_HOST>"
+      X-Rapidapi-Key:
+      - "<FOOTBALL_API_KEY>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 23 Apr 2026 08:54:37 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Credentials:
+      - 'True'
+      Access-Control-Allow-Methods:
+      - GET, OPTIONS
+      Access-Control-Allow-Headers:
+      - x-rapidapi-key, x-apisports-key, x-rapidapi-host
+      X-Ratelimit-Limit:
+      - '450'
+      X-Ratelimit-Remaining:
+      - '448'
+      X-Ratelimit-Requests-Limit:
+      - '75000'
+      X-Ratelimit-Requests-Remaining:
+      - '74998'
+      X-Envoy-Upstream-Service-Time:
+      - '11'
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Cf-Cache-Status:
+      - DYNAMIC
+      Cf-Ray:
+      - 9f0ba5048bde803b-YVR
+    body:
+      encoding: ASCII-8BIT
+      string: '{"get":"teams","parameters":{"id":"502"},"errors":[],"results":1,"paging":{"current":1,"total":1},"response":[{"team":{"id":502,"name":"Fiorentina","code":"FIO","country":"Italy","founded":1926,"national":false,"logo":"https:\/\/media.api-sports.io\/football\/teams\/502.png"},"venue":{"id":902,"name":"Stadio
+        Artemio Franchi","address":"Viale Manfredo Fanti 14","city":"Firenze","capacity":43147,"surface":"grass","image":"https:\/\/media.api-sports.io\/football\/venues\/902.png"}}]}'
+  recorded_at: Thu, 23 Apr 2026 08:54:37 GMT
 recorded_with: VCR 6.4.0
