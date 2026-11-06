@@ -40,6 +40,22 @@ class FootballClient < ApplicationService
 
     attr_writer :cache_dir
 
+    # Canonical cache file for an endpoint+params (T3 probe records this as
+    # the per-season cache file ref). Single mapping shared by reads/writes.
+    def cache_path_for(end_point)
+      path, query = end_point.split("?", 2)
+      slug = path.to_s.tr("/", "_").gsub(/[^A-Za-z0-9_.\-]/, "_")
+      slug = "root" if slug.empty?
+      digest =
+        if query.nil? || query.empty?
+          "noquery"
+        else
+          canonical = URI.decode_www_form(query).sort.map { |k, v| "#{k}=#{v}" }.join("&")
+          Digest::SHA256.hexdigest(canonical)
+        end
+      cache_dir.join("#{slug}__#{digest}.json")
+    end
+
     def default_cache_dir
       if Rails.env.test?
         Rails.root.join("tmp/cache/football_client")
@@ -101,17 +117,7 @@ class FootballClient < ApplicationService
 
   # Deterministic file for this endpoint+params: endpoint slug + sorted-query hash.
   def cache_path
-    path, query = @end_point.split("?", 2)
-    slug = path.to_s.tr("/", "_").gsub(/[^A-Za-z0-9_.\-]/, "_")
-    slug = "root" if slug.empty?
-    digest =
-      if query.nil? || query.empty?
-        "noquery"
-      else
-        canonical = URI.decode_www_form(query).sort.map { |k, v| "#{k}=#{v}" }.join("&")
-        Digest::SHA256.hexdigest(canonical)
-      end
-    self.class.cache_dir.join("#{slug}__#{digest}.json")
+    self.class.cache_path_for(@end_point)
   end
 
   def read_cache
