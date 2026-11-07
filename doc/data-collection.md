@@ -6,7 +6,7 @@
 - Errata: out of pipeline Phase 1. Frontend-only flag (no re-fetch queue yet).
 
 ## Plan (docs only, no build)
-1. Completeness PL 39 earliest-back: P1 probe finds earliest season with data, then backfill to present. Accept: coverage zero missing in retrieved window, dead seasons listed.
+1. Completeness PL 39 earliest-back: P1 probe confirmed 2010-2026 retrievable, dead 2007-2009. Backfill to present per season. Accept: coverage zero missing in retrieved window, dead seasons listed.
 2. Staleness 30-day: planned last_refreshed_at + stale?, nightly stale-only job. Accept: stale auto-refreshes. Pre-quiz gate deferred.
 3. Errata (deferred, frontend-only): flag stored for review; no pipeline re-fetch in Phase 1.
 4. Expand: La Liga 140, Ligue 1 61, Bundesliga 78, Serie A 135. Accept: coverage per league.
