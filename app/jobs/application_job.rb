@@ -1,4 +1,9 @@
 class ApplicationJob < ActiveJob::Base
+  # L8 priority: batch runs synchronously (operator rake, never queued) so it
+  # never waits; queued work claims lower numbers first (Solid Queue):
+  # nightly (10) before auto fan-out (50, this default).
+  queue_with_priority AutoDiscovery::AUTO_PRIORITY
+
   # Automatically retry jobs that encounter a deadlock
   retry_on ActiveRecord::Deadlocked
 

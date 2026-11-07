@@ -5,6 +5,11 @@ class UpsertLeagueTeams < ApplicationService
     @competition_name = competition_name
   end
 
+  # L8: auto-path league fan-out — the single teams fetch spends one
+  # auto-budget request. Over budget the league stays pending with zero
+  # HTTP. The competition row is recorded but never auto-backfilled here
+  # (backfill stays an operator-run Pl39Backfill invocation); the probe owns
+  # allowlist gating for that path.
   def call
     result = fetch_teams
     result.map do |team|
@@ -17,11 +22,15 @@ class UpsertLeagueTeams < ApplicationService
         competition: competition
       )
     end
+  rescue AutoDiscovery::OverBudget => e
+    AutoDiscovery.note("pending-budget", kind: "league", league_id: @league_id, season: @season, reason: e.message)
+    []
   end
 
   private
 
   def fetch_teams
+    AutoDiscovery.checkout!
     FootballClient.call(end_point: "teams?league=#{@league_id}&season=#{@season}")
   end
 
