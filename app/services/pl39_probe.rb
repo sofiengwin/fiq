@@ -25,25 +25,6 @@ class Pl39Probe < ApplicationService
   LEAGUE_ID = 39
   MAX_LIVE_REQUESTS = 10
 
-  # Legacy JSON artifact names (data/raw/ era). The probe no longer writes
-  # these; CoverageGate still reads them until its own live-only ticket
-  # migrates it to the YML allowlist. Do not add new readers here.
-  PROBE_FILENAME = "probe_39.json"
-  ALLOWLIST_FILENAME = "seasons_allowlist_39.json"
-  DEAD_FILENAME = "dead_seasons_39.json"
-
-  def self.probe_filename_for(league_id)
-    "probe_#{league_id.to_i}.json"
-  end
-
-  def self.allowlist_filename_for(league_id)
-    "seasons_allowlist_#{league_id.to_i}.json"
-  end
-
-  def self.dead_filename_for(league_id)
-    "dead_seasons_#{league_id.to_i}.json"
-  end
-
   # Canonical live-only artifact: one YML per league.
   def self.allowlist_yml_filename_for(league_id)
     "allowlist_#{league_id.to_i}.yml"

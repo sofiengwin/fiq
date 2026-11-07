@@ -20,15 +20,12 @@ class Pl39BackfillTest < ActiveSupport::TestCase
   setup do
     WebMock.reset!
     @config_dir = Dir.mktmpdir
-    @raw_dir = Dir.mktmpdir
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(
       FootballClient::THROTTLE_ENV_VAR
     )
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
     write_allowlist_yml([ SEASON ], [ { season: 2021, reason: "empty teams response" } ])
-    write_json("seasons_allowlist_39.json", [ SEASON ])
-    write_json("dead_seasons_39.json", [ { season: 2021, reason: "empty teams response" } ])
   end
 
   teardown do
@@ -37,7 +34,6 @@ class Pl39BackfillTest < ActiveSupport::TestCase
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
     FileUtils.remove_entry(@config_dir)
-    FileUtils.remove_entry(@raw_dir)
   end
 
   test "backfills one allowlisted season within ~40 live requests with linkage and timestamps" do
@@ -77,7 +73,7 @@ class Pl39BackfillTest < ActiveSupport::TestCase
     assert_empty Dir.children(@config_dir).select { |f| f.end_with?(".json") }
 
     # The T4 gate measures the backfilled window as complete.
-    assert CoverageGate.call(league_id: 39, season: SEASON, raw_dir: @raw_dir).pass?
+    assert CoverageGate.call(league_id: 39, season: SEASON, config_dir: @config_dir).pass?
   end
 
   test "immediate rerun re-hits live and stays idempotent" do
@@ -163,7 +159,7 @@ class Pl39BackfillTest < ActiveSupport::TestCase
     assert_equal 2, FootballTeam.where(external_id: %w[60 61]).count
     assert_equal 3, Player.where(external_id: %w[301 302 303]).count
     assert_equal 3, Career.count
-    assert CoverageGate.call(league_id: 39, season: SEASON, raw_dir: @raw_dir).pass?
+    assert CoverageGate.call(league_id: 39, season: SEASON, config_dir: @config_dir).pass?
   end
 
   test "refuses without an allowlist YML and names the probe task" do
@@ -250,9 +246,5 @@ class Pl39BackfillTest < ActiveSupport::TestCase
       "seasons" => {}
     }
     File.write(File.join(@config_dir, "allowlist_39.yml"), YAML.dump(payload))
-  end
-
-  def write_json(filename, payload)
-    File.write(File.join(@raw_dir, filename), JSON.generate(payload))
   end
 end

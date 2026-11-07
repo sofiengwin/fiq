@@ -1,7 +1,8 @@
 require "test_helper"
 require "tmpdir"
+require "yaml"
 
-# T4 — Coverage gate per season.
+# L5 — Coverage gate per season over the live-only YML allowlist.
 # Derived from tickets.md T4 "Done when" (not from implementation):
 #   - seeded season with one team missing players + one player missing careers
 #     => task lists both by name and fails the gate
@@ -14,7 +15,7 @@ class CoverageGateTest < ActiveSupport::TestCase
   SEASON = 2022
 
   setup do
-    @raw_dir = Dir.mktmpdir
+    @config_dir = Dir.mktmpdir
     @country = Country.create!(name: "T4 Testland #{SecureRandom.hex(4)}")
     @competition = Competition.create!(
       name: "T4 Premier League", external_id: LEAGUE.to_s, country: @country
@@ -22,7 +23,7 @@ class CoverageGateTest < ActiveSupport::TestCase
   end
 
   teardown do
-    FileUtils.remove_entry(@raw_dir)
+    FileUtils.remove_entry(@config_dir)
   end
 
   test "seeded gaps fail the gate and list the team and player by name" do
@@ -92,7 +93,11 @@ class CoverageGateTest < ActiveSupport::TestCase
 
   test "dead-listed season is listed not counted as missing and passes despite gaps" do
     empty_team = add_team("T4 Dead Empty FC")
-    write_json("dead_seasons_39.json", [ { season: SEASON, reason: "empty teams response" } ])
+    write_allowlist_yml(
+      allowlist: [],
+      dead: [ { season: SEASON, reason: "empty teams response" } ],
+      seasons: {}
+    )
 
     report = gate
 
@@ -110,26 +115,28 @@ class CoverageGateTest < ActiveSupport::TestCase
   test "partial when fewer teams retrieved than the probe listed, complete when equal" do
     add_team("T4 Partial A FC")
     add_team("T4 Partial B FC")
-    write_json("probe_39.json", {
-      league: 39, present_year: 2023,
-      seasons: { SEASON.to_s => { status: "ok", team_count: 5 } }
-    })
+    write_allowlist_yml(
+      allowlist: [ SEASON ],
+      dead: [],
+      seasons: { SEASON.to_s => { "status" => "ok", "team_count" => 5 } }
+    )
 
     report = gate
     assert_equal true, report.partial
     assert_includes report.lines.join("\n"), "partial=true db_teams=2 probed=5"
 
-    write_json("probe_39.json", {
-      league: 39, present_year: 2023,
-      seasons: { SEASON.to_s => { status: "ok", team_count: 2 } }
-    })
+    write_allowlist_yml(
+      allowlist: [ SEASON ],
+      dead: [],
+      seasons: { SEASON.to_s => { "status" => "ok", "team_count" => 2 } }
+    )
 
     assert_equal false, gate.partial
     assert_includes gate.lines.join("\n"), "partial=false db_teams=2 probed=2"
   end
 
-  test "allowlisted season is flagged when the allowlist artifact exists" do
-    write_json("seasons_allowlist_39.json", [ SEASON ])
+  test "allowlisted season is flagged when the YML allowlist exists" do
+    write_allowlist_yml(allowlist: [ SEASON ], dead: [], seasons: {})
 
     assert_equal true, gate.allowlisted
     assert_includes gate.lines.join("\n"), "allowlisted=true"
@@ -138,7 +145,7 @@ class CoverageGateTest < ActiveSupport::TestCase
   test "missing competition fails the gate unless the season is dead" do
     @competition.destroy!
 
-    report = CoverageGate.call(league_id: 999, season: SEASON, raw_dir: @raw_dir)
+    report = CoverageGate.call(league_id: 999, season: SEASON, config_dir: @config_dir)
     assert_not report.pass?
     assert report.competition_missing
     assert_includes report.lines.join("\n"), "competition_missing=true"
@@ -147,7 +154,7 @@ class CoverageGateTest < ActiveSupport::TestCase
   private
 
   def gate
-    CoverageGate.call(league_id: LEAGUE, season: SEASON, raw_dir: @raw_dir)
+    CoverageGate.call(league_id: LEAGUE, season: SEASON, config_dir: @config_dir)
   end
 
   def add_team(name)
@@ -164,7 +171,15 @@ class CoverageGateTest < ActiveSupport::TestCase
     Career.create!(player: player, football_team: team, duration: duration, appearances: appearances)
   end
 
-  def write_json(filename, payload)
-    File.write(File.join(@raw_dir, filename), JSON.generate(payload))
+  def write_allowlist_yml(allowlist:, dead:, seasons:)
+    payload = {
+      "league" => LEAGUE,
+      "present_year" => 2023,
+      "window_truncated" => false,
+      "allowlist" => allowlist,
+      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
+      "seasons" => seasons
+    }
+    File.write(File.join(@config_dir, "allowlist_#{LEAGUE}.yml"), YAML.dump(payload))
   end
 end
