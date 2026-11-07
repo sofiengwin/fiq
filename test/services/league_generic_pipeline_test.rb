@@ -3,7 +3,7 @@ require "tmpdir"
 require "yaml"
 
 # League-generic pipeline: same services with league_id != 39 use per-league
-# artifacts (probe_<id>.json etc.) and a competition looked up by the passed id.
+# YML artifacts (config/allowlist_<id>.yml) and a competition looked up by the passed id.
 # Back-compat (39 defaults, existing 39 tasks) is covered by the Pl39* tests.
 class LeagueGenericPipelineTest < ActiveSupport::TestCase
   include WebMock::API
@@ -15,7 +15,6 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
   setup do
     WebMock.reset!
     @config_dir = Dir.mktmpdir
-    @raw_dir = Dir.mktmpdir
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(
       FootballClient::THROTTLE_ENV_VAR
@@ -29,7 +28,6 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
     FileUtils.remove_entry(@config_dir)
-    FileUtils.remove_entry(@raw_dir)
   end
 
   test "probe with league_id writes per-league YML allowlist against league=135 URLs" do
@@ -49,7 +47,6 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
 
   test "backfill with league_id reads the per-league YML allowlist and links the passed competition" do
     write_allowlist_yml(LEAGUE, [ SEASON ], [])
-    File.write(File.join(@raw_dir, "dead_seasons_135.json"), JSON.generate([]))
     stub_teams(SEASON, teams_payload(2))
     stub_players(505, SEASON, 1, [ { id: 9999, name: "Generic Inter Player" } ])
     stub_players_empty(505, SEASON, 2)
@@ -62,7 +59,7 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     competition = Competition.find_by!(external_id: "135")
     assert_equal competition.id, Career.first.competition_id
     assert_not_equal "39", competition.external_id
-    assert CoverageGate.call(league_id: LEAGUE, season: SEASON, raw_dir: @raw_dir).pass?
+    assert CoverageGate.call(league_id: LEAGUE, season: SEASON, config_dir: @config_dir).pass?
   end
 
   test "coverage gate honors the per-league dead list" do
@@ -70,12 +67,9 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     competition = Competition.create!(name: "Serie A", external_id: LEAGUE.to_s, country: country)
     team = FootballTeam.create!(name: "Generic Empty FC", country: country)
     competition.football_teams << team
-    File.write(
-      File.join(@raw_dir, "dead_seasons_135.json"),
-      JSON.generate([ { season: SEASON, reason: "empty teams response" } ])
-    )
+    write_allowlist_yml(LEAGUE, [], [ { season: SEASON, reason: "empty teams response" } ])
 
-    report = CoverageGate.call(league_id: LEAGUE, season: SEASON, raw_dir: @raw_dir)
+    report = CoverageGate.call(league_id: LEAGUE, season: SEASON, config_dir: @config_dir)
 
     assert report.dead
     assert report.pass?

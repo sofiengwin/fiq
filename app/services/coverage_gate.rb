@@ -1,11 +1,11 @@
-# T4: Per-season coverage gate for the PL 39 retrieved window.
+# L5: Per-season coverage gate over the live-only YML allowlist.
 #
 # Read-only: prints per-season completeness and exits 0 only when there is
 # zero missing data in the retrieved window. Never fetches or heals.
 #
 # Scoping note: the schema has no per-season membership column (T1 added none),
 # so `season` labels the report and drives dead/partial flags from the
-# per-league probe artifacts (`probe_<league_id>.json` etc.); missing-data
+# per-league probe YML (`config/allowlist_<league_id>.yml`); missing-data
 # counts are computed over the league's retrieved window in the DB
 # (competition looked up by the passed league_id, default 39).
 #
@@ -15,7 +15,6 @@
 # DB, excluded from quiz candidacy, and reported by name only.
 class CoverageGate < ApplicationService
   SENIOR_APPS_THRESHOLD = 1
-  PROBE_ARTIFACT_LEAGUE = 39
 
   Report = Struct.new(
     :league_id, :season,
@@ -70,10 +69,10 @@ class CoverageGate < ApplicationService
     end
   end
 
-  def initialize(league_id: 39, season: Time.zone.now.year, raw_dir: Rails.root.join("data/raw"))
+  def initialize(league_id: 39, season: Time.zone.now.year, config_dir: Rails.root.join("config"))
     @league_id = league_id.to_i
     @season = season.to_i
-    @raw_dir = Pathname.new(raw_dir.to_s)
+    @config_dir = Pathname.new(config_dir.to_s)
   end
 
   def call
@@ -106,7 +105,7 @@ class CoverageGate < ApplicationService
       players_without_careers: missing_players.to_a,
       senior_players: seniors,
       dead: dead,
-      dead_reason: dead_entry&.dig("reason"),
+      dead_reason: dead_entry&.fetch(:reason, nil),
       partial: partial,
       partial_detail: partial_detail,
       allowlisted: allowlisted_for_season,
@@ -130,55 +129,45 @@ class CoverageGate < ApplicationService
       .map { |name, external_id, total| { name: name, external_id: external_id, total_apps: total.to_i } }
   end
 
-  def probe_filename
-    Pl39Probe.probe_filename_for(@league_id)
+  def yml_path
+    Pl39Probe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
   end
 
-  def allowlist_filename
-    Pl39Probe.allowlist_filename_for(@league_id)
+  def yml_data
+    Pl39Probe.read_yml(yml_path)
   end
 
-  def dead_filename
-    Pl39Probe.dead_filename_for(@league_id)
+  def yml_present?
+    File.exist?(yml_path.to_s) && !yml_data.empty?
   end
 
   def dead_entry_for_season
-    dead_list.find { |entry| entry.is_a?(Hash) && entry["season"].to_i == @season }
+    Pl39Probe.read_dead_yml(yml_path).find { |entry| entry[:season] == @season }
   end
 
   def allowlisted_for_season
-    allowlist = read_json(allowlist_filename)
-    return nil if allowlist.nil?
-    allowlist.map(&:to_i).include?(@season)
+    return nil unless yml_present?
+
+    Pl39Probe.read_allowlist_yml(yml_path).include?(@season)
   end
 
   # Partial = probed ok by the probe but fewer teams retrieved in DB than the API listed.
   def partial_for_season(db_team_count)
-    probe = read_json(probe_filename)
-    return [ nil, "no #{probe_filename}" ] if probe.nil?
+    yml = yml_data
+    return [ nil, "no #{Pl39Probe.allowlist_yml_filename_for(@league_id)}" ] if yml.empty?
 
-    info = probe["seasons"]&.fetch(@season.to_s, nil)
+    seasons = yml["seasons"] || yml[:seasons] || {}
+    info = seasons[@season.to_s]
     return [ nil, "season not probed" ] if info.nil?
-    return [ nil, "probed #{info['status']}" ] unless info["status"] == "ok"
 
-    probed = info["team_count"].to_i
+    status = info["status"] || info[:status]
+    return [ nil, "probed #{status}" ] unless status == "ok"
+
+    probed = (info["team_count"] || info[:team_count]).to_i
     if db_team_count < probed
       [ true, "db_teams=#{db_team_count} probed=#{probed}" ]
     else
       [ false, "db_teams=#{db_team_count} probed=#{probed}" ]
     end
-  end
-
-  def dead_list
-    read_json(dead_filename) || []
-  end
-
-  def read_json(filename)
-    path = @raw_dir.join(filename)
-    return nil unless File.exist?(path)
-
-    JSON.parse(File.read(path))
-  rescue JSON::ParserError
-    nil
   end
 end
