@@ -1,8 +1,10 @@
 require "test_helper"
 require "tmpdir"
 
-# T7 — Nightly stale-only refresh (Pl39NightlyRefresh).
-# Derived from tickets.md T7 "Done when" (not from implementation):
+# L6 — Nightly stale-only refresh, live-only (Pl39NightlyRefresh).
+# Live-only: every stale row costs one live request against the 200 cap;
+# dry-run performs zero HTTP; reruns re-walk live (0 live only when nothing
+# is stale). Derived from tickets.md T7 "Done when" (not from implementation):
 #   - recurring.yml contains the 02:00 UTC team_sync entry (pinned in
 #     DataNightlyRefreshRakeTest alongside the rake dry-run);
 #   - dry-run on a DB with 3 stale + 2 fresh rows reports exactly the 3
