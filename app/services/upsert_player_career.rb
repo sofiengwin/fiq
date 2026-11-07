@@ -226,6 +226,8 @@ class UpsertPlayerCareer < ApplicationService
   # HTTP. Ambiguous/no-match profiles are dead with reason (30d TTL
   # re-check note, logs only). Unknown league context preserves the legacy
   # behavior (fetch profile, full create, no enqueue).
+  # L9: dead refusals carry a 30d TTL — inside the window the profile
+  # re-fetch is suppressed (zero HTTP); after expiry the row is re-checked.
   def find_or_create_team(team_external_id:, team_name:)
     existing_team = FootballTeam.find_by(external_id: team_external_id)
     return existing_team if existing_team.present?
@@ -237,12 +239,23 @@ class UpsertPlayerCareer < ApplicationService
       return team
     end
 
+    dead_key = "team:#{team_external_id}"
+    if AutoDiscovery.dead?(dead_key)
+      record = AutoDiscovery.dead_record(dead_key)
+      AutoDiscovery.note("dead", kind: "team", external_id: team_external_id, name: team_name,
+        reason: record&.dig(:reason), cached: true, recheck_after: AutoDiscovery::DEAD_RECHECK_AFTER.inspect)
+      return nil
+    end
+
     team_profile = fetch_team_profile(team_id: team_external_id)
     if team_profile.blank? || team_profile[0].nil? || team_profile[0][:team].nil?
+      AutoDiscovery.mark_dead(dead_key, reason: "ambiguous/no-match team profile")
       AutoDiscovery.note("dead", kind: "team", external_id: team_external_id, name: team_name,
         reason: "ambiguous/no-match team profile", recheck_after: AutoDiscovery::DEAD_RECHECK_AFTER.inspect)
       return nil
     end
+
+    AutoDiscovery.clear_dead(dead_key)
 
     team_data = team_profile[0][:team]
     team = UpsertTeam.call(

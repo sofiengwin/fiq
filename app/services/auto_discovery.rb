@@ -41,7 +41,6 @@ class AutoDiscovery < ApplicationService
   DEAD_RECHECK_AFTER = 30.days
 
   OverBudget = Class.new(StandardError)
-
   class << self
     def mutex
       @mutex ||= Mutex.new
@@ -79,7 +78,35 @@ class AutoDiscovery < ApplicationService
 
     # Test hook: forget today's spend.
     def reset!
-      mutex.synchronize { @counters = {} }
+      mutex.synchronize { @counters = {}; @dead = {} }
+    end
+
+    # L9: refusal TTL — ambiguous/no-match first-seen rows are dead with
+    # reason; re-checks are suppressed for 30 days (zero HTTP inside the
+    # window) and allowed again after. Logs only, no table (doc:
+    # "Discovery state: skipped table for now"); revisit if auto
+    # volume/retries grow.
+    def mark_dead(key, reason:)
+      mutex.synchronize { (@dead ||= {})[key.to_s] = { reason: reason.to_s, at: Time.current } }
+    end
+
+    def clear_dead(key)
+      mutex.synchronize { (@dead ||= {}).delete(key.to_s) }
+    end
+
+    def dead_record(key)
+      mutex.synchronize { (@dead ||= {})[key.to_s] }
+    end
+
+    # True while a dead refusal is still inside its 30d TTL (no re-check).
+    def dead?(key)
+      record = dead_record(key)
+      record.present? && record[:at] > DEAD_RECHECK_AFTER.ago
+    end
+
+    # True when there is no dead record or its TTL has expired.
+    def recheck_due?(key)
+      !dead?(key)
     end
 
     def in_scope_league?(league_id)
