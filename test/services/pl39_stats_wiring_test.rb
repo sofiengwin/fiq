@@ -5,7 +5,7 @@ require "yaml"
 # L4 — Stats wiring keep: dob/nationality/photo_url + goals/assists/cards +
 # competition_id + appearances from inline statistics, no minutes_played.
 # Live-only: gating reads the L2 probe YML (config/allowlist_<id>.yml);
-# pagination walks to the first empty page (empty-page stubs, no data/raw/).
+# pagination walks to the first empty page (empty-page stubs, no response cache).
 # Derived from tickets.md T6 "Done when" (not from implementation):
 #   - re-running the T5 trial season populates a spot-checked quiz-relevant
 #     player (dob + nationality + photo_url) and at least one career row per
