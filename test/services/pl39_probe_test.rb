@@ -3,7 +3,7 @@ require "tmpdir"
 require "yaml"
 
 # L2 live-only probe: <=10 live requests per run into config/allowlist_<id>.yml
-# (no data/raw/, no cache). Every run hits the API; reruns are full-cost but
+# (no raw payload dir, no response cache). Every run hits the API; reruns are
 # idempotent.
 class Pl39ProbeTest < ActiveSupport::TestCase
   include WebMock::API
