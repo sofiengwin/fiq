@@ -1,5 +1,6 @@
 require "test_helper"
 require "tmpdir"
+require "yaml"
 
 # League-generic pipeline: same services with league_id != 39 use per-league
 # artifacts (probe_<id>.json etc.) and a competition looked up by the passed id.
@@ -13,42 +14,37 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
 
   setup do
     WebMock.reset!
-    @cache_dir = Dir.mktmpdir
+    @config_dir = Dir.mktmpdir
     @raw_dir = Dir.mktmpdir
-    @original_cache_dir = FootballClient.cache_dir
-    FootballClient.cache_dir = Pathname.new(@cache_dir)
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(
-      FootballClient::CACHE_ENV_VAR,
       FootballClient::THROTTLE_ENV_VAR
     )
-    ENV[FootballClient::CACHE_ENV_VAR] = "true"
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
   end
 
   teardown do
     WebMock.reset!
-    FootballClient.cache_dir = @original_cache_dir
     FootballClient.reset_throttle!
-    ENV.delete(FootballClient::CACHE_ENV_VAR)
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
-    FileUtils.remove_entry(@cache_dir)
+    FileUtils.remove_entry(@config_dir)
     FileUtils.remove_entry(@raw_dir)
   end
 
-  test "probe with league_id writes per-league artifacts against league=135 URLs" do
+  test "probe with league_id writes per-league YML allowlist against league=135 URLs" do
     stub_teams(SEASON, teams_payload(20))
 
-    result = Pl39Probe.call(league_id: LEAGUE, present_year: PRESENT_YEAR, max_requests: 1, output_dir: @raw_dir)
+    result = Pl39Probe.call(league_id: LEAGUE, present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
 
     assert_requested(:get, "https://v3.football.api-sports.io/teams?league=135&season=#{SEASON}", times: 1)
     assert_equal [ SEASON ], result[:allowlist]
-    assert_equal LEAGUE, JSON.parse(File.read(File.join(@raw_dir, "probe_135.json")))["league"]
-    assert_equal [ SEASON ], JSON.parse(File.read(File.join(@raw_dir, "seasons_allowlist_135.json")))
-    assert_equal [], JSON.parse(File.read(File.join(@raw_dir, "dead_seasons_135.json")))
-    # 39 artifacts untouched.
-    assert_not File.exist?(File.join(@raw_dir, "probe_39.json"))
+    yml = YAML.safe_load(File.read(File.join(@config_dir, "allowlist_135.yml")))
+    assert_equal LEAGUE, yml["league"]
+    assert_equal [ SEASON ], yml["allowlist"]
+    assert_equal [], yml["dead"]
+    # 39 artifact untouched.
+    assert_not File.exist?(File.join(@config_dir, "allowlist_39.yml"))
   end
 
   test "backfill with league_id reads the per-league allowlist and links the passed competition" do
