@@ -138,7 +138,7 @@ class Pl39Backfill < ApplicationService
     nil
   end
 
-  # --- upserts (skeleton + linkage only; stats fill is T6) -------------------
+  # --- upserts (team/player/career + stats incl. appearances; T6/T8) --------
 
   def find_or_create_competition!(teams_payload)
     first = teams_payload.filter_map { |row| row[:team] }.find { |team| team[:id] }
@@ -214,20 +214,23 @@ class Pl39Backfill < ApplicationService
     player
   end
 
-  # T6: quiz-required stat fill from the inline statistics payload.
-  # goals is mandatory: an entry with no usable goals value is rejected
-  # (no career written) and logged. assists/cards stay nullable.
+  # T6/T8: quiz-required stat fill from the inline statistics payload.
+  # goals is mandatory: a missing goals value defaults to 0 so every union
+  # player still gets a career row for the backfilled season (sparse stats
+  # never leave a player career-less). assists/cards stay nullable.
+  # appearances is wired from games.appearences (API typo) / games.appearances.
   # competition_id points at the PL competition.
   def upsert_career!(player, team, competition, statistics, team_api_id)
     stat = select_team_stat(statistics, team_api_id)
     goals = stat&.dig(:goals, :total)
     if goals.nil?
-      Rails.logger.error(
-        "Pl39Backfill rejecting career without goals " \
+      Rails.logger.warn(
+        "Pl39Backfill defaulting missing goals to 0 " \
         "player=#{player.external_id} team=#{team.external_id} season=#{@season}"
       )
-      return false
+      goals = 0
     end
+    appearances = stat&.dig(:games, :appearences) || stat&.dig(:games, :appearances) || 0
 
     career = Career.find_or_create_by!(player: player, football_team: team) do |record|
       record.duration = season_range
@@ -236,9 +239,10 @@ class Pl39Backfill < ApplicationService
     career.update!(
       competition_id: competition.id,
       goals: goals,
-      assists: stat.dig(:goals, :assists),
-      cards_yellow: stat.dig(:cards, :yellow),
-      cards_red: stat.dig(:cards, :red),
+      assists: stat&.dig(:goals, :assists),
+      cards_yellow: stat&.dig(:cards, :yellow),
+      cards_red: stat&.dig(:cards, :red),
+      appearances: appearances.to_i,
       last_refreshed_at: @now
     )
     created
