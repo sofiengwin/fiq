@@ -2,8 +2,10 @@ require "test_helper"
 require "tmpdir"
 require "yaml"
 
-# T6 — Stats wiring: populate dob/nationality/photo + goals/assists/cards +
-# competition_id during upsert, no minutes_played.
+# L4 — Stats wiring keep: dob/nationality/photo_url + goals/assists/cards +
+# competition_id + appearances from inline statistics, no minutes_played.
+# Live-only: gating reads the L2 probe YML (config/allowlist_<id>.yml);
+# pagination walks to the first empty page (empty-page stubs, no data/raw/).
 # Derived from tickets.md T6 "Done when" (not from implementation):
 #   - re-running the T5 trial season populates a spot-checked quiz-relevant
 #     player (dob + nationality + photo_url) and at least one career row per
@@ -21,15 +23,12 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
   setup do
     WebMock.reset!
     @config_dir = Dir.mktmpdir
-    @raw_dir = Dir.mktmpdir
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(
       FootballClient::THROTTLE_ENV_VAR
     )
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
     write_allowlist_yml([ SEASON ], [])
-    write_json("seasons_allowlist_39.json", [ SEASON ])
-    write_json("dead_seasons_39.json", [])
   end
 
   teardown do
@@ -38,7 +37,6 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
     FileUtils.remove_entry(@config_dir)
-    FileUtils.remove_entry(@raw_dir)
   end
 
   test "trial-season rerun populates profile and career stats on the PL competition" do
@@ -168,6 +166,8 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
   test "minutes_played appears nowhere in code or schema" do
     %w[
       app/services/pl39_backfill.rb
+      app/services/upsert_team_players.rb
+      app/services/upsert_player_career.rb
       app/models/career.rb
       app/models/player.rb
       db/schema.rb
@@ -251,9 +251,5 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
       "seasons" => {}
     }
     File.write(File.join(@config_dir, "allowlist_39.yml"), YAML.dump(payload))
-  end
-
-  def write_json(filename, payload)
-    File.write(File.join(@raw_dir, filename), JSON.generate(payload))
   end
 end
