@@ -37,3 +37,7 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 /todo
+
+# football cache + probe artifacts (keep dir)
+data/raw/*.json
+!data/raw/.keep

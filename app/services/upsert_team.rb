@@ -1,9 +1,10 @@
 class UpsertTeam < ApplicationService
-  def initialize(external_id:, name:, code:, country:, competition: nil)
+  def initialize(external_id:, name:, code:, country:, national: false, competition: nil)
     @external_id = external_id
     @name = name
     @code = code
     @country = country
+    @national = national.nil? ? false : national
     @competition = competition
   end
 

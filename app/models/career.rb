@@ -1,10 +1,20 @@
 class Career < ApplicationRecord
   belongs_to :player
   belongs_to :football_team
+  belongs_to :competition, optional: true
 
   validates :duration, presence: true
   validates :appearances, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  # T6: goals is mandatory at the model/upsert layer (stays nullable in the
+  # DB so pre-T6 rows survive; the column default of 0 keeps legacy creates
+  # valid). assists/cards stay nullable.
+  validates :goals, presence: true
   validate :no_overlapping_careers_for_same_team
+
+  # T7: staleness marker for the nightly refresh — nil or older than 30 days.
+  scope :stale, ->(threshold = 30.days.ago) {
+    where("last_refreshed_at IS NULL OR last_refreshed_at <= ?", threshold)
+  }
 
   def self.ransackable_attributes(auth_object = nil)
     %w[id player_id football_team_id duration appearances created_at updated_at]
