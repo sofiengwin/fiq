@@ -9,7 +9,7 @@
 1. Completeness PL 39 earliest-back: P1 probe confirmed 2010-2026 retrievable, dead 2007-2009. Backfill to present per season. Accept: coverage zero missing in retrieved window, dead seasons listed.
 2. Staleness 30-day: last_refreshed_at + stale?, nightly stale-only job. Accept: stale auto-refreshes. Pre-quiz gate removed.
 3. Errata (deferred, frontend-only): flag stored for review; no pipeline re-fetch in Phase 1.
-4. Expand: La Liga 140, Ligue 1 61, Bundesliga 78, Serie A 135. Accept: coverage per league.
+4. Expand: La Liga 140, Ligue 1 61, Bundesliga 78, Serie A 135. DONE — all 5 leagues 2010-2026 backfilled, coverage PASS every season.
 
 ## Approach: live-only fan-out (keep 74509a2 chain shape, no cache)
 - Dev: docker compose for development work; db on host 54321 (DATABASE_URL override for host rails).
