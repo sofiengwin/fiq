@@ -11,6 +11,10 @@
 # Dry-run mode counts would-refresh rows per table and performs zero HTTP,
 # zero DB writes, and zero enqueues. The pre-quiz staleness gate stays
 # deferred — this never blocks quiz paths.
+# L9: a refreshed stale team that is still bare (no players) and linked to
+# an in-scope league gets its squad fetch enqueued (FetchTeamPlayersJob,
+# zero HTTP now, auto budget later), so career-path bare teams gain squads
+# within one nightly cycle.
 class Pl39NightlyRefresh < ApplicationService
   LEAGUE_ID = 39
   COMPETITION_EXTERNAL_ID = "39"
@@ -28,6 +32,7 @@ class Pl39NightlyRefresh < ApplicationService
     @live_requests = 0
     @skipped_count = 0
     @failed_count = 0
+    @squads_enqueued = 0
     @halted = false
   end
 
@@ -35,7 +40,8 @@ class Pl39NightlyRefresh < ApplicationService
     result = {
       status: :completed, dry_run: @dry_run, league_id: @league_id,
       teams: 0, players: 0, careers: 0, total: 0,
-      live_requests: 0, capped: false, skipped: 0, failed: 0
+      live_requests: 0, capped: false, skipped: 0, failed: 0,
+      squads_enqueued: 0
     }
 
     teams_scope = FootballTeam.stale(@threshold)
@@ -61,6 +67,7 @@ class Pl39NightlyRefresh < ApplicationService
     result[:live_requests] = @live_requests
     result[:skipped] = @skipped_count
     result[:failed] = @failed_count
+    result[:squads_enqueued] = @squads_enqueued
 
     visited = refreshed.values.sum + result[:skipped] + result[:failed]
     result[:capped] = visited < result[:total]
@@ -131,12 +138,36 @@ class Pl39NightlyRefresh < ApplicationService
     end
     fetch_counted("teams?id=#{team.external_id}")
     team.update!(last_refreshed_at: @now)
+    enqueue_bare_squad!(team)
     true
   rescue BudgetExhausted
     raise
   rescue StandardError => e
     fail_row("team id=#{team.id}", e)
     false
+  end
+
+  # L9 acceptance: a career-path bare team (stale, refreshed above, still
+  # no players) gains its squad within one nightly cycle — the enqueue
+  # itself is zero HTTP; the squad fetch later spends auto budget (and
+  # stays pending zero-HTTP when that budget is spent). Only positively
+  # in-scope teams qualify (L8 precedent: unknown scope fetches the
+  # profile but never auto-enqueues); out-of-scope and curator-pending
+  # rows stay pending-manual.
+  def enqueue_bare_squad!(team)
+    return if Career.where(football_team: team).exists?
+    return unless squad_enqueue_allowed?(team)
+
+    FetchTeamPlayersJob.perform_later(team.id)
+    @squads_enqueued += 1
+    Rails.logger.info("Pl39NightlyRefresh enqueued squad for bare team id=#{team.id}")
+  end
+
+  def squad_enqueue_allowed?(team)
+    league_ids = team.competitions.map { |competition| competition.external_id.to_i }
+    return false if league_ids.empty?
+
+    league_ids.any? { |id| AutoDiscovery.in_scope_league?(id) }
   end
 
   def refresh_player!(player)

@@ -14,8 +14,15 @@ class LeagueTeamsJob < ApplicationJob
     )
 
     # Chain: queue player fetch for each team
+    # L9: auto fan-out is ON only for in-scope leagues; out-of-scope teams
+    # stay pending-manual (recorded, never auto-fetched).
     teams.each do |team|
-      FetchTeamPlayersJob.set(wait_until: wait_time).perform_later(team.id)
+      if AutoDiscovery.in_scope_league?(external_league_id)
+        FetchTeamPlayersJob.set(wait_until: wait_time).perform_later(team.id)
+      else
+        AutoDiscovery.note("pending-manual", kind: "squad", team_id: team.id,
+          league_id: external_league_id, reason: "out-of-scope league, never auto-fetched")
+      end
     end
 
     # Recursively process next season
