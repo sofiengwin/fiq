@@ -96,7 +96,7 @@ class BravePlayerCareer < ApplicationService
     return team if team
 
     # Create new team without external_id (brave data doesn't include it)
-    country = Country.find_or_create_by!(name: "Unknown")
+    country = CountryAlias.find_or_create!("Unknown")
     FootballTeam.create!(
       name: club_name,
       country: country

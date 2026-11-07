@@ -21,6 +21,7 @@ class CoverageGate < ApplicationService
     :team_count, :teams_without_players,
     :players_in_scope, :players_without_careers,
     :senior_players,
+    :alias_forks,
     :dead, :dead_reason, :partial, :partial_detail, :allowlisted,
     :competition_missing,
     keyword_init: true
@@ -64,6 +65,10 @@ class CoverageGate < ApplicationService
       senior_players.each do |senior|
         out << "senior_player name=#{senior[:name]} external_id=#{senior[:external_id]} total_apps=#{senior[:total_apps]}"
       end
+      out << "alias_forks=#{alias_forks.size}"
+      alias_forks.each do |fork|
+        out << "alias_fork canonical=#{fork[:canonical]} names=#{fork[:names].join(",")}"
+      end
       out << "coverage=#{pass? ? 'PASS' : 'FAIL'}"
       out
     end
@@ -86,6 +91,7 @@ class CoverageGate < ApplicationService
     in_scope_count = Player.distinct.joins(:careers).where(careers: { football_team_id: team_ids }).count
     missing_players = Player.left_joins(:careers).where(careers: { id: nil }).order(:name)
     seniors = senior_list(teams, team_ids)
+    alias_forks = CountryAlias.forks
 
     dead_entry = dead_entry_for_season
     dead = !dead_entry.nil?
@@ -104,6 +110,7 @@ class CoverageGate < ApplicationService
       players_in_scope: in_scope_count,
       players_without_careers: missing_players.to_a,
       senior_players: seniors,
+      alias_forks: alias_forks,
       dead: dead,
       dead_reason: dead_entry&.fetch(:reason, nil),
       partial: partial,

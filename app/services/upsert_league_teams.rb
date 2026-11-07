@@ -26,7 +26,7 @@ class UpsertLeagueTeams < ApplicationService
   end
 
   def country(name:)
-    @country ||= Country.find_or_create_by!(name: name)
+    @country ||= CountryAlias.find_or_create!(name)
   end
 
   def competition

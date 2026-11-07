@@ -228,7 +228,7 @@ class UpsertPlayerCareer < ApplicationService
   end
 
   def country(name:)
-    Country.find_or_create_by!(name: name)
+    CountryAlias.find_or_create!(name)
   end
 
   def careers_overlap?(range1, range2)
