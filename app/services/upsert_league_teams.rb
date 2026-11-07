@@ -13,7 +13,7 @@ class UpsertLeagueTeams < ApplicationService
         name: team[:team][:name],
         code: team[:team][:code],
         country: country(name: team[:team][:country]),
-        national: team[:team][:national],
+        national: team[:team][:national] || false,
         competition: competition
       )
     end

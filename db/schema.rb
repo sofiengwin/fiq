@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_25_062127) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_054056) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -41,13 +41,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_25_062127) do
 
   create_table "careers", force: :cascade do |t|
     t.integer "appearances", default: 0
+    t.integer "assists"
+    t.integer "cards_red"
+    t.integer "cards_yellow"
+    t.bigint "competition_id"
     t.datetime "created_at", null: false
     t.daterange "duration"
     t.bigint "football_team_id", null: false
+    t.integer "goals", default: 0
+    t.datetime "last_refreshed_at"
     t.bigint "player_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["competition_id"], name: "index_careers_on_competition_id"
     t.index ["duration"], name: "index_careers_on_duration", using: :gist
     t.index ["football_team_id"], name: "index_careers_on_football_team_id"
+    t.index ["last_refreshed_at"], name: "index_careers_on_last_refreshed_at"
     t.index ["player_id"], name: "index_careers_on_player_id"
   end
 
@@ -81,11 +89,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_25_062127) do
     t.bigint "country_id"
     t.datetime "created_at", null: false
     t.string "external_id"
+    t.datetime "last_refreshed_at"
     t.string "name", null: false
     t.boolean "national", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["country_id"], name: "index_football_teams_on_country_id"
     t.index ["external_id"], name: "index_football_teams_on_external_id", unique: true
+    t.index ["last_refreshed_at"], name: "index_football_teams_on_last_refreshed_at"
   end
 
   create_table "play_sessions", force: :cascade do |t|
@@ -110,13 +120,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_25_062127) do
     t.integer "age"
     t.integer "appearances", default: 0
     t.datetime "created_at", null: false
+    t.date "dob"
     t.string "external_id"
     t.string "first_name"
     t.string "last_name"
+    t.datetime "last_refreshed_at"
     t.string "name", null: false
+    t.string "nationality"
+    t.string "photo_url"
     t.string "position"
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_players_on_external_id", unique: true
+    t.index ["last_refreshed_at"], name: "index_players_on_last_refreshed_at"
   end
 
   create_table "questions", force: :cascade do |t|
@@ -191,6 +206,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_25_062127) do
   end
 
   add_foreign_key "answer_options", "questions"
+  add_foreign_key "careers", "competitions"
   add_foreign_key "careers", "football_teams"
   add_foreign_key "careers", "players"
   add_foreign_key "competitions", "countries"
