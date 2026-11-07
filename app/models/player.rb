@@ -5,6 +5,11 @@ class Player < ApplicationRecord
   validates :name, presence: true
   validates :external_id, uniqueness: true, allow_nil: true
 
+  # T7: staleness marker for the nightly refresh — nil or older than 30 days.
+  scope :stale, ->(threshold = 30.days.ago) {
+    where("last_refreshed_at IS NULL OR last_refreshed_at <= ?", threshold)
+  }
+
   def self.ransackable_attributes(auth_object = nil)
     [ "age", "appearances", "created_at", "external_id", "first_name", "id", "id_value", "last_name", "name", "position", "updated_at" ]
   end
