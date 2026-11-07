@@ -7,6 +7,10 @@
 class NightlyDataRefreshJob < ApplicationJob
   queue_as :team_sync
 
+  # L8 priority: nightly (10) claims before auto fan-out (50); batch runs
+  # synchronously outside the queue.
+  queue_with_priority AutoDiscovery::NIGHTLY_PRIORITY
+
   retry_on FootballClient::FootballClientRateLimitExceeded, wait: 30.seconds, attempts: 10
 
   def perform(dry_run: false, max_requests: Pl39NightlyRefresh::DEFAULT_MAX_REQUESTS, league_id: Pl39NightlyRefresh::LEAGUE_ID)

@@ -96,11 +96,17 @@ class BravePlayerCareer < ApplicationService
     return team if team
 
     # Create new team without external_id (brave data doesn't include it)
+    # L8: name-only rows never auto-create fetches — without an id source
+    # there is nothing to call, so the skeleton stays pending-manual for a
+    # curator alias or an id-bearing discovery.
     country = CountryAlias.find_or_create!("Unknown")
-    FootballTeam.create!(
+    team = FootballTeam.create!(
       name: club_name,
       country: country
     )
+    AutoDiscovery.note("pending-manual", kind: "team", name: club_name,
+      reason: "name-only, needs id source or curator alias")
+    team
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.warn("BravePlayerCareer: Could not create team '#{club_name}': #{e.message}")
     nil

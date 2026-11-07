@@ -3,6 +3,10 @@ class UpsertTeamPlayers < ApplicationService
     @team = team
   end
 
+  # L8: auto-discovery squad path — every live call spends one auto-budget
+  # request (separate from the batch 500 / nightly 200 caps). Over budget
+  # the squad stays pending with zero HTTP; first-seen players created here
+  # get their career fetch enqueued by FetchTeamPlayersJob.
   def call
     response = fetch_players
     return [] if response.blank? || response[0].nil?
@@ -29,15 +33,25 @@ class UpsertTeamPlayers < ApplicationService
 
       player
     end
+  rescue AutoDiscovery::OverBudget => e
+    AutoDiscovery.note("pending-budget", kind: "squad", team_id: @team.id, reason: e.message)
+    []
   end
 
   private
 
+  # L8: checkout before every auto HTTP call; raises before any HTTP when
+  # the daily auto budget is spent.
+  def auto_fetch(endpoint)
+    AutoDiscovery.checkout!
+    FootballClient.call(end_point: endpoint)
+  end
+
   def fetch_players
-    FootballClient.call(end_point: "players/squads?team=#{@team.external_id}")
+    auto_fetch("players/squads?team=#{@team.external_id}")
   end
 
   def fetch_player_profile(player_id)
-    FootballClient.call(end_point: "players/profiles?player=#{player_id}")
+    auto_fetch("players/profiles?player=#{player_id}")
   end
 end
