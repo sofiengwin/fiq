@@ -1,12 +1,10 @@
 # T7: Nightly stale-only refresh — heals data without re-pulling everything.
 #
 # Selects only rows whose `last_refreshed_at` is nil or older than 30 days
-# (PL 39-linked rows first), re-syncs each via the cached FootballClient
-# (T2), and touches `last_refreshed_at` on success. Fresh rows are never
-# touched. Each stale row costs at most one client read, and only
-# would-be-live reads count against `max_requests` (default 200): cached
-# replays are free, so an immediate rerun costs ~0 live requests and a
-# capped run resumes cleanly on the next invocation.
+# (PL 39-linked rows first), re-syncs each via the live FootballClient,
+# and touches `last_refreshed_at` on success. Fresh rows are never
+# touched. Each stale row costs one live client read against `max_requests`
+# (default 200).
 #
 # Dry-run mode counts would-refresh rows per table and performs zero HTTP,
 # zero DB writes, and zero enqueues. The pre-quiz staleness gate stays
@@ -169,14 +167,12 @@ class Pl39NightlyRefresh < ApplicationService
     false
   end
 
-  # Counts only would-be-live reads against the budget (mirrors T5): rows
-  # already in the T2 cache replay for free. Errors other than rate limits
-  # are counted per-row by the callers; a rate limit propagates so the job
-  # can back off and retry (LeagueTeamsJob precedent) instead of burning
-  # the budget on guaranteed failures.
+  # Counts every read against the budget (live-only: no response cache, so
+# each stale row costs one live request). Errors other than rate limits
+# are counted per-row by the callers; a rate limit propagates so the job
+# can back off and retry (LeagueTeamsJob precedent) instead of burning
+# the budget on guaranteed failures.
   def fetch_counted(endpoint)
-    return FootballClient.call(end_point: endpoint) if File.exist?(FootballClient.cache_path_for(endpoint))
-
     raise BudgetExhausted if budget_exhausted?
 
     @live_requests += 1

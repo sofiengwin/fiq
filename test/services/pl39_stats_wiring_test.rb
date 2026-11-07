@@ -1,5 +1,6 @@
 require "test_helper"
 require "tmpdir"
+require "yaml"
 
 # T6 — Stats wiring: populate dob/nationality/photo + goals/assists/cards +
 # competition_id during upsert, no minutes_played.
@@ -19,29 +20,24 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
 
   setup do
     WebMock.reset!
-    @cache_dir = Dir.mktmpdir
+    @config_dir = Dir.mktmpdir
     @raw_dir = Dir.mktmpdir
-    @original_cache_dir = FootballClient.cache_dir
-    FootballClient.cache_dir = Pathname.new(@cache_dir)
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(
-      FootballClient::CACHE_ENV_VAR,
       FootballClient::THROTTLE_ENV_VAR
     )
-    ENV[FootballClient::CACHE_ENV_VAR] = "true"
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
+    write_allowlist_yml([ SEASON ], [])
     write_json("seasons_allowlist_39.json", [ SEASON ])
     write_json("dead_seasons_39.json", [])
   end
 
   teardown do
     WebMock.reset!
-    FootballClient.cache_dir = @original_cache_dir
     FootballClient.reset_throttle!
-    ENV.delete(FootballClient::CACHE_ENV_VAR)
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
-    FileUtils.remove_entry(@cache_dir)
+    FileUtils.remove_entry(@config_dir)
     FileUtils.remove_entry(@raw_dir)
   end
 
@@ -57,6 +53,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
             cards: { yellow: 3, red: 1 } }
         ] }
     ])
+    stub_players_empty(33, SEASON, 2)
 
     result = backfill(season: SEASON)
 
@@ -85,6 +82,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
       { id: 102, name: "T6 Sparse Player", dob: nil, nationality: nil,
         photo: nil, goals: 1 }
     ])
+    stub_players_empty(34, SEASON, 2)
 
     result = backfill(season: SEASON)
 
@@ -107,6 +105,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
             cards: { yellow: nil, red: nil } }
         ] }
     ])
+    stub_players_empty(35, SEASON, 2)
 
     result = backfill(season: SEASON)
 
@@ -134,6 +133,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
             cards: { yellow: 2, red: 0 } }
         ] }
     ])
+    stub_players_empty(36, SEASON, 2)
 
     backfill(season: SEASON)
 
@@ -184,7 +184,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
   def backfill(season:, present_year: PRESENT_YEAR, max_requests: Pl39Backfill::DEFAULT_MAX_REQUESTS)
     Pl39Backfill.call(
       season: season, present_year: present_year,
-      max_requests: max_requests, raw_dir: @raw_dir
+      max_requests: max_requests, config_dir: @config_dir
     )
   end
 
@@ -230,6 +230,27 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
       errors: {}
     }.to_json
     stub_request(:get, players_url(team_id, season, page)).to_return(status: 200, body: body)
+  end
+
+  def stub_players_empty(team_id, season, page)
+    body = {
+      response: [],
+      paging: { current: page, total: page },
+      errors: {}
+    }.to_json
+    stub_request(:get, players_url(team_id, season, page)).to_return(status: 200, body: body)
+  end
+
+  def write_allowlist_yml(allowlist, dead)
+    payload = {
+      "league" => 39,
+      "present_year" => PRESENT_YEAR,
+      "window_truncated" => false,
+      "allowlist" => allowlist,
+      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
+      "seasons" => {}
+    }
+    File.write(File.join(@config_dir, "allowlist_39.yml"), YAML.dump(payload))
   end
 
   def write_json(filename, payload)

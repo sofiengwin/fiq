@@ -1,6 +1,16 @@
 require "test_helper"
 
 class UpsertPlayerCareerTest < ActiveSupport::TestCase
+  include WebMock::API
+
+  # Live-only guard: the 866 cassette holds a fixed number of
+  # players/seasons playbacks, but the upsert fans out one live request per
+  # season-group, so long runs spill past the cassette to the live API and
+  # hit its 10/min quota. Stub the spill with the recorded seasons
+  # (2008-2026) so the suite never depends on live quota.
+  SEASONS_866 = (2008..2026).to_a.freeze
+  SEASONS_866_URL = "https://v3.football.api-sports.io/players/seasons?player=866".freeze
+
   setup do
     @country = Country.find_or_create_by!(name: "Colombia")
     @italy = Country.find_or_create_by!(name: "Italy")
@@ -9,6 +19,18 @@ class UpsertPlayerCareerTest < ActiveSupport::TestCase
       p.first_name = "Juan"
       p.last_name = "Cuadrado"
     end
+    FootballClient.reset_throttle!
+    @original_env = ENV.to_h.slice(FootballClient::THROTTLE_ENV_VAR)
+    ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
+    stub_request(:get, SEASONS_866_URL).to_return(
+      status: 200, body: { response: SEASONS_866, errors: {} }.to_json
+    )
+  end
+
+  teardown do
+    FootballClient.reset_throttle!
+    ENV.delete(FootballClient::THROTTLE_ENV_VAR)
+    @original_env.each { |k, v| ENV[k] = v }
   end
 
   private
