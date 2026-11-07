@@ -1,0 +1,129 @@
+require "test_helper"
+require "tmpdir"
+
+# League-generic pipeline: same services with league_id != 39 use per-league
+# artifacts (probe_<id>.json etc.) and a competition looked up by the passed id.
+# Back-compat (39 defaults, existing 39 tasks) is covered by the Pl39* tests.
+class LeagueGenericPipelineTest < ActiveSupport::TestCase
+  include WebMock::API
+
+  LEAGUE = 135
+  SEASON = 2024
+  PRESENT_YEAR = 2024
+
+  setup do
+    WebMock.reset!
+    @cache_dir = Dir.mktmpdir
+    @raw_dir = Dir.mktmpdir
+    @original_cache_dir = FootballClient.cache_dir
+    FootballClient.cache_dir = Pathname.new(@cache_dir)
+    FootballClient.reset_throttle!
+    @original_env = ENV.to_h.slice(
+      FootballClient::CACHE_ENV_VAR,
+      FootballClient::THROTTLE_ENV_VAR
+    )
+    ENV[FootballClient::CACHE_ENV_VAR] = "true"
+    ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
+  end
+
+  teardown do
+    WebMock.reset!
+    FootballClient.cache_dir = @original_cache_dir
+    FootballClient.reset_throttle!
+    ENV.delete(FootballClient::CACHE_ENV_VAR)
+    ENV.delete(FootballClient::THROTTLE_ENV_VAR)
+    @original_env.each { |k, v| ENV[k] = v }
+    FileUtils.remove_entry(@cache_dir)
+    FileUtils.remove_entry(@raw_dir)
+  end
+
+  test "probe with league_id writes per-league artifacts against league=135 URLs" do
+    stub_teams(SEASON, teams_payload(20))
+
+    result = Pl39Probe.call(league_id: LEAGUE, present_year: PRESENT_YEAR, max_requests: 1, output_dir: @raw_dir)
+
+    assert_requested(:get, "https://v3.football.api-sports.io/teams?league=135&season=#{SEASON}", times: 1)
+    assert_equal [ SEASON ], result[:allowlist]
+    assert_equal LEAGUE, JSON.parse(File.read(File.join(@raw_dir, "probe_135.json")))["league"]
+    assert_equal [ SEASON ], JSON.parse(File.read(File.join(@raw_dir, "seasons_allowlist_135.json")))
+    assert_equal [], JSON.parse(File.read(File.join(@raw_dir, "dead_seasons_135.json")))
+    # 39 artifacts untouched.
+    assert_not File.exist?(File.join(@raw_dir, "probe_39.json"))
+  end
+
+  test "backfill with league_id reads the per-league allowlist and links the passed competition" do
+    File.write(File.join(@raw_dir, "seasons_allowlist_135.json"), JSON.generate([ SEASON ]))
+    File.write(File.join(@raw_dir, "dead_seasons_135.json"), JSON.generate([]))
+    stub_teams(SEASON, teams_payload(2))
+    stub_players(505, SEASON, 1, [ { id: 9999, name: "Generic Inter Player" } ])
+    stub_players(506, SEASON, 1, [ { id: 9998, name: "Generic Other Player" } ])
+
+    result = Pl39Backfill.call(league_id: LEAGUE, season: SEASON, present_year: PRESENT_YEAR, raw_dir: @raw_dir)
+
+    assert_equal :completed, result[:status]
+    competition = Competition.find_by!(external_id: "135")
+    assert_equal competition.id, Career.first.competition_id
+    assert_not_equal "39", competition.external_id
+    assert CoverageGate.call(league_id: LEAGUE, season: SEASON, raw_dir: @raw_dir).pass?
+  end
+
+  test "coverage gate honors the per-league dead list" do
+    country = Country.create!(name: "Generic Testland #{SecureRandom.hex(4)}")
+    competition = Competition.create!(name: "Serie A", external_id: LEAGUE.to_s, country: country)
+    team = FootballTeam.create!(name: "Generic Empty FC", country: country)
+    competition.football_teams << team
+    File.write(
+      File.join(@raw_dir, "dead_seasons_135.json"),
+      JSON.generate([ { season: SEASON, reason: "empty teams response" } ])
+    )
+
+    report = CoverageGate.call(league_id: LEAGUE, season: SEASON, raw_dir: @raw_dir)
+
+    assert report.dead
+    assert report.pass?
+    assert_includes report.lines.join("\n"), "coverage league=135 season=#{SEASON}"
+  end
+
+  private
+
+  def stub_teams(season, body)
+    stub_request(:get, "https://v3.football.api-sports.io/teams?league=135&season=#{season}")
+      .to_return(status: 200, body: body)
+  end
+
+  def stub_players(team_id, season, page, players)
+    body = {
+      response: players.map do |player|
+        {
+          player: {
+            id: player[:id], name: player[:name],
+            birth: { date: "1995-06-15" }, nationality: "Italy",
+            photo: "https://example.com/#{player[:id]}.png"
+          },
+          statistics: [
+            {
+              team: { id: team_id }, league: { id: LEAGUE },
+              goals: { total: 3, assists: 1 },
+              games: { appearences: 5 },
+              cards: { yellow: 1, red: 0 }
+            }
+          ]
+        }
+      end,
+      paging: { current: page, total: 1 },
+      errors: {}
+    }.to_json
+    stub_request(:get, "https://v3.football.api-sports.io/players?team=#{team_id}&season=#{season}&page=#{page}")
+      .to_return(status: 200, body: body)
+  end
+
+  def teams_payload(count)
+    {
+      response: count.times.map do |i|
+        { team: { id: 505 + i, name: "Generic Team #{505 + i}", code: "G#{i}",
+                  country: "Italy", national: false } }
+      end,
+      errors: {}
+    }.to_json
+  end
+end

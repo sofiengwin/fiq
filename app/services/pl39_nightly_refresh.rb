@@ -19,9 +19,10 @@ class Pl39NightlyRefresh < ApplicationService
 
   BudgetExhausted = Class.new(StandardError)
 
-  def initialize(dry_run: false, max_requests: DEFAULT_MAX_REQUESTS)
+  def initialize(dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, league_id: LEAGUE_ID)
     @dry_run = dry_run
     @max_requests = max_requests.to_i
+    @league_id = league_id.to_i
     @now = Time.current
     @threshold = STALE_AFTER.ago
     @live_requests = 0
@@ -32,7 +33,7 @@ class Pl39NightlyRefresh < ApplicationService
 
   def call
     result = {
-      status: :completed, dry_run: @dry_run,
+      status: :completed, dry_run: @dry_run, league_id: @league_id,
       teams: 0, players: 0, careers: 0, total: 0,
       live_requests: 0, capped: false, skipped: 0, failed: 0
     }
@@ -78,11 +79,11 @@ class Pl39NightlyRefresh < ApplicationService
       "total=#{result[:total]} live_requests=#{result[:live_requests]} capped=#{result[:capped]}"
   end
 
-  # --- per-table refresh (PL 39-linked rows first) ---------------------------
+  # --- per-table refresh (league-linked rows first) ---------------------------
 
   def refresh_teams(scope)
     refreshed = 0
-    each_pl_first(scope, pl_team_ids) do |team|
+    each_league_first(scope, league_team_ids) do |team|
       refreshed += 1 if refresh_team!(team)
     end
     refreshed
@@ -90,7 +91,7 @@ class Pl39NightlyRefresh < ApplicationService
 
   def refresh_players(scope)
     refreshed = 0
-    each_pl_first(scope, pl_player_ids) do |player|
+    each_league_first(scope, league_player_ids) do |player|
       refreshed += 1 if refresh_player!(player)
     end
     refreshed
@@ -98,17 +99,17 @@ class Pl39NightlyRefresh < ApplicationService
 
   def refresh_careers(scope)
     refreshed = 0
-    each_pl_first(scope, pl_career_ids) do |career|
+    each_league_first(scope, league_career_ids) do |career|
       refreshed += 1 if refresh_career!(career)
     end
     refreshed
   end
 
-  # Yields stale rows PL-first (then by id), stopping cleanly when the live
-  # budget is spent. Empty pl_ids degrades to a single id-ordered pass, so
-  # rows are never filtered out when no PL linkage exists yet.
-  def each_pl_first(scope, pl_ids)
-    [ scope.where(id: pl_ids).order(:id), scope.where.not(id: pl_ids).order(:id) ].each do |partition|
+  # Yields stale rows league-first (then by id), stopping cleanly when the live
+  # budget is spent. Empty league_ids degrades to a single id-ordered pass, so
+  # rows are never filtered out when no league linkage exists yet.
+  def each_league_first(scope, league_ids)
+    [ scope.where(id: league_ids).order(:id), scope.where.not(id: league_ids).order(:id) ].each do |partition|
       partition.find_each(batch_size: 100) do |record|
         break if budget_exhausted? || @halted
         yield record
@@ -194,26 +195,26 @@ class Pl39NightlyRefresh < ApplicationService
     Rails.logger.error("Pl39NightlyRefresh failed #{label}: #{error.message}")
   end
 
-  # --- PL 39-first partitions -------------------------------------------------
+  # --- league-first partitions -------------------------------------------------
 
-  def pl_competition_id
-    @pl_competition_id ||= Competition.find_by(external_id: COMPETITION_EXTERNAL_ID)&.id
+  def league_competition_id
+    @league_competition_id ||= Competition.find_by(external_id: @league_id.to_s)&.id
   end
 
-  def pl_team_ids
-    @pl_team_ids ||=
-      if pl_competition_id
-        FootballTeam.joins(:competitions).where(competitions: { id: pl_competition_id }).distinct.pluck(:id)
+  def league_team_ids
+    @league_team_ids ||=
+      if league_competition_id
+        FootballTeam.joins(:competitions).where(competitions: { id: league_competition_id }).distinct.pluck(:id)
       else
         []
       end
   end
 
-  def pl_player_ids
-    @pl_player_ids ||= begin
+  def league_player_ids
+    @league_player_ids ||= begin
       scopes = []
-      scopes << Career.where(football_team_id: pl_team_ids) if pl_team_ids.any?
-      scopes << Career.where(competition_id: pl_competition_id) if pl_competition_id
+      scopes << Career.where(football_team_id: league_team_ids) if league_team_ids.any?
+      scopes << Career.where(competition_id: league_competition_id) if league_competition_id
 
       if scopes.empty?
         []
@@ -223,11 +224,11 @@ class Pl39NightlyRefresh < ApplicationService
     end
   end
 
-  def pl_career_ids
-    @pl_career_ids ||= begin
+  def league_career_ids
+    @league_career_ids ||= begin
       scopes = []
-      scopes << Career.where(football_team_id: pl_team_ids) if pl_team_ids.any?
-      scopes << Career.where(competition_id: pl_competition_id) if pl_competition_id
+      scopes << Career.where(football_team_id: league_team_ids) if league_team_ids.any?
+      scopes << Career.where(competition_id: league_competition_id) if league_competition_id
 
       if scopes.empty?
         []

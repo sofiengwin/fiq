@@ -25,9 +25,10 @@ class Pl39Backfill < ApplicationService
 
   BudgetExhausted = Class.new(StandardError)
 
-  def initialize(season:, present_year: Time.zone.now.year, max_requests: DEFAULT_MAX_REQUESTS,
+  def initialize(season:, league_id: LEAGUE_ID, present_year: Time.zone.now.year, max_requests: DEFAULT_MAX_REQUESTS,
     raw_dir: Rails.root.join("data/raw"))
     @season = season.to_i
+    @league_id = league_id.to_i
     @present_year = present_year.to_i
     @max_requests = max_requests.to_i
     @raw_dir = Pathname.new(raw_dir.to_s)
@@ -43,7 +44,7 @@ class Pl39Backfill < ApplicationService
     @player_ids = {}
     @careers_created = 0
 
-    teams_payload = Array(fetch_counted("teams?league=#{LEAGUE_ID}&season=#{@season}"))
+    teams_payload = Array(fetch_counted("teams?league=#{@league_id}&season=#{@season}"))
     competition = find_or_create_competition!(teams_payload)
     @team_rows = teams_payload.filter_map { |row| upsert_team!(row, competition) }
     @team_rows.each do |team, team_api_id|
@@ -60,26 +61,39 @@ class Pl39Backfill < ApplicationService
   # --- gating (zero HTTP, zero DB writes) ---------------------------------
 
   def refusal_reason
-    return "missing season (pass data:backfill_pl39[season])" if @season <= 0
+    return missing_season_reason if @season <= 0
     if @season > @present_year
       return "season #{@season} is past present year #{@present_year}; refusing future-season fetch"
     end
 
     allowlist = read_allowlist
-    return "no seasons_allowlist_39.json in #{@raw_dir}; run data:probe_pl39 first" if allowlist.nil?
+    return "no #{Pl39Probe.allowlist_filename_for(@league_id)} in #{@raw_dir}; run #{probe_task_hint} first" if allowlist.nil?
 
     unless allowlist.include?(@season)
       dead_reason = dead_reason_for(@season)
       return "season #{@season} is dead (#{dead_reason}); never bulk-pulled" if dead_reason
 
-      return "season #{@season} is not on the PL 39 allowlist #{allowlist.inspect}"
+      return "season #{@season} is not on the #{league_label} allowlist #{allowlist.inspect}"
     end
 
     nil
   end
 
+  def league_label
+    @league_id == LEAGUE_ID ? "PL 39" : "league #{@league_id}"
+  end
+
+  def missing_season_reason
+    hint = @league_id == LEAGUE_ID ? "data:backfill_pl39[season]" : "data:backfill_league[#{@league_id},season]"
+    "missing season (pass #{hint})"
+  end
+
+  def probe_task_hint
+    @league_id == LEAGUE_ID ? "data:probe_pl39" : "data:probe_league[#{@league_id}]"
+  end
+
   def read_allowlist
-    path = @raw_dir.join(Pl39Probe::ALLOWLIST_FILENAME)
+    path = @raw_dir.join(Pl39Probe.allowlist_filename_for(@league_id))
     return nil unless File.exist?(path)
 
     parsed = JSON.parse(File.read(path))
@@ -91,7 +105,7 @@ class Pl39Backfill < ApplicationService
   end
 
   def dead_reason_for(season)
-    path = @raw_dir.join(Pl39Probe::DEAD_FILENAME)
+    path = @raw_dir.join(Pl39Probe.dead_filename_for(@league_id))
     return nil unless File.exist?(path)
 
     parsed = JSON.parse(File.read(path))
@@ -144,8 +158,8 @@ class Pl39Backfill < ApplicationService
     first = teams_payload.filter_map { |row| row[:team] }.find { |team| team[:id] }
     country_name = first&.dig(:country).presence || "Unknown"
     country = Country.find_or_create_by!(name: country_name)
-    Competition.find_or_create_by!(external_id: LEAGUE_ID.to_s) do |competition|
-      competition.name = COMPETITION_NAME
+    Competition.find_or_create_by!(external_id: @league_id.to_s) do |competition|
+      competition.name = @league_id == LEAGUE_ID ? COMPETITION_NAME : "League #{@league_id}"
       competition.country = country
     end
   end
@@ -282,13 +296,13 @@ class Pl39Backfill < ApplicationService
   # --- results ----------------------------------------------------------------
 
   def refused_result(reason)
-    Rails.logger.warn("Pl39Backfill refused season=#{@season}: #{reason}")
-    { status: :refused, season: @season, live_requests: 0, refusal_reason: reason }
+    Rails.logger.warn("Pl39Backfill league=#{@league_id} refused season=#{@season}: #{reason}")
+    { status: :refused, league_id: @league_id, season: @season, live_requests: 0, refusal_reason: reason }
   end
 
   def completed_result
     summary = {
-      status: :completed, season: @season, live_requests: @live_requests,
+      status: :completed, league_id: @league_id, season: @season, live_requests: @live_requests,
       teams: @team_rows.size, players: @player_ids.size,
       careers: @careers_created, capped: false
     }
@@ -298,7 +312,7 @@ class Pl39Backfill < ApplicationService
 
   def capped_result
     summary = {
-      status: :capped, season: @season, live_requests: @live_requests,
+      status: :capped, league_id: @league_id, season: @season, live_requests: @live_requests,
       teams: @team_rows.size, players: @player_ids.size,
       careers: @careers_created, capped: true
     }
