@@ -15,27 +15,19 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
 
   setup do
     WebMock.reset!
-    @cache_dir = Dir.mktmpdir
-    @original_cache_dir = FootballClient.cache_dir
-    FootballClient.cache_dir = Pathname.new(@cache_dir)
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(
-      FootballClient::CACHE_ENV_VAR,
       FootballClient::THROTTLE_ENV_VAR
     )
-    ENV[FootballClient::CACHE_ENV_VAR] = "true"
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
     @country = Country.find_or_create_by!(name: "T7 Testland")
   end
 
   teardown do
     WebMock.reset!
-    FootballClient.cache_dir = @original_cache_dir
     FootballClient.reset_throttle!
-    ENV.delete(FootballClient::CACHE_ENV_VAR)
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
-    FileUtils.remove_entry(@cache_dir)
   end
 
   test "dry-run reports exactly the stale rows and performs zero HTTP, zero writes, zero enqueues" do
@@ -166,7 +158,7 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     assert_not_nil normal.reload.last_refreshed_at
   end
 
-  test "immediate rerun with warm cache makes ~0 live requests" do
+  test "rerun after a refresh finds nothing stale and makes 0 live requests" do
     stub_all_empty
     make_team(761, nil)
 

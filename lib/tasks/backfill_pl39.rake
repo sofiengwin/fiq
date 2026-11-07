@@ -1,5 +1,5 @@
 namespace :data do
-  desc "T5 bounded backfill: one allowlisted PL 39 season via players?team&season union (cap 500, cache-first resume, never past present)"
+  desc "Live-only bounded backfill: one allowlisted PL 39 season via players?team&season union (cap 500, YML-gated, never past present)"
   task :backfill_pl39, [ :season, :max_requests ] => :environment do |_t, args|
     if args[:season].nil?
       puts "backfill_39: status=refused season= live_requests=0 reason=missing season (pass data:backfill_pl39[season])"

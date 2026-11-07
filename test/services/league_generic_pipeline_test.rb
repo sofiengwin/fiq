@@ -47,14 +47,16 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     assert_not File.exist?(File.join(@config_dir, "allowlist_39.yml"))
   end
 
-  test "backfill with league_id reads the per-league allowlist and links the passed competition" do
-    File.write(File.join(@raw_dir, "seasons_allowlist_135.json"), JSON.generate([ SEASON ]))
+  test "backfill with league_id reads the per-league YML allowlist and links the passed competition" do
+    write_allowlist_yml(LEAGUE, [ SEASON ], [])
     File.write(File.join(@raw_dir, "dead_seasons_135.json"), JSON.generate([]))
     stub_teams(SEASON, teams_payload(2))
     stub_players(505, SEASON, 1, [ { id: 9999, name: "Generic Inter Player" } ])
+    stub_players_empty(505, SEASON, 2)
     stub_players(506, SEASON, 1, [ { id: 9998, name: "Generic Other Player" } ])
+    stub_players_empty(506, SEASON, 2)
 
-    result = Pl39Backfill.call(league_id: LEAGUE, season: SEASON, present_year: PRESENT_YEAR, raw_dir: @raw_dir)
+    result = Pl39Backfill.call(league_id: LEAGUE, season: SEASON, present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     assert_equal :completed, result[:status]
     competition = Competition.find_by!(external_id: "135")
@@ -111,6 +113,28 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     }.to_json
     stub_request(:get, "https://v3.football.api-sports.io/players?team=#{team_id}&season=#{season}&page=#{page}")
       .to_return(status: 200, body: body)
+  end
+
+  def stub_players_empty(team_id, season, page)
+    body = {
+      response: [],
+      paging: { current: page, total: page },
+      errors: {}
+    }.to_json
+    stub_request(:get, "https://v3.football.api-sports.io/players?team=#{team_id}&season=#{season}&page=#{page}")
+      .to_return(status: 200, body: body)
+  end
+
+  def write_allowlist_yml(league_id, allowlist, dead)
+    payload = {
+      "league" => league_id,
+      "present_year" => PRESENT_YEAR,
+      "window_truncated" => false,
+      "allowlist" => allowlist,
+      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
+      "seasons" => {}
+    }
+    File.write(File.join(@config_dir, "allowlist_#{league_id}.yml"), YAML.dump(payload))
   end
 
   def teams_payload(count)

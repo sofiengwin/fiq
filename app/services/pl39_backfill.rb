@@ -1,18 +1,17 @@
-require "json"
-
-# T5: Capped backfill batch — one allowlisted PL 39 season per invocation.
+# L3: Capped backfill batch — one allowlisted PL 39 season per invocation.
 #
-# Reads seasons_allowlist_39.json (T3) and refuses seasons that are missing,
-# past the present year, or not on the allowlist (dead seasons included)
-# before any live request. For an allowlisted season it pulls
-# teams?league=39&season, then the paginated players?team=<id>&season union
-# (~40 reqs/season), and upserts team/player/career skeleton rows with
-# competition_id set and last_refreshed_at touched.
+# Reads config/allowlist_<league_id>.yml (L2 probe artifact) and refuses
+# seasons that are missing, past the present year, or not on the allowlist
+# (dead seasons included) before any live request. For an allowlisted season
+# it pulls teams?league=<id>&season live, then the paginated
+# players?team=<id>&season union (~40-70 reqs/season), and upserts
+# team/player/career skeleton rows with competition_id set and
+# last_refreshed_at touched.
 #
 # Budget: hard stop at max_requests (default 500) live requests per
-# invocation. Only would-be-live calls count against the budget — cached
-# replays are free — so an immediate rerun makes ~0 live requests and a
-# capped run resumes cleanly on the next invocation.
+# invocation. Live-only: every run hits the API (no response cache), so
+# reruns are full-cost but idempotent — upserts make a repeated run safe.
+# Pagination walks until the first empty page; the budget bounds that walk.
 #
 # This path never enqueues other seasons and never uses LeagueTeamsJob (its
 # season+1 self-recursion is left intact for later tickets, just not used
@@ -26,12 +25,12 @@ class Pl39Backfill < ApplicationService
   BudgetExhausted = Class.new(StandardError)
 
   def initialize(season:, league_id: LEAGUE_ID, present_year: Time.zone.now.year, max_requests: DEFAULT_MAX_REQUESTS,
-    raw_dir: Rails.root.join("data/raw"))
+    config_dir: Rails.root.join("config"))
     @season = season.to_i
     @league_id = league_id.to_i
     @present_year = present_year.to_i
     @max_requests = max_requests.to_i
-    @raw_dir = Pathname.new(raw_dir.to_s)
+    @config_dir = Pathname.new(config_dir.to_s)
   end
 
   def call
@@ -67,7 +66,7 @@ class Pl39Backfill < ApplicationService
     end
 
     allowlist = read_allowlist
-    return "no #{Pl39Probe.allowlist_filename_for(@league_id)} in #{@raw_dir}; run #{probe_task_hint} first" if allowlist.nil?
+    return "no #{Pl39Probe.allowlist_yml_filename_for(@league_id)} in #{@config_dir}; run #{probe_task_hint} first" if allowlist.nil?
 
     unless allowlist.include?(@season)
       dead_reason = dead_reason_for(@season)
@@ -92,64 +91,41 @@ class Pl39Backfill < ApplicationService
     @league_id == LEAGUE_ID ? "data:probe_pl39" : "data:probe_league[#{@league_id}]"
   end
 
+  # Live-only gating reads the L2 probe YML (config/allowlist_<id>.yml).
+  # A missing YML (nil) refuses with a run-the-probe hint; an empty allowlist
+  # refuses every season as off-allowlist.
   def read_allowlist
-    path = @raw_dir.join(Pl39Probe.allowlist_filename_for(@league_id))
-    return nil unless File.exist?(path)
+    path = Pl39Probe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
+    return nil unless File.exist?(path.to_s)
 
-    parsed = JSON.parse(File.read(path))
-    return nil unless parsed.is_a?(Array)
-
-    parsed.map(&:to_i)
-  rescue JSON::ParserError
-    nil
+    Pl39Probe.read_allowlist_yml(path)
   end
 
   def dead_reason_for(season)
-    path = @raw_dir.join(Pl39Probe.dead_filename_for(@league_id))
-    return nil unless File.exist?(path)
+    path = Pl39Probe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
+    return nil unless File.exist?(path.to_s)
 
-    parsed = JSON.parse(File.read(path))
-    return nil unless parsed.is_a?(Array)
-
-    entry = parsed.find { |row| row.is_a?(Hash) && row["season"].to_i == season }
-    entry&.fetch("reason", "listed without reason")
-  rescue JSON::ParserError
-    nil
+    entry = Pl39Probe.read_dead_yml(path).find { |row| row[:season] == season }
+    entry&.fetch(:reason, "listed without reason")
   end
 
-  # --- budgeted fetching (cache-first, T2) ----------------------------------
+  # --- budgeted fetching (live-only) ----------------------------------------
 
-  # Counts only would-be-live calls against the budget: entries already in
-  # the T2 cache replay for free, so reruns cost ~0 and capped runs resume.
+  # Every call costs one live request against the budget: there is no
+  # response cache, so reruns are full-cost and capped runs re-walk from the
+  # start on the next invocation (idempotent upserts keep that safe).
   def fetch_counted(endpoint)
-    cached = File.exist?(FootballClient.cache_path_for(endpoint))
-    raise BudgetExhausted if !cached && @live_requests >= @max_requests
+    raise BudgetExhausted if @live_requests >= @max_requests
 
     result = FootballClient.call(end_point: endpoint)
-    @live_requests += 1 unless cached
+    @live_requests += 1
     result
   end
 
-  # Paging comes from the cached raw envelope (FootballClient returns only
-  # the response array). Without a cache file (cache disabled) fall back to
-  # stopping on the first empty page; the budget bounds that walk.
-  def last_page?(endpoint, entries)
-    paging = paging_for(endpoint)
-    return entries.empty? if paging.nil?
-
-    paging[:current] >= paging[:total]
-  end
-
-  def paging_for(endpoint)
-    path = FootballClient.cache_path_for(endpoint)
-    return nil unless File.exist?(path)
-
-    paging = JSON.parse(File.read(path))["paging"]
-    return nil unless paging.is_a?(Hash)
-
-    { current: paging["current"].to_i, total: paging["total"].to_i }
-  rescue JSON::ParserError
-    nil
+  # Live-only pagination: without a cached paging envelope, the first empty
+  # page ends the walk; the budget bounds it.
+  def last_page?(_endpoint, entries)
+    entries.empty?
   end
 
   # --- upserts (team/player/career + stats incl. appearances; T6/T8) --------
@@ -316,7 +292,7 @@ class Pl39Backfill < ApplicationService
       teams: @team_rows.size, players: @player_ids.size,
       careers: @careers_created, capped: true
     }
-    Rails.logger.warn("Pl39Backfill capped at #{@max_requests} live requests (resume-safe rerun) #{summary.inspect}")
+    Rails.logger.warn("Pl39Backfill capped at #{@max_requests} live requests (idempotent re-run re-walks) #{summary.inspect}")
     summary
   end
 end

@@ -26,8 +26,8 @@ class Pl39Probe < ApplicationService
   MAX_LIVE_REQUESTS = 10
 
   # Legacy JSON artifact names (data/raw/ era). The probe no longer writes
-  # these; Pl39Backfill/CoverageGate still read them until their own live-only
-  # tickets migrate them to the YML allowlist. Do not add new readers here.
+  # these; CoverageGate still reads them until its own live-only ticket
+  # migrates it to the YML allowlist. Do not add new readers here.
   PROBE_FILENAME = "probe_39.json"
   ALLOWLIST_FILENAME = "seasons_allowlist_39.json"
   DEAD_FILENAME = "dead_seasons_39.json"
