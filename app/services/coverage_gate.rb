@@ -4,9 +4,10 @@
 # zero missing data in the retrieved window. Never fetches or heals.
 #
 # Scoping note: the schema has no per-season membership column (T1 added none),
-# so `season` labels the report and drives dead/partial flags from the T3
-# artifacts; missing-data counts are computed over the league's retrieved
-# window in the DB (Phase 1 is single-league, PL 39).
+# so `season` labels the report and drives dead/partial flags from the
+# per-league probe artifacts (`probe_<league_id>.json` etc.); missing-data
+# counts are computed over the league's retrieved window in the DB
+# (competition looked up by the passed league_id, default 39).
 #
 # Gate: PASS when teams-without-players == 0 AND players-without-careers == 0.
 # A dead-listed season is listed, not counted as missing, so it passes even
@@ -129,30 +130,32 @@ class CoverageGate < ApplicationService
       .map { |name, external_id, total| { name: name, external_id: external_id, total_apps: total.to_i } }
   end
 
-  def artifacts_for_league?
-    @league_id == PROBE_ARTIFACT_LEAGUE
+  def probe_filename
+    Pl39Probe.probe_filename_for(@league_id)
+  end
+
+  def allowlist_filename
+    Pl39Probe.allowlist_filename_for(@league_id)
+  end
+
+  def dead_filename
+    Pl39Probe.dead_filename_for(@league_id)
   end
 
   def dead_entry_for_season
-    return nil unless artifacts_for_league?
-
     dead_list.find { |entry| entry.is_a?(Hash) && entry["season"].to_i == @season }
   end
 
   def allowlisted_for_season
-    return nil unless artifacts_for_league?
-
-    allowlist = read_json("seasons_allowlist_39.json")
+    allowlist = read_json(allowlist_filename)
     return nil if allowlist.nil?
     allowlist.map(&:to_i).include?(@season)
   end
 
-  # Partial = probed ok by T3 but fewer teams retrieved in DB than the API listed.
+  # Partial = probed ok by the probe but fewer teams retrieved in DB than the API listed.
   def partial_for_season(db_team_count)
-    return [ nil, "no probe artifacts for league #{@league_id}" ] unless artifacts_for_league?
-
-    probe = read_json("probe_39.json")
-    return [ nil, "no probe_39.json" ] if probe.nil?
+    probe = read_json(probe_filename)
+    return [ nil, "no #{probe_filename}" ] if probe.nil?
 
     info = probe["seasons"]&.fetch(@season.to_s, nil)
     return [ nil, "season not probed" ] if info.nil?
@@ -167,7 +170,7 @@ class CoverageGate < ApplicationService
   end
 
   def dead_list
-    read_json("dead_seasons_39.json") || []
+    read_json(dead_filename) || []
   end
 
   def read_json(filename)

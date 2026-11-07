@@ -9,8 +9,8 @@ class NightlyDataRefreshJob < ApplicationJob
 
   retry_on FootballClient::FootballClientRateLimitExceeded, wait: 30.seconds, attempts: 10
 
-  def perform(dry_run: false, max_requests: Pl39NightlyRefresh::DEFAULT_MAX_REQUESTS)
-    result = Pl39NightlyRefresh.call(dry_run: dry_run, max_requests: max_requests)
+  def perform(dry_run: false, max_requests: Pl39NightlyRefresh::DEFAULT_MAX_REQUESTS, league_id: Pl39NightlyRefresh::LEAGUE_ID)
+    result = Pl39NightlyRefresh.call(dry_run: dry_run, max_requests: max_requests, league_id: league_id)
     Rails.logger.info("NightlyDataRefreshJob done #{result.inspect}")
     result
   end

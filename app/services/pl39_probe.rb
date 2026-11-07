@@ -20,7 +20,20 @@ class Pl39Probe < ApplicationService
   ALLOWLIST_FILENAME = "seasons_allowlist_39.json"
   DEAD_FILENAME = "dead_seasons_39.json"
 
-  def initialize(present_year: Time.zone.now.year, max_requests: MAX_LIVE_REQUESTS, output_dir: Rails.root.join("data/raw"))
+  def self.probe_filename_for(league_id)
+    "probe_#{league_id.to_i}.json"
+  end
+
+  def self.allowlist_filename_for(league_id)
+    "seasons_allowlist_#{league_id.to_i}.json"
+  end
+
+  def self.dead_filename_for(league_id)
+    "dead_seasons_#{league_id.to_i}.json"
+  end
+
+  def initialize(league_id: LEAGUE_ID, present_year: Time.zone.now.year, max_requests: MAX_LIVE_REQUESTS, output_dir: Rails.root.join("data/raw"))
+    @league_id = league_id.to_i
     @present_year = present_year
     @max_requests = max_requests
     @output_dir = Pathname.new(output_dir.to_s)
@@ -31,7 +44,7 @@ class Pl39Probe < ApplicationService
     live_requests = 0
 
     @present_year.downto(@present_year - @max_requests + 1) do |season|
-      endpoint = "teams?league=#{LEAGUE_ID}&season=#{season}"
+      endpoint = "teams?league=#{@league_id}&season=#{season}"
       cached = File.exist?(FootballClient.cache_path_for(endpoint))
 
       begin
@@ -67,11 +80,11 @@ class Pl39Probe < ApplicationService
     write_artifacts(seasons, allowlist, dead, window_truncated)
 
     Rails.logger.info(
-      "Pl39Probe: seasons_tried=#{seasons.size} allowlisted=#{allowlist.size} " \
+      "Pl39Probe league=#{@league_id}: seasons_tried=#{seasons.size} allowlisted=#{allowlist.size} " \
       "dead=#{dead.size} live_requests=#{live_requests} window_truncated=#{window_truncated}"
     )
 
-    { live_requests: live_requests, allowlist: allowlist, dead: dead, window_truncated: window_truncated }
+    { league_id: @league_id, live_requests: live_requests, allowlist: allowlist, dead: dead, window_truncated: window_truncated }
   end
 
   private
@@ -81,15 +94,15 @@ class Pl39Probe < ApplicationService
     # NB: live_requests is per-run metadata (logged + returned, not persisted)
     # so that reruns rewrite byte-identical artifacts.
     probe = {
-      league: LEAGUE_ID,
+      league: @league_id,
       present_year: @present_year,
       max_requests: @max_requests,
       window_truncated: window_truncated,
       seasons: seasons
     }
-    atomic_write(PROBE_FILENAME, JSON.pretty_generate(probe))
-    atomic_write(ALLOWLIST_FILENAME, JSON.pretty_generate(allowlist))
-    atomic_write(DEAD_FILENAME, JSON.pretty_generate(dead))
+    atomic_write(self.class.probe_filename_for(@league_id), JSON.pretty_generate(probe))
+    atomic_write(self.class.allowlist_filename_for(@league_id), JSON.pretty_generate(allowlist))
+    atomic_write(self.class.dead_filename_for(@league_id), JSON.pretty_generate(dead))
   end
 
   def atomic_write(filename, content)
