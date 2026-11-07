@@ -1,0 +1,37 @@
+# L7: Country alias map — normalize-only.
+#
+# Maps raw country names from the API to canonical Country names. Lookup is
+# case-insensitive on the stripped raw name. Seeded from the league countries
+# in `Country::START` plus an Unknown bucket for blank/marker values.
+#
+# Semantics (normalize-only):
+#   - matched raw names (alias key or already-canonical value) resolve to the
+#     canonical name and are used for Country find_or_create;
+#   - unmatched raw names still create a Country row with the raw name as-is
+#     and log an `alias_missing` warn so a curator can add the alias;
+#   - never renames or merges existing Country rows (see CountryAlias.forks,
+#     reported by the coverage task instead).
+aliases:
+  england: England
+  united kingdom: England
+  uk: England
+  great britain: England
+  britain: England
+  spain: Spain
+  espana: Spain
+  "españa": Spain
+  france: France
+  germany: Germany
+  deutschland: Germany
+  italy: Italy
+  italia: Italy
+  belgium: Belgium
+  belgique: Belgium
+  "belgië": Belgium
+  portugal: Portugal
+  brazil: Brazil
+  brasil: Brazil
+  unknown: Unknown
+  unk: Unknown
+  "n/a": Unknown
+  na: Unknown

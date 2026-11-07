@@ -45,6 +45,6 @@ class UpdateTeam < ApplicationService
   def find_or_create_country(country_name)
     return nil if country_name.blank?
 
-    Country.find_or_create_by!(name: country_name)
+    CountryAlias.find_or_create!(country_name)
   end
 end

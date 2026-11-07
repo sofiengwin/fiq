@@ -133,7 +133,7 @@ class Pl39Backfill < ApplicationService
   def find_or_create_competition!(teams_payload)
     first = teams_payload.filter_map { |row| row[:team] }.find { |team| team[:id] }
     country_name = first&.dig(:country).presence || "Unknown"
-    country = Country.find_or_create_by!(name: country_name)
+    country = CountryAlias.find_or_create!(country_name)
     Competition.find_or_create_by!(external_id: @league_id.to_s) do |competition|
       competition.name = @league_id == LEAGUE_ID ? COMPETITION_NAME : "League #{@league_id}"
       competition.country = country
@@ -145,7 +145,7 @@ class Pl39Backfill < ApplicationService
     api_id = data[:id]
     return nil if api_id.nil?
 
-    country = Country.find_or_create_by!(name: data[:country].presence || "Unknown")
+    country = CountryAlias.find_or_create!(data[:country].presence || "Unknown")
     team = UpsertTeam.call(
       external_id: api_id,
       name: data[:name].presence || "Team #{api_id}",
