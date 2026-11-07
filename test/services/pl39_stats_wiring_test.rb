@@ -49,8 +49,13 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
     stub_teams(SEASON, [ { id: 33, name: "T6 Arsenal FC" } ])
     stub_players(33, SEASON, 1, [
       { id: 101, name: "T6 Quiz Player", dob: "1998-05-11", nationality: "England",
-        photo: "https://example.com/101.png", goals: 12, assists: 7,
-        cards_yellow: 3, cards_red: 1 }
+        photo: "https://example.com/101.png",
+        statistics: [
+          { team: { id: 33 }, league: { id: 39 },
+            games: { appearences: 27 },
+            goals: { total: 12, assists: 7 },
+            cards: { yellow: 3, red: 1 } }
+        ] }
     ])
 
     result = backfill(season: SEASON)
@@ -65,6 +70,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
 
     competition = Competition.find_by!(external_id: "39")
     career = Career.find_by!(player: player)
+    assert_equal 27, career.appearances
     assert_equal 12, career.goals
     assert_equal 7, career.assists
     assert_equal 3, career.cards_yellow
@@ -90,7 +96,7 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
     assert_equal 1, Career.where(player: player).count
   end
 
-  test "career without goals is rejected while other careers persist" do
+  test "career without goals defaults to 0 so every union player keeps a career row" do
     stub_teams(SEASON, [ { id: 35, name: "T6 Goalless FC" } ])
     stub_players(35, SEASON, 1, [
       { id: 103, name: "T6 Scorer", goals: 4 },
@@ -105,11 +111,14 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
     result = backfill(season: SEASON)
 
     assert_equal :completed, result[:status]
-    # The goalless player still saves; only their career is rejected.
+    # The goalless player still saves, and now keeps a sparse career row
+    # (goals default 0) instead of being left career-less.
     assert_not_nil Player.find_by!(external_id: "104")
     assert_equal 4, Career.find_by!(player: Player.find_by!(external_id: "103")).goals
-    assert_equal 0, Career.where(player: Player.find_by!(external_id: "104")).count
-    assert_equal 1, result[:careers]
+    fallback = Career.find_by!(player: Player.find_by!(external_id: "104"))
+    assert_equal 0, fallback.goals
+    assert_equal 0, fallback.appearances
+    assert_equal 2, result[:careers]
   end
 
   test "union prefers the statistics row for the team being backfilled" do
