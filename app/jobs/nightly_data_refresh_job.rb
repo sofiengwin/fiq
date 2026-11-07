@@ -1,4 +1,4 @@
-# T7: Nightly stale-only refresh runner (see Pl39NightlyRefresh).
+# L6: Nightly stale-only refresh runner (see Pl39NightlyRefresh, live-only).
 #
 # Scheduled daily at 02:00 UTC via the `data_refresh` entry in
 # config/recurring.yml. Re-syncs only rows whose `last_refreshed_at` is nil

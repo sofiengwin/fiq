@@ -1,6 +1,8 @@
-# T7: Nightly stale-only refresh — heals data without re-pulling everything.
+# L6: Nightly stale-only refresh — heals data without re-pulling everything.
 #
-# Selects only rows whose `last_refreshed_at` is nil or older than 30 days
+# Live-only: every stale row costs one live FootballClient read against
+# max_requests (default 200); there is no response cache, so reruns are
+# full-cost but idempotent. Selects only rows whose `last_refreshed_at`
 # (PL 39-linked rows first), re-syncs each via the live FootballClient,
 # and touches `last_refreshed_at` on success. Fresh rows are never
 # touched. Each stale row costs one live client read against `max_requests`
@@ -120,7 +122,7 @@ class Pl39NightlyRefresh < ApplicationService
     @live_requests >= @max_requests
   end
 
-  # --- per-row re-sync (one cached-client read, then touch) -------------------
+  # --- per-row re-sync (one live-client read, then touch) -------------------
 
   def refresh_team!(team)
     if team.external_id.blank?
