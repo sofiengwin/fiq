@@ -75,9 +75,11 @@ class Pl39Probe < ApplicationService
 
     seasons = normalize_seasons(previous).merge(probed_seasons(probed))
 
+    previous_present = previous["present_year"] || previous[:present_year] || @present_year
+    cap = [ previous_present.to_i, @present_year ].max
     allowlist = (
-      previous_allowlist(previous) + probed_allowlist(probed)
-    ).uniq.select { |season| season <= @present_year }.sort
+      previous_allowlist(previous) + probed_allowlist(probed).select { |season| season <= @present_year }
+    ).uniq.select { |season| season <= cap }.sort
     # A season re-probed ok leaves the dead list; a re-probed dead season
     # leaves the allowlist.
     probed_ok = probed.select { |season, info| info[:status] == "ok" }.keys
