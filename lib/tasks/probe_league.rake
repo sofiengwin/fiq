@@ -1,5 +1,5 @@
 namespace :data do
-  desc "Live-only league-generic probe: earliest retrievable season via teams endpoint (<=10 live requests); writes config/allowlist_<league_id>.yml"
+  desc "Live-only league-generic probe: earliest retrievable season via teams endpoint (<=10 live requests); writes league_seasons memos"
   task :probe_league, [ :league_id ] => :environment do |_t, args|
     if args[:league_id].nil?
       puts "probe: status=refused reason=missing league_id (pass data:probe_league[league_id])"
@@ -12,6 +12,6 @@ namespace :data do
     puts "probe_#{league_id}: allowlisted=#{result[:allowlist].size} (#{result[:allowlist].join(",")}) " \
       "dead=#{result[:dead].size} live_requests=#{result[:live_requests]} " \
       "window_truncated=#{result[:window_truncated]}"
-    puts "artifact: config/#{Pl39Probe.allowlist_yml_filename_for(league_id)}"
+    puts "scope: league_seasons memos for league #{league_id}"
   end
 end

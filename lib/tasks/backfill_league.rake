@@ -1,5 +1,5 @@
 namespace :data do
-  desc "League-generic live-only bounded backfill: one allowlisted season via players?team&season union (cap 500, YML-gated, never past present)"
+  desc "League-generic live-only bounded backfill: one in-scope season via players?team&season union (cap 500, memo-gated, convention range only)"
   task :backfill_league, [ :league_id, :season, :max_requests ] => :environment do |_t, args|
     if args[:league_id].nil? || args[:season].nil?
       puts "backfill: status=refused league=#{args[:league_id]} season=#{args[:season]} live_requests=0 " \

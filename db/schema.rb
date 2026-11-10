@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_054056) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -96,6 +96,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_054056) do
     t.index ["country_id"], name: "index_football_teams_on_country_id"
     t.index ["external_id"], name: "index_football_teams_on_external_id", unique: true
     t.index ["last_refreshed_at"], name: "index_football_teams_on_last_refreshed_at"
+  end
+
+  create_table "league_seasons", force: :cascade do |t|
+    t.datetime "checked_at"
+    t.datetime "created_at", null: false
+    t.integer "league_id", null: false
+    t.string "reason"
+    t.integer "season", null: false
+    t.string "status", null: false
+    t.integer "team_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["league_id", "season"], name: "index_league_seasons_on_league_id_and_season", unique: true
   end
 
   create_table "play_sessions", force: :cascade do |t|

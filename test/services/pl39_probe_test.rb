@@ -2,15 +2,14 @@ require "test_helper"
 require "tmpdir"
 require "yaml"
 
-# L2 live-only probe: <=10 live requests per run into config/allowlist_<id>.yml
-# (no raw payload dir, no response cache). Every run hits the API; reruns are
+# L2 live-only probe: <=10 live requests per run into league_seasons memo
+# rows (no YML writes, no response cache). Every run hits the API; reruns are
 # idempotent.
 class Pl39ProbeTest < ActiveSupport::TestCase
   include WebMock::API
 
   PRESENT_YEAR = 2023
   SEASONS = PRESENT_YEAR.downto(PRESENT_YEAR - Pl39Probe::MAX_LIVE_REQUESTS + 1).to_a.freeze
-  YML_FILE = "allowlist_39.yml".freeze
 
   setup do
     WebMock.reset!
@@ -28,7 +27,7 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     FileUtils.remove_entry(@config_dir)
   end
 
-  test "cold run probes ten seasons with at most ten live requests and writes the YML allowlist" do
+  test "cold run probes ten seasons with at most ten live requests and writes memo rows" do
     SEASONS.each { |season| stub_teams(season, teams_payload(20)) }
 
     result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
@@ -41,26 +40,21 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     assert_equal SEASONS.sort, result[:allowlist]
     assert_empty result[:dead]
 
-    assert_equal [ YML_FILE ], Dir.children(@config_dir)
-    raw = File.read(File.join(@config_dir, YML_FILE))
-    assert_not_includes raw, "cache_file"
-    assert_not_includes raw, "data/raw"
-
-    yml = YAML.safe_load(raw)
-    assert_equal 39, yml["league"]
-    assert_equal PRESENT_YEAR, yml["present_year"]
-    assert_equal SEASONS.sort, yml["allowlist"]
-    assert(yml["allowlist"].all? { |season| season <= PRESENT_YEAR })
-    assert_equal [], yml["dead"]
-    assert_equal SEASONS.size, yml["seasons"].size
-    assert_equal "ok", yml["seasons"][PRESENT_YEAR.to_s]["status"]
-    assert_equal 20, yml["seasons"][PRESENT_YEAR.to_s]["team_count"]
+    # DB-backed scope: one memo row per contacted season, no YML written.
+    assert_empty Dir.children(@config_dir)
+    assert_equal SEASONS.sort, LeagueSeason.ok_seasons_for(39, present_year: PRESENT_YEAR)
+    SEASONS.each do |season|
+      row = LeagueSeason.memo_for(39, season)
+      assert_equal "ok", row.status
+      assert_equal 20, row.team_count
+      assert_not_nil row.checked_at
+    end
   end
 
-  test "rerun costs live requests again and rewrites identical YML" do
+  test "rerun costs live requests again and keeps identical memos" do
     SEASONS.each { |season| stub_teams(season, teams_payload(20)) }
     Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
-    before = File.read(File.join(@config_dir, YML_FILE))
+    before = LeagueSeason.where(league_id: 39).order(:season).pluck(:season, :status, :team_count)
 
     result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
 
@@ -70,10 +64,10 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     end
     assert_equal 10, result[:live_requests]
     assert_equal SEASONS.sort, result[:allowlist]
-    assert_equal before, File.read(File.join(@config_dir, YML_FILE))
+    assert_equal before, LeagueSeason.where(league_id: 39).order(:season).pluck(:season, :status, :team_count)
   end
 
-  test "empty and error seasons land in the dead list with season and reason, off the allowlist" do
+  test "empty and error seasons land in the dead memos with season and reason, off the allowlist" do
     SEASONS.each { |season| stub_teams(season, teams_payload(20)) }
     stub_teams(2014, { response: [], errors: {} }.to_json)
     stub_teams(2018, { response: [], errors: { league: "season not covered" } }.to_json)
@@ -88,12 +82,12 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     assert_match(/empty/, result[:dead].find { |entry| entry[:season] == 2014 }[:reason])
     assert_match(/api error/, result[:dead].find { |entry| entry[:season] == 2018 }[:reason])
 
-    yml = read_yml
-    assert_equal [ 2014, 2018 ], yml["dead"].map { |entry| entry["season"] }
+    assert_equal %w[dead dead],
+      [ LeagueSeason.memo_for(39, 2014).status, LeagueSeason.memo_for(39, 2018).status ]
+    assert_equal [ 2014, 2018 ], LeagueSeason.dead_entries_for(39).map { |entry| entry[:season] }
 
     # Oldest tried season is dead, so the window boundary was found.
     assert_equal false, result[:window_truncated]
-    assert_equal false, yml["window_truncated"]
   end
 
   test "window is flagged truncated while the oldest tried season still has data" do
@@ -102,19 +96,15 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     assert_equal true, result[:window_truncated]
-    assert_equal true, read_yml["window_truncated"]
   end
 
-  test "run merges into the existing YML, preserving seasons outside the window" do
-    seed_yml(
-      "allowlist" => [ 2010, 2011, 2012 ],
-      "dead" => [ { "season" => 2013, "reason" => "empty teams response" } ],
-      "seasons" => {
-        "2010" => { "status" => "ok", "team_count" => 20 },
-        "2011" => { "status" => "ok", "team_count" => 20 },
-        "2012" => { "status" => "ok", "team_count" => 20 },
-        "2013" => { "status" => "dead", "team_count" => 0, "reason" => "empty teams response" }
-      }
+  test "run merges with existing memos, preserving seasons outside the window" do
+    [ 2010, 2011, 2012 ].each do |season|
+      LeagueSeason.record_contact!(league_id: 39, season: season, status: "ok", team_count: 20)
+    end
+    LeagueSeason.record_contact!(
+      league_id: 39, season: 2013, status: "dead",
+      team_count: 0, reason: "empty teams response"
     )
     stub_teams(2014, teams_payload(20))
     stub_teams(2013, teams_payload(20))
@@ -125,26 +115,36 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     # Outside-window seasons preserved; re-probed 2013 flips dead -> allowlisted.
     assert_equal [ 2010, 2011, 2012, 2013, 2014 ], result[:allowlist]
     assert_empty result[:dead]
-
-    yml = read_yml
-    assert_equal [ 2010, 2011, 2012, 2013, 2014 ], yml["allowlist"]
-    assert_equal [], yml["dead"]
-    assert_equal "ok", yml["seasons"]["2013"]["status"]
-    assert_equal 20, yml["seasons"]["2010"]["team_count"]
+    assert_equal "ok", LeagueSeason.memo_for(39, 2013).status
+    assert_equal 20, LeagueSeason.memo_for(39, 2010).team_count
   end
 
   test "allowlist never keeps seasons past the present year" do
-    seed_yml(
-      "allowlist" => [ PRESENT_YEAR, 2050 ],
-      "dead" => [],
-      "seasons" => {}
-    )
+    LeagueSeason.record_contact!(league_id: 39, season: 2050, status: "ok", team_count: 20)
     stub_teams(PRESENT_YEAR, teams_payload(20))
 
     result = Pl39Probe.call(present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
 
     assert_equal [ PRESENT_YEAR ], result[:allowlist]
-    assert_equal [ PRESENT_YEAR ], read_yml["allowlist"]
+  end
+
+  test "deprecated YML readers still parse a committed-style artifact" do
+    payload = {
+      "league" => 39,
+      "present_year" => PRESENT_YEAR,
+      "window_truncated" => false,
+      "allowlist" => [ 2022, 2023 ],
+      "dead" => [ { "season" => 2021, "reason" => "empty teams response" } ],
+      "seasons" => {}
+    }
+    path = File.join(@config_dir, "allowlist_39.yml")
+    File.write(path, YAML.dump(payload))
+
+    assert_equal [ 2022, 2023 ], Pl39Probe.read_allowlist_yml(path)
+    assert_equal(
+      [ { season: 2021, reason: "empty teams response" } ],
+      Pl39Probe.read_dead_yml(path)
+    )
   end
 
   private
@@ -162,18 +162,5 @@ class Pl39ProbeTest < ActiveSupport::TestCase
       response: count.times.map { |i| { team: { id: 30 + i, name: "Team #{30 + i}" } } },
       errors: {}
     }.to_json
-  end
-
-  def seed_yml(overrides)
-    payload = {
-      "league" => 39,
-      "present_year" => PRESENT_YEAR,
-      "window_truncated" => false
-    }.merge(overrides)
-    File.write(File.join(@config_dir, YML_FILE), YAML.dump(payload))
-  end
-
-  def read_yml(filename = YML_FILE)
-    YAML.safe_load(File.read(File.join(@config_dir, filename)))
   end
 end

@@ -247,10 +247,9 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     team = make_team(961, Time.current)
     competition = Competition.create!(external_id: "39", name: "Premier League", country: @country)
     competition.football_teams << team
-    write_allowlist_yml(
-      allowlist: [],
-      dead: [ { season: 2022, reason: "empty teams response" } ],
-      seasons: {}
+    LeagueSeason.record_contact!(
+      league_id: 39, season: 2022, status: "dead",
+      team_count: 0, reason: "empty teams response"
     )
 
     report = CoverageGate.call(league_id: 39, season: 2022, config_dir: @config_dir)
@@ -306,17 +305,5 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     stub_request(:get, %r{/teams\?id=#{external_team_id}}).to_return(
       status: 200, body: { response: profile, errors: {} }.to_json
     )
-  end
-
-  def write_allowlist_yml(allowlist:, dead:, seasons:)
-    payload = {
-      "league" => 39,
-      "present_year" => 2023,
-      "window_truncated" => false,
-      "allowlist" => allowlist,
-      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
-      "seasons" => seasons
-    }
-    File.write(File.join(@config_dir, "allowlist_39.yml"), YAML.dump(payload))
   end
 end

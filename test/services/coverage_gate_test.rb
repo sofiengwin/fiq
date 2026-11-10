@@ -2,13 +2,13 @@ require "test_helper"
 require "tmpdir"
 require "yaml"
 
-# L5 — Coverage gate per season over the live-only YML allowlist.
+# L5 — Coverage gate per season over the DB-backed league scope.
 # Derived from tickets.md T4 "Done when" (not from implementation):
 #   - seeded season with one team missing players + one player missing careers
 #     => task lists both by name and fails the gate
 #   - fixed fixtures (or fully backfilled season) => per-season lines incl.
 #     dead/partial + senior-apps sections and gate passes
-#   - dead seasons listed, not counted as missing
+#   - dead seasons listed from DB memos, not counted as missing
 #   - senior total apps >= 1 kept in DB, excluded from quiz, names reported
 class CoverageGateTest < ActiveSupport::TestCase
   LEAGUE = 39
@@ -91,12 +91,11 @@ class CoverageGateTest < ActiveSupport::TestCase
     assert_equal 1, report.senior_players.first[:total_apps]
   end
 
-  test "dead-listed season is listed not counted as missing and passes despite gaps" do
+  test "dead-listed season is listed from the DB memo, not counted as missing, and passes despite gaps" do
     empty_team = add_team("T4 Dead Empty FC")
-    write_allowlist_yml(
-      allowlist: [],
-      dead: [ { season: SEASON, reason: "empty teams response" } ],
-      seasons: {}
+    LeagueSeason.record_contact!(
+      league_id: LEAGUE, season: SEASON, status: "dead",
+      team_count: 0, reason: "empty teams response"
     )
 
     report = gate
@@ -112,9 +111,43 @@ class CoverageGateTest < ActiveSupport::TestCase
       "gaps are still listed even though a dead season passes"
   end
 
-  test "partial when fewer teams retrieved than the probe listed, complete when equal" do
+  test "deprecated YML dead list still passes when no memo rows exist" do
+    add_team("T4 Yml Dead FC")
+    write_allowlist_yml(
+      allowlist: [],
+      dead: [ { season: SEASON, reason: "empty teams response" } ],
+      seasons: {}
+    )
+
+    report = gate
+
+    assert report.dead
+    assert report.pass?
+    assert_includes report.lines.join("\n"), "dead=true reason=empty teams response"
+  end
+
+  test "partial from the DB memo when fewer teams retrieved than the probe listed, complete when equal" do
     add_team("T4 Partial A FC")
     add_team("T4 Partial B FC")
+    LeagueSeason.record_contact!(
+      league_id: LEAGUE, season: SEASON, status: "ok", team_count: 5
+    )
+
+    report = gate
+    assert_equal true, report.partial
+    assert_includes report.lines.join("\n"), "partial=true db_teams=2 probed=5"
+    assert_equal true, report.allowlisted
+
+    LeagueSeason.record_contact!(
+      league_id: LEAGUE, season: SEASON, status: "ok", team_count: 2
+    )
+
+    assert_equal false, gate.partial
+    assert_includes gate.lines.join("\n"), "partial=false db_teams=2 probed=2"
+  end
+
+  test "partial from the deprecated YML when no memo rows exist" do
+    add_team("T4 Yml Partial FC")
     write_allowlist_yml(
       allowlist: [ SEASON ],
       dead: [],
@@ -123,20 +156,13 @@ class CoverageGateTest < ActiveSupport::TestCase
 
     report = gate
     assert_equal true, report.partial
-    assert_includes report.lines.join("\n"), "partial=true db_teams=2 probed=5"
-
-    write_allowlist_yml(
-      allowlist: [ SEASON ],
-      dead: [],
-      seasons: { SEASON.to_s => { "status" => "ok", "team_count" => 2 } }
-    )
-
-    assert_equal false, gate.partial
-    assert_includes gate.lines.join("\n"), "partial=false db_teams=2 probed=2"
+    assert_includes report.lines.join("\n"), "partial=true db_teams=1 probed=5"
   end
 
-  test "allowlisted season is flagged when the YML allowlist exists" do
-    write_allowlist_yml(allowlist: [ SEASON ], dead: [], seasons: {})
+  test "allowlisted season is flagged from the DB memo" do
+    LeagueSeason.record_contact!(
+      league_id: LEAGUE, season: SEASON, status: "ok", team_count: 1
+    )
 
     assert_equal true, gate.allowlisted
     assert_includes gate.lines.join("\n"), "allowlisted=true"

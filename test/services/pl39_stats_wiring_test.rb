@@ -4,7 +4,7 @@ require "yaml"
 
 # L4 — Stats wiring keep: dob/nationality/photo_url + goals/assists/cards +
 # competition_id + appearances from inline statistics, no minutes_played.
-# Live-only: gating reads the L2 probe YML (config/allowlist_<id>.yml);
+# Live-only: gating reads the DB-backed league_seasons scope memos;
 # pagination walks to the first empty page (empty-page stubs, no response cache).
 # Derived from tickets.md T6 "Done when" (not from implementation):
 #   - re-running the T5 trial season populates a spot-checked quiz-relevant
@@ -28,7 +28,9 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
       FootballClient::THROTTLE_ENV_VAR
     )
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
-    write_allowlist_yml([ SEASON ], [])
+    LeagueSeason.record_contact!(
+      league_id: 39, season: SEASON, status: "ok", team_count: 20
+    )
   end
 
   teardown do
@@ -239,17 +241,5 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
       errors: {}
     }.to_json
     stub_request(:get, players_url(team_id, season, page)).to_return(status: 200, body: body)
-  end
-
-  def write_allowlist_yml(allowlist, dead)
-    payload = {
-      "league" => 39,
-      "present_year" => PRESENT_YEAR,
-      "window_truncated" => false,
-      "allowlist" => allowlist,
-      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
-      "seasons" => {}
-    }
-    File.write(File.join(@config_dir, "allowlist_39.yml"), YAML.dump(payload))
   end
 end

@@ -1,9 +1,9 @@
-# L3: Capped backfill batch — one allowlisted PL 39 season per invocation.
+# L3: Capped backfill batch — one convention-range season per invocation.
 #
-# Reads config/allowlist_<league_id>.yml (L2 probe artifact) and refuses
-# seasons that are missing, past the present year, or not on the allowlist
-# (dead seasons included) before any live request. For an allowlisted season
-# it pulls teams?league=<id>&season live, then the paginated
+# Reads the DB-backed `league_seasons` scope memos and refuses seasons that
+# are outside [2010, present], fresh-dead, or unknown (no memo and no
+# deprecated YML entry) before any live request. For an in-scope season it
+# pulls teams?league=<id>&season live, then the paginated
 # players?team=<id>&season union (~40-70 reqs/season), and upserts
 # team/player/career skeleton rows with competition_id set and
 # last_refreshed_at touched.
@@ -44,6 +44,19 @@ class Pl39Backfill < ApplicationService
     @careers_created = 0
 
     teams_payload = Array(fetch_counted("teams?league=#{@league_id}&season=#{@season}"))
+    if teams_payload.empty?
+      # Live re-check (stale-dead memo or freshly probed window) still finds
+      # no teams: refresh the dead memo and refuse without player fetches.
+      LeagueSeason.record_contact!(
+        league_id: @league_id, season: @season,
+        status: LeagueSeason::DEAD, team_count: 0, reason: "empty teams response"
+      )
+      return rechecked_dead_result
+    end
+    LeagueSeason.record_contact!(
+      league_id: @league_id, season: @season,
+      status: LeagueSeason::OK, team_count: teams_payload.size
+    )
     competition = find_or_create_competition!(teams_payload)
     @team_rows = teams_payload.filter_map { |row| upsert_team!(row, competition) }
     @team_rows.each do |team, team_api_id|
@@ -61,21 +74,21 @@ class Pl39Backfill < ApplicationService
 
   def refusal_reason
     return missing_season_reason if @season <= 0
-    if @season > @present_year
-      return "season #{@season} is past present year #{@present_year}; refusing future-season fetch"
+    unless LeagueSeason.in_convention_range?(@season, @present_year)
+      return "season #{@season} is outside the retrievable convention range " \
+        "[#{LeagueSeason::FIRST_SEASON}, #{@present_year}]; refusing fetch"
     end
 
-    allowlist = read_allowlist
-    return "no #{Pl39Probe.allowlist_yml_filename_for(@league_id)} in #{@config_dir}; run #{probe_task_hint} first" if allowlist.nil?
-
-    unless allowlist.include?(@season)
-      dead_reason = dead_reason_for(@season)
-      return "season #{@season} is dead (#{dead_reason}); never bulk-pulled" if dead_reason
-
-      return "season #{@season} is not on the #{league_label} allowlist #{allowlist.inspect}"
+    row = LeagueSeason.memo_for(@league_id, @season)
+    if row&.dead? && row.fresh?
+      return "season #{@season} is dead (#{row.reason}); never bulk-pulled"
     end
+    return nil if row.present?
 
-    nil
+    # No memo row: deprecated YML fallback when the artifact exists, else
+    # the probe has to run first. A stale-dead row (TTL expired) falls
+    # through to a live re-check below.
+    yml_refusal_or_nil
   end
 
   def league_label
@@ -91,22 +104,20 @@ class Pl39Backfill < ApplicationService
     @league_id == LEAGUE_ID ? "data:probe_pl39" : "data:probe_league[#{@league_id}]"
   end
 
-  # Live-only gating reads the L2 probe YML (config/allowlist_<id>.yml).
-  # A missing YML (nil) refuses with a run-the-probe hint; an empty allowlist
-  # refuses every season as off-allowlist.
-  def read_allowlist
+  # League scope is DB-backed (`league_seasons` memos). The deprecated
+  # per-league YML artifact is consulted only when no memo rows exist yet.
+  def yml_refusal_or_nil
     path = Pl39Probe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
-    return nil unless File.exist?(path.to_s)
+    unless File.exist?(path.to_s) && Pl39Probe.read_yml(path).present?
+      return "no league_seasons memo for #{@league_id}/#{@season}; run #{probe_task_hint} first"
+    end
 
-    Pl39Probe.read_allowlist_yml(path)
-  end
+    entry = Pl39Probe.read_dead_yml(path).find { |row| row[:season] == @season }
+    return "season #{@season} is dead (#{entry.fetch(:reason, 'listed without reason')}); never bulk-pulled" if entry
 
-  def dead_reason_for(season)
-    path = Pl39Probe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
-    return nil unless File.exist?(path.to_s)
+    return nil if Pl39Probe.read_allowlist_yml(path).include?(@season)
 
-    entry = Pl39Probe.read_dead_yml(path).find { |row| row[:season] == season }
-    entry&.fetch(:reason, "listed without reason")
+    "season #{@season} is not on the #{league_label} allowlist"
   end
 
   # --- budgeted fetching (live-only) ----------------------------------------
@@ -274,6 +285,14 @@ class Pl39Backfill < ApplicationService
   def refused_result(reason)
     Rails.logger.warn("Pl39Backfill league=#{@league_id} refused season=#{@season}: #{reason}")
     { status: :refused, league_id: @league_id, season: @season, live_requests: 0, refusal_reason: reason }
+  end
+
+  # A live re-check that still finds no teams: the dead memo was refreshed,
+  # so this refusal cost the re-check request.
+  def rechecked_dead_result
+    reason = "season #{@season} returned no teams; memo dead (empty teams response)"
+    Rails.logger.warn("Pl39Backfill league=#{@league_id} refused season=#{@season}: #{reason}")
+    { status: :refused, league_id: @league_id, season: @season, live_requests: @live_requests, refusal_reason: reason }
   end
 
   def completed_result

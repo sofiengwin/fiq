@@ -1,12 +1,13 @@
-# L5: Per-season coverage gate over the live-only YML allowlist.
+# L5: Per-season coverage gate over the DB-backed league scope.
 #
 # Read-only: prints per-season completeness and exits 0 only when there is
 # zero missing data in the retrieved window. Never fetches or heals.
 #
 # Scoping note: the schema has no per-season membership column (T1 added none),
 # so `season` labels the report and drives dead/partial flags from the
-# per-league probe YML (`config/allowlist_<league_id>.yml`); missing-data
-# counts are computed over the league's retrieved window in the DB
+# `league_seasons` memo rows (deprecated per-league YML artifacts are read
+# only when no memo rows exist for the league); missing-data counts are
+# computed over the league's retrieved window in the DB
 # (competition looked up by the passed league_id, default 39).
 #
 # Gate: PASS when teams-without-players == 0 AND players-without-careers == 0.
@@ -149,10 +150,16 @@ class CoverageGate < ApplicationService
   end
 
   def dead_entry_for_season
+    row = LeagueSeason.memo_for(@league_id, @season)
+    return { season: row.season, reason: row.reason.to_s } if row&.dead?
+
     Pl39Probe.read_dead_yml(yml_path).find { |entry| entry[:season] == @season }
   end
 
   def allowlisted_for_season
+    row = LeagueSeason.memo_for(@league_id, @season)
+    return true if row&.ok?
+    return false if row&.dead?
     return nil unless yml_present?
 
     Pl39Probe.read_allowlist_yml(yml_path).include?(@season)
@@ -160,6 +167,18 @@ class CoverageGate < ApplicationService
 
   # Partial = probed ok by the probe but fewer teams retrieved in DB than the API listed.
   def partial_for_season(db_team_count)
+    row = LeagueSeason.memo_for(@league_id, @season)
+    if row
+      return [ nil, "season not probed" ] unless row.ok?
+
+      probed = row.team_count.to_i
+      if db_team_count < probed
+        return [ true, "db_teams=#{db_team_count} probed=#{probed}" ]
+      else
+        return [ false, "db_teams=#{db_team_count} probed=#{probed}" ]
+      end
+    end
+
     yml = yml_data
     return [ nil, "no #{Pl39Probe.allowlist_yml_filename_for(@league_id)}" ] if yml.empty?
 

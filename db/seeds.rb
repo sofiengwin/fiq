@@ -101,3 +101,29 @@ if quiz2.questions.empty?
 end
 
 puts "Created #{Quiz.count} quizzes with #{Question.count} questions and #{AnswerOption.count} answer options."
+
+# League scope memos (DB-backed; replaces config/allowlist_<id>.yml).
+# Probe-confirmed sweeps: 2010-present retrievable, 2007-2009 dead across
+# leagues 39 (PL), 135 (Serie A), 140 (La Liga), 61 (Ligue 1), 78 (Bundesliga).
+# Only fills missing rows so live probe refreshes (team counts, checked_at)
+# are never clobbered.
+puts "Seeding league scope memos..."
+present_year = Time.zone.now.year
+{ 39 => 20, 135 => 0, 140 => 0, 61 => 0, 78 => 0 }.each do |league_id, team_count|
+  (LeagueSeason::FIRST_SEASON..present_year).each do |season|
+    LeagueSeason.where(league_id: league_id, season: season).first_or_create! do |row|
+      row.status = LeagueSeason::OK
+      row.team_count = team_count
+      row.checked_at = Time.current
+    end
+  end
+  (2007..2009).each do |season|
+    LeagueSeason.where(league_id: league_id, season: season).first_or_create! do |row|
+      row.status = LeagueSeason::DEAD
+      row.reason = "empty teams response"
+      row.team_count = 0
+      row.checked_at = Time.current
+    end
+  end
+end
+puts "Seeded #{LeagueSeason.count} league season memos."

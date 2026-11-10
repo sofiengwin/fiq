@@ -2,8 +2,8 @@ require "test_helper"
 require "tmpdir"
 require "yaml"
 
-# League-generic pipeline: same services with league_id != 39 use per-league
-# YML artifacts (config/allowlist_<id>.yml) and a competition looked up by the passed id.
+# League-generic pipeline: same services with league_id != 39 use DB-backed
+# league_seasons memos and a competition looked up by the passed id.
 # Back-compat (39 defaults, existing 39 tasks) is covered by the Pl39* tests.
 class LeagueGenericPipelineTest < ActiveSupport::TestCase
   include WebMock::API
@@ -30,23 +30,23 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     FileUtils.remove_entry(@config_dir)
   end
 
-  test "probe with league_id writes per-league YML allowlist against league=135 URLs" do
+  test "probe with league_id writes memo rows for league=135 URLs" do
     stub_teams(SEASON, teams_payload(20))
 
     result = Pl39Probe.call(league_id: LEAGUE, present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
 
     assert_requested(:get, "https://v3.football.api-sports.io/teams?league=135&season=#{SEASON}", times: 1)
     assert_equal [ SEASON ], result[:allowlist]
-    yml = YAML.safe_load(File.read(File.join(@config_dir, "allowlist_135.yml")))
-    assert_equal LEAGUE, yml["league"]
-    assert_equal [ SEASON ], yml["allowlist"]
-    assert_equal [], yml["dead"]
-    # 39 artifact untouched.
-    assert_not File.exist?(File.join(@config_dir, "allowlist_39.yml"))
+    row = LeagueSeason.memo_for(LEAGUE, SEASON)
+    assert_equal "ok", row.status
+    assert_equal 20, row.team_count
+    assert_empty LeagueSeason.where(league_id: 39)
+    # No YML artifact written.
+    assert_empty Dir.children(@config_dir)
   end
 
-  test "backfill with league_id reads the per-league YML allowlist and links the passed competition" do
-    write_allowlist_yml(LEAGUE, [ SEASON ], [])
+  test "backfill with league_id reads the DB memo and links the passed competition" do
+    memo_ok(LEAGUE, SEASON)
     stub_teams(SEASON, teams_payload(2))
     stub_players(505, SEASON, 1, [ { id: 9999, name: "Generic Inter Player" } ])
     stub_players_empty(505, SEASON, 2)
@@ -62,12 +62,15 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     assert CoverageGate.call(league_id: LEAGUE, season: SEASON, config_dir: @config_dir).pass?
   end
 
-  test "coverage gate honors the per-league dead list" do
+  test "coverage gate honors the DB dead memo for the league" do
     country = Country.create!(name: "Generic Testland #{SecureRandom.hex(4)}")
     competition = Competition.create!(name: "Serie A", external_id: LEAGUE.to_s, country: country)
     team = FootballTeam.create!(name: "Generic Empty FC", country: country)
     competition.football_teams << team
-    write_allowlist_yml(LEAGUE, [], [ { season: SEASON, reason: "empty teams response" } ])
+    LeagueSeason.record_contact!(
+      league_id: LEAGUE, season: SEASON, status: "dead",
+      team_count: 0, reason: "empty teams response"
+    )
 
     report = CoverageGate.call(league_id: LEAGUE, season: SEASON, config_dir: @config_dir)
 
@@ -77,6 +80,12 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
   end
 
   private
+
+  def memo_ok(league_id, season)
+    LeagueSeason.record_contact!(
+      league_id: league_id, season: season, status: "ok", team_count: 20
+    )
+  end
 
   def stub_teams(season, body)
     stub_request(:get, "https://v3.football.api-sports.io/teams?league=135&season=#{season}")
@@ -117,18 +126,6 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     }.to_json
     stub_request(:get, "https://v3.football.api-sports.io/players?team=#{team_id}&season=#{season}&page=#{page}")
       .to_return(status: 200, body: body)
-  end
-
-  def write_allowlist_yml(league_id, allowlist, dead)
-    payload = {
-      "league" => league_id,
-      "present_year" => PRESENT_YEAR,
-      "window_truncated" => false,
-      "allowlist" => allowlist,
-      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
-      "seasons" => {}
-    }
-    File.write(File.join(@config_dir, "allowlist_#{league_id}.yml"), YAML.dump(payload))
   end
 
   def teams_payload(count)
