@@ -1,13 +1,17 @@
 require "test_helper"
 
-# L8 — First-seen skeleton/enqueue + 5000/day auto budget + priority.
+# L8 — First-seen skeleton/enqueue + quota-exhaustion retry-next-day + priority.
 #
 # Derived from the ticket (not from implementation):
 #   - career-path new teams enqueue squad iff league in scope, else
 #     pending-manual (skeleton kept, zero further HTTP);
 #   - player first-seen enqueues a career fetch;
-#   - the auto budget counter is separate from the batch (500) / nightly
-#     (200) caps; over budget stays pending with zero HTTP;
+#   - there is no daily auto counter: quota exhaustion
+#     (FootballClientRateLimitExceeded) propagates out of the auto upserts
+#     instead of being swallowed, Solid Queue retry_on backs the job off,
+#     and failed rows keep their stale last_refreshed_at so the next
+#     nightly (02:00 UTC) retries them — that is the "retry next day"
+#     mechanism;
 #   - priority batch > nightly > auto.
 class AutoDiscoveryTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
@@ -15,7 +19,7 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
 
   setup do
     WebMock.reset!
-    AutoDiscovery.reset!
+    AutoDiscovery.clear_dead("team:835")
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(FootballClient::THROTTLE_ENV_VAR)
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
@@ -24,7 +28,7 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
 
   teardown do
     WebMock.reset!
-    AutoDiscovery.reset!
+    AutoDiscovery.clear_dead("team:835")
     FootballClient.reset_throttle!
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
@@ -42,63 +46,47 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
     assert AutoDiscovery.in_scope_league?("39")
   end
 
-  test "auto budget is 5000 per day, separate from the batch and nightly caps" do
-    assert_equal 5000, AutoDiscovery::DAILY_AUTO_BUDGET
-    assert_equal 500, Pl39Backfill::DEFAULT_MAX_REQUESTS
-    assert_equal 200, LeagueNightlyRefresh::DEFAULT_MAX_REQUESTS
+  test "quota exhaustion propagates from the career path instead of being swallowed" do
+    stub_rate_limited
+    player = make_player(851, nil)
+
+    assert_raises(FootballClient::FootballClientRateLimitExceeded) do
+      UpsertPlayerCareer.call(player: player)
+    end
   end
 
-  test "checkout spends the daily counter and refuses past the cap" do
-    assert_equal 0, AutoDiscovery.spent_today
-    assert_equal 5000, AutoDiscovery.remaining_today
-    assert_not AutoDiscovery.over_budget?
+  test "quota exhaustion propagates from the squad and league paths" do
+    stub_rate_limited
+    team = make_team(852, nil)
 
-    assert AutoDiscovery.checkout(3)
-    assert_equal 3, AutoDiscovery.spent_today
-    assert_equal 4997, AutoDiscovery.remaining_today
-
-    assert AutoDiscovery.checkout(4997)
-    assert AutoDiscovery.over_budget?
-    assert_not AutoDiscovery.checkout
-    assert_raises(AutoDiscovery::OverBudget) { AutoDiscovery.checkout! }
-
-    AutoDiscovery.reset!
-    assert_equal 0, AutoDiscovery.spent_today
-    assert_not AutoDiscovery.over_budget?
+    assert_raises(FootballClient::FootballClientRateLimitExceeded) do
+      UpsertTeamPlayers.call(team: team)
+    end
+    assert_raises(FootballClient::FootballClientRateLimitExceeded) do
+      UpsertLeagueTeams.call(league_id: 39, season: 2023, competition_name: "Premier League")
+    end
   end
 
-  test "batch and nightly runs do not consume the auto budget" do
-    stub_all_empty
-    make_team(811, nil)
-    make_player(811, nil)
+  test "quota-exhausted rows stay stale with no dead mark so the next nightly retries them" do
+    stub_rate_limited
+    team = make_team(853, nil)
 
-    LeagueNightlyRefresh.call(dry_run: false)
-
-    assert_equal 0, AutoDiscovery.spent_today
-  end
-
-  test "over-budget career path stays pending with zero HTTP" do
-    AutoDiscovery.checkout(AutoDiscovery::DAILY_AUTO_BUDGET)
-    player = make_player(821, nil)
-    teams_before = FootballTeam.count
-
-    result = nil
-    assert_no_enqueued_jobs do
-      result = UpsertPlayerCareer.call(player: player)
+    assert_raises(FootballClient::FootballClientRateLimitExceeded) do
+      UpsertTeamPlayers.call(team: team)
     end
 
-    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
-    assert_equal teams_before, FootballTeam.count
-    assert_empty Array(result)
-  end
+    # No touch, no dead mark: still stale, so the next nightly picks it up.
+    assert_nil team.reload.last_refreshed_at
+    assert_not AutoDiscovery.dead?("team:853")
+    assert FootballTeam.stale.exists?(team.id)
 
-  test "over-budget squad and league paths stay pending with zero HTTP" do
-    AutoDiscovery.checkout(AutoDiscovery::DAILY_AUTO_BUDGET)
-    team = make_team(822, nil)
+    # Quota recovers: the next nightly run refreshes the still-stale row.
+    WebMock.reset!
+    stub_all_empty
+    result = LeagueNightlyRefresh.call(dry_run: false, max_requests: 200)
 
-    assert_equal [], UpsertTeamPlayers.call(team: team)
-    assert_equal [], UpsertLeagueTeams.call(league_id: 39, season: 2023, competition_name: "Premier League")
-    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
+    assert_not_nil team.reload.last_refreshed_at
+    assert_equal 1, result[:teams]
   end
 
   test "career-path first-seen team in scope enqueues its squad" do
@@ -248,6 +236,12 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
   def stub_all_empty
     stub_request(:get, /v3\.football\.api-sports\.io/).to_return(
       status: 200, body: { response: [], errors: {} }.to_json
+    )
+  end
+
+  def stub_rate_limited
+    stub_request(:get, /v3\.football\.api-sports\.io/).to_return(
+      status: 200, body: { response: [], errors: { rateLimit: "Too many requests" } }.to_json
     )
   end
 

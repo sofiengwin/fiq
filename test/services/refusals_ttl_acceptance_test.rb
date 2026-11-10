@@ -13,16 +13,17 @@ require "tmpdir"
 #   - out-of-scope leagues stay pending-manual: the league fan-out records
 #     teams but never enqueues squad fetches;
 #   - acceptance: a career-path bare team gains its squad within one
-#     nightly cycle; alias forks stay zero; over-budget stays pending with
-#     zero HTTP; a dead-listed season is listed with reason and coverage
-#     still passes.
+#     nightly cycle; alias forks stay zero; quota-exhausted rows stay stale
+#     (no dead mark) and retry on the next nightly; a dead-listed season is
+#     listed with reason and coverage still passes.
 class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include WebMock::API
 
   setup do
     WebMock.reset!
-    AutoDiscovery.reset!
+    AutoDiscovery.clear_dead("team:911")
+    AutoDiscovery.clear_dead("team:912")
     FootballClient.reset_throttle!
     @original_env = ENV.to_h.slice(FootballClient::THROTTLE_ENV_VAR)
     ENV[FootballClient::THROTTLE_ENV_VAR] = "0"
@@ -32,7 +33,8 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
 
   teardown do
     WebMock.reset!
-    AutoDiscovery.reset!
+    AutoDiscovery.clear_dead("team:911")
+    AutoDiscovery.clear_dead("team:912")
     FootballClient.reset_throttle!
     ENV.delete(FootballClient::THROTTLE_ENV_VAR)
     @original_env.each { |k, v| ENV[k] = v }
@@ -228,19 +230,27 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     assert_empty bare_out.careers
   end
 
-  test "acceptance: over-budget stays pending with zero HTTP" do
-    AutoDiscovery.checkout(AutoDiscovery::DAILY_AUTO_BUDGET)
+  test "acceptance: quota exhaustion propagates and the row retries on the next nightly" do
+    stub_request(:get, /v3\.football\.api-sports\.io/).to_return(
+      status: 200, body: { response: [], errors: { rateLimit: "Too many requests" } }.to_json
+    )
     player = make_player(951, nil)
-    teams_before = FootballTeam.count
 
-    result = nil
-    assert_no_enqueued_jobs do
-      result = UpsertPlayerCareer.call(player: player)
+    assert_raises(FootballClient::FootballClientRateLimitExceeded) do
+      UpsertPlayerCareer.call(player: player)
     end
 
-    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
-    assert_equal teams_before, FootballTeam.count
-    assert_empty Array(result)
+    # Still stale, no dead mark: the next nightly (02:00 UTC) retries it.
+    assert_nil player.reload.last_refreshed_at
+    assert Player.stale.exists?(player.id)
+    assert_empty player.careers.reload
+
+    # Quota recovers: the next nightly run refreshes the still-stale row.
+    WebMock.reset!
+    stub_all_empty
+    LeagueNightlyRefresh.call(dry_run: false)
+
+    assert_not_nil player.reload.last_refreshed_at
   end
 
   test "acceptance: dead-listed season is listed with reason and coverage passes" do

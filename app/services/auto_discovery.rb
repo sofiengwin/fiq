@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-# L8: First-seen auto-discovery — scope gate + daily auto budget + priority.
+# L8: First-seen auto-discovery — scope gate + priority.
 #
 # The batch path (Pl39Backfill, cap 500, operator rake) and the nightly path
 # (LeagueNightlyRefresh, cap 200, team_sync recurring) own their own counters and
-# call FootballClient directly, so they never touch this budget. Everything
+# call FootballClient directly, so they never touch this path. Everything
 # the LeagueTeamsJob fan-out chain spends (UpsertLeagueTeams /
-# UpsertTeamPlayers / UpsertPlayerCareer HTTP) is counted here instead.
+# UpsertTeamPlayers / UpsertPlayerCareer HTTP) is live, uncapped per day.
 #
 # - Scope: auto-discovery fans out only for leagues [39, 135, 140, 61, 78]
 #   (dev/test ON; everything else is pending-manual, never fetched).
@@ -14,9 +14,12 @@
 #   squad is enqueued iff the discovering league context is in scope,
 #   otherwise the skeleton stays pending-manual. A player unknown by id in a
 #   squad is created and its career fetch is enqueued by FetchTeamPlayersJob.
-# - Budget: 5000 live requests per day, shared by the whole auto path.
-#   Checkout happens before every auto HTTP call; when the budget is spent
-#   the work stays pending with zero HTTP.
+# - Quota: there is no daily auto counter. Quota exhaustion
+#   (FootballClient::FootballClientRateLimitExceeded) propagates out of the
+#   upserts instead of being swallowed, so Solid Queue retry_on backs the
+#   job off; failed rows keep their stale last_refreshed_at, so the next
+#   nightly (02:00 UTC) naturally retries them — that is the "retry next
+#   day" mechanism.
 # - Priority (Solid Queue claims lower numbers first; batch runs
 #   synchronously outside the queue so it never waits): batch (sync) >
 #   nightly (10) > auto (50).
@@ -28,10 +31,6 @@ class AutoDiscovery < ApplicationService
   # Leagues whose fan-out is ON in dev/test (doc/data-collection.md).
   IN_SCOPE_LEAGUE_IDS = [ 39, 61, 78, 135, 140 ].freeze
 
-  # Separate from Pl39Backfill::DEFAULT_MAX_REQUESTS (500) and
-  # LeagueNightlyRefresh::DEFAULT_MAX_REQUESTS (200).
-  DAILY_AUTO_BUDGET = 5000
-
   # Solid Queue claims lower priority numbers first.
   BATCH_PRIORITY = 0
   NIGHTLY_PRIORITY = 10
@@ -40,45 +39,9 @@ class AutoDiscovery < ApplicationService
   # Re-check horizon noted (in logs only) for dead first-seen rows.
   DEAD_RECHECK_AFTER = 30.days
 
-  OverBudget = Class.new(StandardError)
   class << self
     def mutex
       @mutex ||= Mutex.new
-    end
-
-    def spent_today
-      mutex.synchronize { counter_for(Date.current) }
-    end
-
-    def remaining_today
-      DAILY_AUTO_BUDGET - spent_today
-    end
-
-    def over_budget?
-      spent_today >= DAILY_AUTO_BUDGET
-    end
-
-    # Records n auto requests. Returns true, or false without spending when
-    # the budget cannot cover n (zero HTTP must follow a false).
-    def checkout(n = 1)
-      mutex.synchronize do
-        return false if counter_for(Date.current) + n > DAILY_AUTO_BUDGET
-
-        store_counter(Date.current, counter_for(Date.current) + n)
-        true
-      end
-    end
-
-    # Same as checkout but raises OverBudget instead of returning false.
-    def checkout!
-      raise OverBudget, "auto budget exhausted (#{DAILY_AUTO_BUDGET}/day)" unless checkout
-
-      true
-    end
-
-    # Test hook: forget today's spend.
-    def reset!
-      mutex.synchronize { @counters = {}; @dead = {} }
     end
 
     # L9: refusal TTL — ambiguous/no-match first-seen rows are dead with
@@ -117,16 +80,6 @@ class AutoDiscovery < ApplicationService
     def note(outcome, **detail)
       pairs = detail.map { |key, value| "#{key}=#{value}" }.join(" ")
       Rails.logger.warn("auto_discovery outcome=#{outcome} #{pairs}".strip)
-    end
-
-    private
-
-    def counter_for(date)
-      (@counters ||= {})[date.to_s] || 0
-    end
-
-    def store_counter(date, value)
-      (@counters ||= {})[date.to_s] = value
     end
   end
 end

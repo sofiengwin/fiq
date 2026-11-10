@@ -13,8 +13,8 @@
 # deferred — this never blocks quiz paths.
 # L9: a refreshed stale team that is still bare (no players) and linked to
 # an in-scope league gets its squad fetch enqueued (FetchTeamPlayersJob,
-# zero HTTP now, auto budget later), so career-path bare teams gain squads
-# within one nightly cycle.
+# zero HTTP now, fetched live when the job runs), so career-path bare teams
+# gain squads within one nightly cycle.
 class LeagueNightlyRefresh < ApplicationService
   LEAGUE_ID = 39
   COMPETITION_EXTERNAL_ID = "39"
@@ -149,8 +149,9 @@ class LeagueNightlyRefresh < ApplicationService
 
   # L9 acceptance: a career-path bare team (stale, refreshed above, still
   # no players) gains its squad within one nightly cycle — the enqueue
-  # itself is zero HTTP; the squad fetch later spends auto budget (and
-  # stays pending zero-HTTP when that budget is spent). Only positively
+  # itself is zero HTTP; the squad fetch runs live when the job executes
+  # (quota exhaustion backs off via retry_on and the row retries on the
+  # next nightly). Only positively
   # in-scope teams qualify (L8 precedent: unknown scope fetches the
   # profile but never auto-enqueues); out-of-scope and curator-pending
   # rows stay pending-manual.

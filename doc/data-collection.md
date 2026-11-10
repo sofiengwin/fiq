@@ -18,12 +18,12 @@
 - Stats: players dob/nationality/photo_url; careers goals mandatory, assists/cards nullable, competition_id fk, appearances wired. No minutes_played.
 - Precision: transfer-date durations + normalized teams/competitions/countries via existing UpsertPlayerCareer path.
 - Governance: probe gates backfill; per-season coverage report; errata frontend-only.
-- Budget: ~40-70 live reqs/season; caps 500 backfill / 200 nightly / 5000 auto per day; throttle 0.6s; priority batch > nightly > auto.
+- Budget: ~40-70 live reqs/season; caps 500 backfill / 200 nightly (auto uncapped per day); throttle 0.6s; priority batch > nightly > auto. Auto quota-exhaustion retries next day: the rate limit propagates, Solid Queue retry_on backs off, and failed rows keep stale last_refreshed_at for the next 02:00 UTC nightly.
 - Auto-discovery (dev/test): ON for leagues [39,135,140,61,78], OFF rest (pending-manual, never fetched). Country alias via `config/country_aliases.yml` (seeded canonicals; unmatched create + `alias_missing` warn + fork report).
 - First-seen: team missing external_id → skeleton + enqueue squad iff league in scope else pending-manual; player missing id in squad → create + enqueue career; country normalize-only; league → record + probe only, never auto-backfill.
 - Discovery state: skipped table for now (logs + coverage run output only); revisit if auto volume/retries grow.
 - Refusals: ambiguous/no-match → dead with reason + 30d TTL re-check; name-only never auto-creates (needs id source or curator alias); out-of-scope stays pending-manual.
-- Acceptance: career-path bare team gains squad in 1 nightly cycle; alias forks zero; over-budget stays pending zero-HTTP; dead listed with reason, coverage PASS.
+- Acceptance: career-path bare team gains squad in 1 nightly cycle; alias forks zero; quota-exhausted rows stay stale (no dead mark) and retry on the next nightly; dead listed with reason, coverage PASS.
 - Autodiscovery v1 non-scope: quiz/LLM hooks, review UI (logs only), name-only auto-create.
 
 ## Dead code removal (required by live-only change)
