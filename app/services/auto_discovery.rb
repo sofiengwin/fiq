@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# L8: First-seen auto-discovery — scope gate + priority.
+# L8: First-seen auto-discovery — no scope gate + priority.
 #
 # The batch path (Pl39Backfill, cap 500, operator rake) and the nightly path
 # (LeagueNightlyRefresh, cap 200, team_sync recurring) own their own counters and
@@ -8,11 +8,10 @@
 # the LeagueTeamsJob fan-out chain spends (UpsertLeagueTeams /
 # UpsertTeamPlayers / UpsertPlayerCareer HTTP) is live, uncapped per day.
 #
-# - Scope: auto-discovery fans out only for leagues [39, 135, 140, 61, 78]
-#   (dev/test ON; everything else is pending-manual, never fetched).
-# - First-seen: a team unknown by external_id becomes a skeleton row; its
-#   squad is enqueued iff the discovering league context is in scope,
-#   otherwise the skeleton stays pending-manual. A player unknown by id in a
+# - Scope: none — every discovered league is treated in-scope and fans out.
+#   IN_SCOPE_LEAGUE_IDS below is kept as an informational list only.
+# - First-seen: a team unknown by external_id becomes a full row and its
+#   squad is always enqueued. A player unknown by id in a
 #   squad is created and its career fetch is enqueued by FetchTeamPlayersJob.
 # - Quota: there is no daily auto counter. Quota exhaustion
 #   (FootballClient::FootballClientRateLimitExceeded) propagates out of the
@@ -25,10 +24,10 @@
 #   nightly (10) > auto (50).
 # - Discovery state: logs only, no table (revisit if auto volume grows).
 #   Refusals: ambiguous/no-match -> dead with reason + 30d TTL re-check note;
-#   name-only rows never auto-create (needs id source or curator alias);
-#   out-of-scope stays pending-manual.
+#   name-only rows never auto-create (needs id source or curator alias).
 class AutoDiscovery < ApplicationService
-  # Leagues whose fan-out is ON in dev/test (doc/data-collection.md).
+  # Informational list only — every discovered league is treated in-scope
+  # (doc/data-collection.md). Kept so operators can see the original five.
   IN_SCOPE_LEAGUE_IDS = [ 39, 61, 78, 135, 140 ].freeze
 
   # Solid Queue claims lower priority numbers first.
@@ -72,8 +71,10 @@ class AutoDiscovery < ApplicationService
       !dead?(key)
     end
 
+    # No scope gate — every league is treated in-scope. Kept for
+    # compatibility; always true.
     def in_scope_league?(league_id)
-      IN_SCOPE_LEAGUE_IDS.include?(league_id.to_i)
+      true
     end
 
     # Discovery state, logs only (no table): one line per first-seen outcome.

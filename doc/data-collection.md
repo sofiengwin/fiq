@@ -19,10 +19,10 @@
 - Precision: transfer-date durations + normalized teams/competitions/countries via existing UpsertPlayerCareer path.
 - Governance: probe gates backfill; per-season coverage report; errata frontend-only.
 - Budget: ~40-70 live reqs/season; caps 500 backfill / 200 nightly (auto uncapped per day); throttle 0.6s; priority batch > nightly > auto. Auto quota-exhaustion retries next day: the rate limit propagates, Solid Queue retry_on backs off, and failed rows keep stale last_refreshed_at for the next 02:00 UTC nightly.
-- Auto-discovery (dev/test): ON for leagues [39,135,140,61,78], OFF rest (pending-manual, never fetched). Country alias via `config/country_aliases.yml` (seeded canonicals; unmatched create + `alias_missing` warn + fork report).
-- First-seen: team missing external_id → skeleton + enqueue squad iff league in scope else pending-manual; player missing id in squad → create + enqueue career; country normalize-only; league → record + probe only, never auto-backfill.
+- Auto-discovery: gateless — every discovered league fans out (all leagues treated in-scope; `[39,135,140,61,78]` kept as an informational list only). Country alias via `config/country_aliases.yml` (seeded canonicals; unmatched create + `alias_missing` warn + fork report).
+- First-seen: team missing external_id → full create from profile + always enqueue squad; player missing id in squad → create + enqueue career; country normalize-only; league → record + probe only, never auto-backfill.
 - Discovery state: skipped table for now (logs + coverage run output only); revisit if auto volume/retries grow.
-- Refusals: ambiguous/no-match → dead with reason + 30d TTL re-check; name-only never auto-creates (needs id source or curator alias); out-of-scope stays pending-manual.
+- Refusals: ambiguous/no-match → dead with reason + 30d TTL re-check; name-only never auto-creates (needs id source or curator alias); bare teams with no competition link (unknown scope, can't verify) stay pending.
 - Acceptance: career-path bare team gains squad in 1 nightly cycle; alias forks zero; quota-exhausted rows stay stale (no dead mark) and retry on the next nightly; dead listed with reason, coverage PASS.
 - Autodiscovery v1 non-scope: quiz/LLM hooks, review UI (logs only), name-only auto-create.
 
