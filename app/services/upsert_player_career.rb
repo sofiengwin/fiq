@@ -31,11 +31,6 @@ class UpsertPlayerCareer < ApplicationService
     process_career_teams_with_gaps(career_teams)
 
     @player.careers.reload
-  rescue AutoDiscovery::OverBudget => e
-    # L8: budget spent mid-run — keep partial careers (idempotent rerun
-    # resumes), stay pending with zero further HTTP.
-    AutoDiscovery.note("pending-budget", player: @player.external_id, reason: e.message)
-    @player.careers.reload
   rescue StandardError => e
     Rails.logger.error("UpsertPlayerCareer failed for player #{@player.id}: #{e.message}")
     raise e
@@ -43,19 +38,12 @@ class UpsertPlayerCareer < ApplicationService
 
   private
 
-  # L8: every auto HTTP call spends one auto-budget request first; over
-  # budget raises before any HTTP happens.
-  def auto_fetch(endpoint)
-    AutoDiscovery.checkout!
-    FootballClient.call(end_point: endpoint)
-  end
-
   def fetch_player_transfers
-    auto_fetch("transfers?player=#{@player.external_id}")
+    FootballClient.call(end_point: "transfers?player=#{@player.external_id}")
   end
 
   def fetch_player_teams
-    auto_fetch("players/teams?player=#{@player.external_id}")
+    FootballClient.call(end_point: "players/teams?player=#{@player.external_id}")
   end
 
   def extract_transfers(response)
@@ -64,7 +52,7 @@ class UpsertPlayerCareer < ApplicationService
   end
 
   def fetch_team_profile(team_id:)
-    auto_fetch("teams?id=#{team_id}")
+    FootballClient.call(end_point: "teams?id=#{team_id}")
   end
 
   # Build a lookup of transfer dates by team_id
@@ -222,8 +210,8 @@ class UpsertPlayerCareer < ApplicationService
 
   # L8 first-seen: a team unknown by external_id becomes a skeleton row.
   # Its squad is enqueued iff the discovering league context is in scope;
-  # out-of-scope (or over-budget) skeletons stay pending with zero further
-  # HTTP. Ambiguous/no-match profiles are dead with reason (30d TTL
+  # out-of-scope skeletons stay pending with zero further HTTP.
+  # Ambiguous/no-match profiles are dead with reason (30d TTL
   # re-check note, logs only). Unknown league context preserves the legacy
   # behavior (fetch profile, full create, no enqueue).
   # L9: dead refusals carry a 30d TTL — inside the window the profile
@@ -296,7 +284,7 @@ class UpsertPlayerCareer < ApplicationService
   end
 
   def fetch_active_seasons
-    auto_fetch("players/seasons?player=#{@player.external_id}")
+    FootballClient.call(end_point: "players/seasons?player=#{@player.external_id}")
   end
 
   def country(name:)
