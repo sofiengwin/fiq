@@ -3,7 +3,7 @@
 # L8: First-seen auto-discovery — scope gate + daily auto budget + priority.
 #
 # The batch path (Pl39Backfill, cap 500, operator rake) and the nightly path
-# (Pl39NightlyRefresh, cap 200, team_sync recurring) own their own counters and
+# (LeagueNightlyRefresh, cap 200, team_sync recurring) own their own counters and
 # call FootballClient directly, so they never touch this budget. Everything
 # the LeagueTeamsJob fan-out chain spends (UpsertLeagueTeams /
 # UpsertTeamPlayers / UpsertPlayerCareer HTTP) is counted here instead.
@@ -29,7 +29,7 @@ class AutoDiscovery < ApplicationService
   IN_SCOPE_LEAGUE_IDS = [ 39, 61, 78, 135, 140 ].freeze
 
   # Separate from Pl39Backfill::DEFAULT_MAX_REQUESTS (500) and
-  # Pl39NightlyRefresh::DEFAULT_MAX_REQUESTS (200).
+  # LeagueNightlyRefresh::DEFAULT_MAX_REQUESTS (200).
   DAILY_AUTO_BUDGET = 5000
 
   # Solid Queue claims lower priority numbers first.

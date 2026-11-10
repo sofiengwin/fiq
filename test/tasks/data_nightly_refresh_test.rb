@@ -5,7 +5,7 @@ require "fugit"
 
 # L6 — data:nightly_refresh rake wrapper, live-only (dry-run default, zero HTTP) plus
 # the config/recurring.yml data_refresh entry: daily 02:00 UTC on team_sync.
-# Refresh behavior itself is covered in Pl39NightlyRefreshTest; here only
+# Refresh behavior itself is covered in LeagueNightlyRefreshTest; here only
 # the rake plumbing and the schedule entry are pinned.
 class DataNightlyRefreshRakeTest < ActiveSupport::TestCase
   include WebMock::API

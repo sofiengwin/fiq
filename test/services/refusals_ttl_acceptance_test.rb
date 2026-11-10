@@ -194,7 +194,7 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     result = nil
     begin
       perform_enqueued_jobs do
-        result = Pl39NightlyRefresh.call(dry_run: false)
+        result = LeagueNightlyRefresh.call(dry_run: false)
       end
     ensure
       ApplicationJob.define_method(:wait_time, original_wait)
@@ -215,13 +215,13 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
 
     dry = nil
     assert_no_enqueued_jobs do
-      dry = Pl39NightlyRefresh.call(dry_run: true)
+      dry = LeagueNightlyRefresh.call(dry_run: true)
     end
     assert_equal 0, dry[:squads_enqueued]
 
     live = nil
     assert_no_enqueued_jobs(only: FetchTeamPlayersJob) do
-      live = Pl39NightlyRefresh.call(dry_run: false)
+      live = LeagueNightlyRefresh.call(dry_run: false)
     end
     assert_not_nil bare_out.reload.last_refreshed_at
     assert_equal 0, live[:squads_enqueued]

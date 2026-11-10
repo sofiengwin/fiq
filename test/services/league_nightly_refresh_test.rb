@@ -1,7 +1,7 @@
 require "test_helper"
 require "tmpdir"
 
-# L6 — Nightly stale-only refresh, live-only (Pl39NightlyRefresh).
+# L6 — Nightly stale-only refresh, live-only (LeagueNightlyRefresh).
 # Live-only: every stale row costs one live request against the 200 cap;
 # dry-run performs zero HTTP; reruns re-walk live (0 live only when nothing
 # is stale). Derived from tickets.md T7 "Done when" (not from implementation):
@@ -12,7 +12,7 @@ require "tmpdir"
 #   - live run with stubbed client refreshes only stale rows, updates their
 #     last_refreshed_at, respects the 200 cap, and leaves fresh rows
 #     untouched.
-class Pl39NightlyRefreshTest < ActiveSupport::TestCase
+class LeagueNightlyRefreshTest < ActiveSupport::TestCase
   include WebMock::API
 
   setup do
@@ -41,7 +41,7 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
 
     result = nil
     assert_no_enqueued_jobs do
-      result = Pl39NightlyRefresh.call(dry_run: true)
+      result = LeagueNightlyRefresh.call(dry_run: true)
     end
 
     assert_equal :completed, result[:status]
@@ -71,7 +71,7 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     fresh_player_before = fresh_player.last_refreshed_at
     stale_career = make_career(stale_player, stale_team, nil)
 
-    result = Pl39NightlyRefresh.call(dry_run: false)
+    result = LeagueNightlyRefresh.call(dry_run: false)
 
     assert_equal :completed, result[:status]
     assert_equal 2, result[:teams]
@@ -93,7 +93,7 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     stub_all_empty
     teams = (721..724).map { |ext| make_team(ext, nil) }
 
-    capped = Pl39NightlyRefresh.call(dry_run: false, max_requests: 2)
+    capped = LeagueNightlyRefresh.call(dry_run: false, max_requests: 2)
 
     assert_equal :completed, capped[:status]
     assert capped[:capped]
@@ -102,7 +102,7 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     assert_equal 2, teams.count { |team| team.reload.last_refreshed_at.present? }
     assert_requested(:get, /v3\.football\.api-sports\.io/, times: 2)
 
-    resumed = Pl39NightlyRefresh.call(dry_run: false, max_requests: 2)
+    resumed = LeagueNightlyRefresh.call(dry_run: false, max_requests: 2)
 
     assert_equal :completed, resumed[:status]
     assert_not resumed[:capped]
@@ -117,7 +117,7 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     pl_team.competitions << competition
     other_team = make_team(732, nil)
 
-    result = Pl39NightlyRefresh.call(dry_run: false, max_requests: 1)
+    result = LeagueNightlyRefresh.call(dry_run: false, max_requests: 1)
 
     assert result[:capped]
     assert_equal 1, result[:live_requests]
@@ -130,12 +130,12 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     boundary = make_team(741, 30.days.ago)
     recent = make_team(742, 29.days.ago)
 
-    result = Pl39NightlyRefresh.call(dry_run: true)
+    result = LeagueNightlyRefresh.call(dry_run: true)
 
     assert_equal 1, result[:teams]
     assert_equal 1, result[:total]
 
-    Pl39NightlyRefresh.call(dry_run: false)
+    LeagueNightlyRefresh.call(dry_run: false)
 
     assert_not_nil boundary.reload.last_refreshed_at
     assert_in_delta 29.days.ago.to_f, recent.reload.last_refreshed_at.to_f, 60
@@ -147,10 +147,10 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     assert_nil unlinked.external_id
     normal = make_team(751, nil)
 
-    result = Pl39NightlyRefresh.call(dry_run: true)
+    result = LeagueNightlyRefresh.call(dry_run: true)
     assert_equal 2, result[:teams]
 
-    live = Pl39NightlyRefresh.call(dry_run: false)
+    live = LeagueNightlyRefresh.call(dry_run: false)
 
     assert_equal 1, live[:teams]
     assert_equal 1, live[:skipped]
@@ -164,13 +164,13 @@ class Pl39NightlyRefreshTest < ActiveSupport::TestCase
     stub_all_empty
     make_team(761, nil)
 
-    first = Pl39NightlyRefresh.call(dry_run: false)
+    first = LeagueNightlyRefresh.call(dry_run: false)
     assert_equal 1, first[:live_requests]
 
     # Drop the stubs: any live HTTP from here on raises instead of succeeding.
     WebMock.reset!
 
-    second = Pl39NightlyRefresh.call(dry_run: false)
+    second = LeagueNightlyRefresh.call(dry_run: false)
 
     assert_equal :completed, second[:status]
     assert_equal 0, second[:live_requests]

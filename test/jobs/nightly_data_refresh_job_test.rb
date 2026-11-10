@@ -3,7 +3,7 @@
 require "test_helper"
 
 # L6 — NightlyDataRefreshJob (live-only): thin wrapper pinning the team_sync queue and
-# the dry-run passthrough to Pl39NightlyRefresh (behavior covered there).
+# the dry-run passthrough to LeagueNightlyRefresh (behavior covered there).
 class NightlyDataRefreshJobTest < ActiveSupport::TestCase
   include WebMock::API
 

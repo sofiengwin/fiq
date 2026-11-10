@@ -45,7 +45,7 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
   test "auto budget is 5000 per day, separate from the batch and nightly caps" do
     assert_equal 5000, AutoDiscovery::DAILY_AUTO_BUDGET
     assert_equal 500, Pl39Backfill::DEFAULT_MAX_REQUESTS
-    assert_equal 200, Pl39NightlyRefresh::DEFAULT_MAX_REQUESTS
+    assert_equal 200, LeagueNightlyRefresh::DEFAULT_MAX_REQUESTS
   end
 
   test "checkout spends the daily counter and refuses past the cap" do
@@ -72,7 +72,7 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
     make_team(811, nil)
     make_player(811, nil)
 
-    Pl39NightlyRefresh.call(dry_run: false)
+    LeagueNightlyRefresh.call(dry_run: false)
 
     assert_equal 0, AutoDiscovery.spent_today
   end
