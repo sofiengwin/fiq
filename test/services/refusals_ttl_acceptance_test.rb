@@ -10,8 +10,8 @@ require "tmpdir"
 #   - name-only rows (no id source) never auto-create — squad entries
 #     without a player id and Brave name-only clubs stay pending-manual
 #     for a curator alias, with zero fetch HTTP;
-#   - out-of-scope leagues stay pending-manual: the league fan-out records
-#     teams but never enqueues squad fetches;
+#   - every league fans out: the league fan-out records teams and enqueues
+#     squad fetches for all of them;
 #   - acceptance: a career-path bare team gains its squad within one
 #     nightly cycle; alias forks stay zero; quota-exhausted rows stay stale
 #     (no dead mark) and retry on the next nightly; a dead-listed season is
@@ -120,7 +120,7 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     assert_not_requested(:get, %r{/players/profiles\?player=$})
   end
 
-  test "out-of-scope league records teams but never enqueues squads" do
+  test "every league records teams and enqueues squads (gateless)" do
     stub_request(:get, %r{/teams\?league=144}).to_return(
       status: 200,
       body: {
@@ -133,12 +133,10 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
 
     job = LeagueTeamsJob.new(144, 2023, "Jupiler Pro League")
     job.define_singleton_method(:wait_time) { Time.current }
-    assert_no_enqueued_jobs(only: FetchTeamPlayersJob) do
-      job.perform_now
-    end
+    job.perform_now
 
     assert FootballTeam.exists?(external_id: "931")
-    assert_not_requested(:get, %r{/players/squads})
+    assert_enqueued_with(job: FetchTeamPlayersJob, args: [ FootballTeam.find_by!(external_id: "931").id ])
   end
 
   test "in-scope league still enqueues squads" do
@@ -210,10 +208,12 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     assert_empty CountryAlias.forks, "alias forks zero is the acceptance state"
   end
 
-  test "acceptance: nightly dry-run enqueues nothing and out-of-scope bare teams stay pending-manual" do
+  test "acceptance: nightly dry-run enqueues nothing; bare teams with competitions enqueue, unknown-scope stays pending" do
     stub_all_empty
     bare_out = make_team(943, nil)
     bare_out.competitions << Competition.create!(external_id: "144", name: "Jupiler Pro League", country: @country)
+    bare_unknown = make_team(944, nil)
+    assert_empty bare_unknown.competitions
 
     dry = nil
     assert_no_enqueued_jobs do
@@ -222,11 +222,11 @@ class RefusalsTtlAcceptanceTest < ActiveSupport::TestCase
     assert_equal 0, dry[:squads_enqueued]
 
     live = nil
-    assert_no_enqueued_jobs(only: FetchTeamPlayersJob) do
-      live = LeagueNightlyRefresh.call(dry_run: false)
-    end
+    live = LeagueNightlyRefresh.call(dry_run: false)
     assert_not_nil bare_out.reload.last_refreshed_at
-    assert_equal 0, live[:squads_enqueued]
+    assert_not_nil bare_unknown.reload.last_refreshed_at
+    assert_equal 1, live[:squads_enqueued]
+    assert_enqueued_with(job: FetchTeamPlayersJob, args: [ bare_out.id ])
     assert_empty bare_out.careers
   end
 

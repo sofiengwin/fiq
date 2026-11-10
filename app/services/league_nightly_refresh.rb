@@ -151,10 +151,9 @@ class LeagueNightlyRefresh < ApplicationService
   # no players) gains its squad within one nightly cycle — the enqueue
   # itself is zero HTTP; the squad fetch runs live when the job executes
   # (quota exhaustion backs off via retry_on and the row retries on the
-  # next nightly). Only positively
-  # in-scope teams qualify (L8 precedent: unknown scope fetches the
-  # profile but never auto-enqueues); out-of-scope and curator-pending
-  # rows stay pending-manual.
+  # next nightly). Every bare team with a competition link qualifies;
+  # rows with no competition link (unknown scope, can't verify) stay
+  # pending.
   def enqueue_bare_squad!(team)
     return if Career.where(football_team: team).exists?
     return unless squad_enqueue_allowed?(team)
@@ -165,10 +164,7 @@ class LeagueNightlyRefresh < ApplicationService
   end
 
   def squad_enqueue_allowed?(team)
-    league_ids = team.competitions.map { |competition| competition.external_id.to_i }
-    return false if league_ids.empty?
-
-    league_ids.any? { |id| AutoDiscovery.in_scope_league?(id) }
+    team.competitions.any?
   end
 
   def refresh_player!(player)

@@ -1,10 +1,10 @@
 require "test_helper"
 
-# L8 — First-seen skeleton/enqueue + quota-exhaustion retry-next-day + priority.
+# L8 — First-seen full create/enqueue (gateless) + quota-exhaustion retry-next-day + priority.
 #
 # Derived from the ticket (not from implementation):
-#   - career-path new teams enqueue squad iff league in scope, else
-#     pending-manual (skeleton kept, zero further HTTP);
+#   - career-path new teams always get a full create + squad enqueue
+#     (all leagues treated in-scope);
 #   - player first-seen enqueues a career fetch;
 #   - there is no daily auto counter: quota exhaustion
 #     (FootballClientRateLimitExceeded) propagates out of the auto upserts
@@ -34,16 +34,13 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
     @original_env.each { |k, v| ENV[k] = v }
   end
 
-  test "auto scope is on for the top-five leagues and off for the rest" do
-    [ 39, 61, 78, 135, 140 ].each do |league_id|
+  test "auto scope is gateless: every league is treated in-scope" do
+    [ 39, 61, 78, 135, 140, 144, 94, 71, 0 ].each do |league_id|
       assert AutoDiscovery.in_scope_league?(league_id), "league #{league_id} should be in scope"
     end
 
-    [ 144, 94, 71, 0 ].each do |league_id|
-      assert_not AutoDiscovery.in_scope_league?(league_id), "league #{league_id} should be out of scope"
-    end
-
     assert AutoDiscovery.in_scope_league?("39")
+    assert AutoDiscovery.in_scope_league?("144")
   end
 
   test "quota exhaustion propagates from the career path instead of being swallowed" do
@@ -104,32 +101,31 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
     assert player.careers.where(football_team: squad_team).exists?
   end
 
-  test "career-path first-seen team out of scope stays pending-manual with zero profile HTTP" do
+  test "career-path first-seen team from any league gets full create + squad enqueue" do
     stub_career_path(external_team_id: 832, country: "Colombia")
     origin = make_team(830, Time.current)
     origin.competitions << Competition.create!(external_id: "144", name: "Jupiler Pro League", country: @country)
     player = make_player(832, nil)
 
-    assert_no_enqueued_jobs do
-      UpsertPlayerCareer.call(player: player, team: origin)
-    end
+    UpsertPlayerCareer.call(player: player, team: origin)
 
-    skeleton = FootballTeam.find_by!(external_id: "832")
-    assert_equal "L8 FC 832", skeleton.name
-    assert_not_requested(:get, %r{/teams\?id=832})
-    # The career linkage is still built so coverage measures the gap.
-    assert player.careers.where(football_team: skeleton).exists?
+    full = FootballTeam.find_by!(external_id: "832")
+    assert_equal "L8 FC 832", full.name
+    assert_equal "Colombia", full.country.name
+    assert_requested(:get, %r{/teams\?id=832}, times: 1)
+    assert_enqueued_with(job: FetchTeamPlayersJob, args: [ full.id ])
+    # The career linkage is still built.
+    assert player.careers.where(football_team: full).exists?
   end
 
-  test "explicit league context overrides the originating team" do
+  test "explicit league context always enqueues (gateless)" do
     stub_career_path(external_team_id: 833, country: "Italy")
     player = make_player(833, nil)
 
-    assert_no_enqueued_jobs do
-      UpsertPlayerCareer.call(player: player, league_id: 144)
-    end
-    assert_not_requested(:get, %r{/teams\?id=833})
+    UpsertPlayerCareer.call(player: player, league_id: 144)
+    assert_requested(:get, %r{/teams\?id=833}, times: 1)
     assert FootballTeam.exists?(external_id: "833")
+    assert_enqueued_with(job: FetchTeamPlayersJob, args: [ FootballTeam.find_by!(external_id: "833").id ])
 
     FootballTeam.find_by!(external_id: "833").destroy!
     player.careers.destroy_all
@@ -138,17 +134,16 @@ class AutoDiscoveryTest < ActiveSupport::TestCase
     assert_enqueued_with(job: FetchTeamPlayersJob, args: [ FootballTeam.find_by!(external_id: "833").id ])
   end
 
-  test "unknown league context preserves legacy fetch without enqueue" do
+  test "unknown league context fetches profile and enqueues (gateless)" do
     stub_career_path(external_team_id: 834, country: "Italy")
     player = make_player(834, nil)
 
-    assert_no_enqueued_jobs do
-      UpsertPlayerCareer.call(player: player)
-    end
+    UpsertPlayerCareer.call(player: player)
 
     team = FootballTeam.find_by!(external_id: "834")
     assert_equal "Italy", team.country.name
     assert_requested(:get, %r{/teams\?id=834}, times: 1)
+    assert_enqueued_with(job: FetchTeamPlayersJob, args: [ team.id ])
   end
 
   test "ambiguous team profile is dead with reason and builds no career" do

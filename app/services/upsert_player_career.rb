@@ -208,24 +208,16 @@ class UpsertPlayerCareer < ApplicationService
     )
   end
 
-  # L8 first-seen: a team unknown by external_id becomes a skeleton row.
-  # Its squad is enqueued iff the discovering league context is in scope;
-  # out-of-scope skeletons stay pending with zero further HTTP.
+  # L8 first-seen (gateless): a team unknown by external_id gets a full
+  # create from its profile and its squad is always enqueued.
   # Ambiguous/no-match profiles are dead with reason (30d TTL
-  # re-check note, logs only). Unknown league context preserves the legacy
-  # behavior (fetch profile, full create, no enqueue).
+  # re-check note, logs only). league_id passthrough is accepted but never
+  # gates.
   # L9: dead refusals carry a 30d TTL — inside the window the profile
   # re-fetch is suppressed (zero HTTP); after expiry the row is re-checked.
   def find_or_create_team(team_external_id:, team_name:)
     existing_team = FootballTeam.find_by(external_id: team_external_id)
     return existing_team if existing_team.present?
-
-    scope = discovery_scope
-    if scope == :out_of_scope
-      team = skeleton_team!(team_external_id, team_name)
-      AutoDiscovery.note("pending-manual", kind: "team", external_id: team_external_id, name: team_name)
-      return team
-    end
 
     dead_key = "team:#{team_external_id}"
     if AutoDiscovery.dead?(dead_key)
@@ -253,34 +245,9 @@ class UpsertPlayerCareer < ApplicationService
       country: country(name: team_data[:country])
     )
 
-    if scope == :in_scope
-      FetchTeamPlayersJob.perform_later(team.id)
-      AutoDiscovery.note("enqueued", kind: "squad", team_id: team.id, external_id: team_external_id)
-    end
+    FetchTeamPlayersJob.perform_later(team.id)
+    AutoDiscovery.note("enqueued", kind: "squad", team_id: team.id, external_id: team_external_id)
     team
-  end
-
-  # L8 league scope for first-seen teams: explicit league_id wins, else the
-  # originating squad team's competitions. Unknown when neither is present.
-  def discovery_scope
-    return AutoDiscovery.in_scope_league?(@league_id) ? :in_scope : :out_of_scope unless @league_id.nil?
-
-    league_ids = @team&.competitions&.map { |competition| competition.external_id.to_i } || []
-    return :unknown if league_ids.empty?
-
-    league_ids.any? { |id| AutoDiscovery.in_scope_league?(id) } ? :in_scope : :out_of_scope
-  end
-
-  # L8 skeleton: external_id + name only (Unknown country, no competition
-  # link, no profile fetch). The career linkage is still built so coverage
-  # measures the gap; the squad fill stays pending.
-  def skeleton_team!(team_external_id, team_name)
-    UpsertTeam.call(
-      external_id: team_external_id,
-      name: team_name.presence || "Team #{team_external_id}",
-      code: nil,
-      country: CountryAlias.find_or_create!(CountryAlias::UNKNOWN)
-    )
   end
 
   def fetch_active_seasons
