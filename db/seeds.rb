@@ -103,8 +103,11 @@ end
 puts "Created #{Quiz.count} quizzes with #{Question.count} questions and #{AnswerOption.count} answer options."
 
 # League scope memos (DB-backed; replaces config/allowlist_<id>.yml).
-# Probe-confirmed sweeps: 2010-present retrievable, 2007-2009 dead across
+# Bootstrap sweep: 2010-present retrievable, 2007-2009 dead across
 # leagues 39 (PL), 135 (Serie A), 140 (La Liga), 61 (Ligue 1), 78 (Bundesliga).
+# The probe task is an optional bootstrap that refreshes these rows live;
+# backfill proceeds live without a memo row and records ok/dead from the
+# result, so these seeds are only a starting point, never a requirement.
 # Only fills missing rows so live probe refreshes (team counts, checked_at)
 # are never clobbered.
 puts "Seeding league scope memos..."

@@ -1,10 +1,14 @@
 # L3: Capped backfill batch — one convention-range season per invocation.
 #
 # Reads the DB-backed `league_seasons` scope memos and refuses seasons that
-# are outside [2010, present], fresh-dead, or unknown (no memo and no
-# deprecated YML entry) before any live request. For an in-scope season it
-# pulls teams?league=<id>&season live, then the paginated
-# players?team=<id>&season union (~40-70 reqs/season), and upserts
+# are outside [2010, present] or fresh-dead before any live request. A
+# season with no memo row (probe never ran) proceeds live: the probe is an
+# optional bootstrap, not a gate. After the live teams fetch the memo is
+# recorded from the result — ok with the team count, or dead with reason on
+# an empty teams response. Errors propagate with no memo write so the retry
+# re-checks live.
+# For an in-scope season it pulls teams?league=<id>&season live, then the
+# paginated players?team=<id>&season union (~40-70 reqs/season), and upserts
 # team/player/career skeleton rows with competition_id set and
 # last_refreshed_at touched.
 #
@@ -83,41 +87,16 @@ class LeagueBackfill < ApplicationService
     if row&.dead? && row.fresh?
       return "season #{@season} is dead (#{row.reason}); never bulk-pulled"
     end
-    return nil if row.present?
 
-    # No memo row: deprecated YML fallback when the artifact exists, else
-    # the probe has to run first. A stale-dead row (TTL expired) falls
+    # No memo row (probe never ran for this season): proceed live and record
+    # the memo from the result. A stale-dead row (TTL expired) likewise falls
     # through to a live re-check below.
-    yml_refusal_or_nil
-  end
-
-  def league_label
-    @league_id == LEAGUE_ID ? "PL 39" : "league #{@league_id}"
+    nil
   end
 
   def missing_season_reason
     hint = @league_id == LEAGUE_ID ? "data:backfill_pl39[season]" : "data:backfill_league[#{@league_id},season]"
     "missing season (pass #{hint})"
-  end
-
-  def probe_task_hint
-    @league_id == LEAGUE_ID ? "data:probe_pl39" : "data:probe_league[#{@league_id}]"
-  end
-
-  # League scope is DB-backed (`league_seasons` memos). The deprecated
-  # per-league YML artifact is consulted only when no memo rows exist yet.
-  def yml_refusal_or_nil
-    path = LeagueProbe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
-    unless File.exist?(path.to_s) && LeagueProbe.read_yml(path).present?
-      return "no league_seasons memo for #{@league_id}/#{@season}; run #{probe_task_hint} first"
-    end
-
-    entry = LeagueProbe.read_dead_yml(path).find { |row| row[:season] == @season }
-    return "season #{@season} is dead (#{entry.fetch(:reason, 'listed without reason')}); never bulk-pulled" if entry
-
-    return nil if LeagueProbe.read_allowlist_yml(path).include?(@season)
-
-    "season #{@season} is not on the #{league_label} allowlist"
   end
 
   # --- budgeted fetching (live-only) ----------------------------------------
