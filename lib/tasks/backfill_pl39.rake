@@ -6,9 +6,9 @@ namespace :data do
       exit(1)
     end
 
-    result = Pl39Backfill.call(
+    result = LeagueBackfill.call(
       season: args[:season].to_i,
-      max_requests: (args[:max_requests] || Pl39Backfill::DEFAULT_MAX_REQUESTS).to_i
+      max_requests: (args[:max_requests] || LeagueBackfill::DEFAULT_MAX_REQUESTS).to_i
     )
 
     line = "backfill_39: status=#{result[:status]} season=#{result[:season]} " \

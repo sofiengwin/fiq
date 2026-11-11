@@ -3,7 +3,7 @@ require "rake"
 
 # T5 — data:backfill_pl39 rake wrapper: bounded entry point that refuses
 # invalid seasons (exit 1, zero HTTP) and runs the service otherwise.
-# End-to-end backfill behavior is covered in Pl39BackfillTest; here only the
+# End-to-end backfill behavior is covered in LeagueBackfillTest; here only the
 # refusal plumbing and exit codes are pinned.
 class DataBackfillPl39RakeTest < ActiveSupport::TestCase
   include WebMock::API

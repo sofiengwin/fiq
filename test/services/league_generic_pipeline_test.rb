@@ -33,7 +33,7 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
   test "probe with league_id writes memo rows for league=135 URLs" do
     stub_teams(SEASON, teams_payload(20))
 
-    result = Pl39Probe.call(league_id: LEAGUE, present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
+    result = LeagueProbe.call(league_id: LEAGUE, present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
 
     assert_requested(:get, "https://v3.football.api-sports.io/teams?league=135&season=#{SEASON}", times: 1)
     assert_equal [ SEASON ], result[:allowlist]
@@ -53,7 +53,7 @@ class LeagueGenericPipelineTest < ActiveSupport::TestCase
     stub_players(506, SEASON, 1, [ { id: 9998, name: "Generic Other Player" } ])
     stub_players_empty(506, SEASON, 2)
 
-    result = Pl39Backfill.call(league_id: LEAGUE, season: SEASON, present_year: PRESENT_YEAR, config_dir: @config_dir)
+    result = LeagueBackfill.call(league_id: LEAGUE, season: SEASON, present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     assert_equal :completed, result[:status]
     competition = Competition.find_by!(external_id: "135")

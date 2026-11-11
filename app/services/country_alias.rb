@@ -3,7 +3,7 @@ require "yaml"
 # L7: Country alias map — normalize-only.
 #
 # Single choke point for every Country find_or_create site (UpsertLeagueTeams,
-# UpsertPlayerCareer, UpdateTeam, Pl39Backfill, BravePlayerCareer). Raw API
+# UpsertPlayerCareer, UpdateTeam, LeagueBackfill, BravePlayerCareer). Raw API
 # names resolve through `config/country_aliases.yml` (case-insensitive) to a
 # canonical name; unmatched raw names still create a Country row as-is and log
 # an `alias_missing` warn so a curator can seed the alias.
@@ -84,7 +84,7 @@ class CountryAlias < ApplicationService
 
     private
 
-    # String-or-symbol tolerant, like Pl39Probe.read_yml: missing/unparseable
+    # String-or-symbol tolerant, like LeagueProbe.read_yml: missing/unparseable
     # file means an empty map (every name unmatched, kept verbatim + warned).
     def load_aliases(path)
       return {} unless File.exist?(path.to_s)

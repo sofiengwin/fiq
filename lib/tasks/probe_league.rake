@@ -7,7 +7,7 @@ namespace :data do
     end
 
     league_id = args[:league_id].to_i
-    result = Pl39Probe.call(league_id: league_id)
+    result = LeagueProbe.call(league_id: league_id)
 
     puts "probe_#{league_id}: allowlisted=#{result[:allowlist].size} (#{result[:allowlist].join(",")}) " \
       "dead=#{result[:dead].size} live_requests=#{result[:live_requests]} " \

@@ -5,11 +5,11 @@ require "yaml"
 # L2 live-only probe: <=10 live requests per run into league_seasons memo
 # rows (no YML writes, no response cache). Every run hits the API; reruns are
 # idempotent.
-class Pl39ProbeTest < ActiveSupport::TestCase
+class LeagueProbeTest < ActiveSupport::TestCase
   include WebMock::API
 
   PRESENT_YEAR = 2023
-  SEASONS = PRESENT_YEAR.downto(PRESENT_YEAR - Pl39Probe::MAX_LIVE_REQUESTS + 1).to_a.freeze
+  SEASONS = PRESENT_YEAR.downto(PRESENT_YEAR - LeagueProbe::MAX_LIVE_REQUESTS + 1).to_a.freeze
 
   setup do
     WebMock.reset!
@@ -30,7 +30,7 @@ class Pl39ProbeTest < ActiveSupport::TestCase
   test "cold run probes ten seasons with at most ten live requests and writes memo rows" do
     SEASONS.each { |season| stub_teams(season, teams_payload(20)) }
 
-    result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
+    result = LeagueProbe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     SEASONS.each do |season|
       assert_requested(:get, teams_url(season), times: 1)
@@ -53,10 +53,10 @@ class Pl39ProbeTest < ActiveSupport::TestCase
 
   test "rerun costs live requests again and keeps identical memos" do
     SEASONS.each { |season| stub_teams(season, teams_payload(20)) }
-    Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
+    LeagueProbe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
     before = LeagueSeason.where(league_id: 39).order(:season).pluck(:season, :status, :team_count)
 
-    result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
+    result = LeagueProbe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     # Live-only: no cache, so the second run re-hits the API per season.
     SEASONS.each do |season|
@@ -72,7 +72,7 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     stub_teams(2014, { response: [], errors: {} }.to_json)
     stub_teams(2018, { response: [], errors: { league: "season not covered" } }.to_json)
 
-    result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
+    result = LeagueProbe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     assert_equal 10, result[:live_requests]
     assert_not_includes result[:allowlist], 2014
@@ -93,7 +93,7 @@ class Pl39ProbeTest < ActiveSupport::TestCase
   test "window is flagged truncated while the oldest tried season still has data" do
     SEASONS.each { |season| stub_teams(season, teams_payload(20)) }
 
-    result = Pl39Probe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
+    result = LeagueProbe.call(present_year: PRESENT_YEAR, config_dir: @config_dir)
 
     assert_equal true, result[:window_truncated]
   end
@@ -109,7 +109,7 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     stub_teams(2014, teams_payload(20))
     stub_teams(2013, teams_payload(20))
 
-    result = Pl39Probe.call(present_year: 2014, max_requests: 2, config_dir: @config_dir)
+    result = LeagueProbe.call(present_year: 2014, max_requests: 2, config_dir: @config_dir)
 
     assert_equal 2, result[:live_requests]
     # Outside-window seasons preserved; re-probed 2013 flips dead -> allowlisted.
@@ -123,7 +123,7 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     LeagueSeason.record_contact!(league_id: 39, season: 2050, status: "ok", team_count: 20)
     stub_teams(PRESENT_YEAR, teams_payload(20))
 
-    result = Pl39Probe.call(present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
+    result = LeagueProbe.call(present_year: PRESENT_YEAR, max_requests: 1, config_dir: @config_dir)
 
     assert_equal [ PRESENT_YEAR ], result[:allowlist]
   end
@@ -140,10 +140,10 @@ class Pl39ProbeTest < ActiveSupport::TestCase
     path = File.join(@config_dir, "allowlist_39.yml")
     File.write(path, YAML.dump(payload))
 
-    assert_equal [ 2022, 2023 ], Pl39Probe.read_allowlist_yml(path)
+    assert_equal [ 2022, 2023 ], LeagueProbe.read_allowlist_yml(path)
     assert_equal(
       [ { season: 2021, reason: "empty teams response" } ],
-      Pl39Probe.read_dead_yml(path)
+      LeagueProbe.read_dead_yml(path)
     )
   end
 

@@ -10,7 +10,7 @@
 #   DEAD_TTL) refuses backfill with zero HTTP; an expired one is due for a
 #   live re-check.
 # - Coverage reads dead/partial flags from these rows. The deprecated YML
-#   readers on Pl39Probe are consulted only when no memo rows exist for a
+#   readers on LeagueProbe are consulted only when no memo rows exist for a
 #   league (callers own that fallback, not this model).
 class LeagueSeason < ApplicationRecord
   OK = "ok"

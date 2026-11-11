@@ -11,7 +11,7 @@ class UpsertLeagueTeams < ApplicationService
   # rows keep their stale last_refreshed_at and the next nightly (02:00
   # UTC) retries them. The competition row is recorded but never
   # auto-backfilled here
-  # (backfill stays an operator-run Pl39Backfill invocation); the probe owns
+  # (backfill stays an operator-run LeagueBackfill invocation); the probe owns
   # allowlist gating for that path.
   def call
     result = fetch_teams

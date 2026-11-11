@@ -12,7 +12,7 @@ require "yaml"
 #   - TTL-expired dead memos are live re-checked and refreshed
 #   - 500-cap trip via a stubbed/low-cap run exits cleanly and the re-run
 #     re-walks live to completion
-class Pl39BackfillTest < ActiveSupport::TestCase
+class LeagueBackfillTest < ActiveSupport::TestCase
   include WebMock::API
 
   SEASON = 2022
@@ -249,8 +249,8 @@ class Pl39BackfillTest < ActiveSupport::TestCase
 
   private
 
-  def backfill(season:, present_year: PRESENT_YEAR, max_requests: Pl39Backfill::DEFAULT_MAX_REQUESTS)
-    Pl39Backfill.call(
+  def backfill(season:, present_year: PRESENT_YEAR, max_requests: LeagueBackfill::DEFAULT_MAX_REQUESTS)
+    LeagueBackfill.call(
       season: season, present_year: present_year,
       max_requests: max_requests, config_dir: @config_dir
     )

@@ -183,8 +183,8 @@ class Pl39StatsWiringTest < ActiveSupport::TestCase
 
   private
 
-  def backfill(season:, present_year: PRESENT_YEAR, max_requests: Pl39Backfill::DEFAULT_MAX_REQUESTS)
-    Pl39Backfill.call(
+  def backfill(season:, present_year: PRESENT_YEAR, max_requests: LeagueBackfill::DEFAULT_MAX_REQUESTS)
+    LeagueBackfill.call(
       season: season, present_year: present_year,
       max_requests: max_requests, config_dir: @config_dir
     )

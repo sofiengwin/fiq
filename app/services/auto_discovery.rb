@@ -2,7 +2,7 @@
 
 # L8: First-seen auto-discovery — no scope gate + priority.
 #
-# The batch path (Pl39Backfill, cap 500, operator rake) and the nightly path
+# The batch path (LeagueBackfill, cap 500, operator rake) and the nightly path
 # (LeagueNightlyRefresh, cap 200, team_sync recurring) own their own counters and
 # call FootballClient directly, so they never touch this path. Everything
 # the LeagueTeamsJob fan-out chain spends (UpsertLeagueTeams /

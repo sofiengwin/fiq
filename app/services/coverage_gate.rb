@@ -138,11 +138,11 @@ class CoverageGate < ApplicationService
   end
 
   def yml_path
-    Pl39Probe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
+    LeagueProbe.allowlist_yml_path_for(@league_id, config_dir: @config_dir)
   end
 
   def yml_data
-    Pl39Probe.read_yml(yml_path)
+    LeagueProbe.read_yml(yml_path)
   end
 
   def yml_present?
@@ -153,7 +153,7 @@ class CoverageGate < ApplicationService
     row = LeagueSeason.memo_for(@league_id, @season)
     return { season: row.season, reason: row.reason.to_s } if row&.dead?
 
-    Pl39Probe.read_dead_yml(yml_path).find { |entry| entry[:season] == @season }
+    LeagueProbe.read_dead_yml(yml_path).find { |entry| entry[:season] == @season }
   end
 
   def allowlisted_for_season
@@ -162,7 +162,7 @@ class CoverageGate < ApplicationService
     return false if row&.dead?
     return nil unless yml_present?
 
-    Pl39Probe.read_allowlist_yml(yml_path).include?(@season)
+    LeagueProbe.read_allowlist_yml(yml_path).include?(@season)
   end
 
   # Partial = probed ok by the probe but fewer teams retrieved in DB than the API listed.
@@ -180,7 +180,7 @@ class CoverageGate < ApplicationService
     end
 
     yml = yml_data
-    return [ nil, "no #{Pl39Probe.allowlist_yml_filename_for(@league_id)}" ] if yml.empty?
+    return [ nil, "no #{LeagueProbe.allowlist_yml_filename_for(@league_id)}" ] if yml.empty?
 
     seasons = yml["seasons"] || yml[:seasons] || {}
     info = seasons[@season.to_s]
