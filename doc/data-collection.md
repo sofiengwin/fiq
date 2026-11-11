@@ -14,10 +14,10 @@
 ## Approach: live-only fan-out (keep 74509a2 chain shape, no cache)
 - Dev: docker compose for development work; db on host 54321 (DATABASE_URL override for host rails).
 - Base: live `LeagueTeamsJob` chain (teams?league → squads?team + profiles → transfers/teams/seasons + appearances), bounded: convention-range [2010, present] seasons from the `league_seasons` scope memos only, no recurse past present, per-run caps, 0.6s throttle + existing limiter. Every run hits API; idempotent upserts make reruns safe but full-cost (~40-70 live/season).
-- Probe: ≤10 live reqs per league; persists one `league_seasons` memo row per contacted season (ok/dead + team_count + checked_at); backfill refuses off-range and fresh-dead memos with zero HTTP.
+- Probe: ≤10 live reqs per league; persists one `league_seasons` memo row per contacted season (ok/dead + team_count + checked_at); backfill refuses off-range and fresh-dead memos with zero HTTP, proceeds live with no memo and records ok/dead from the result (empty teams → dead with reason), and runs enqueued via BackfillLeagueJob (queue team_sync) — the probe is an optional bootstrap, not a gate. For an inline dev run call LeagueBackfill.call from a console.
 - Stats: players dob/nationality/photo_url; careers goals mandatory, assists/cards nullable, competition_id fk, appearances wired. No minutes_played.
 - Precision: transfer-date durations + normalized teams/competitions/countries via existing UpsertPlayerCareer path.
-- Governance: probe gates backfill; per-season coverage report; errata frontend-only.
+- Governance: probe bootstraps backfill (optional); per-season coverage report; errata frontend-only.
 - Budget: ~40-70 live reqs/season; caps 500 backfill / 200 nightly (auto uncapped per day); throttle 0.6s; priority batch > nightly > auto. Auto quota-exhaustion retries next day: the rate limit propagates, Solid Queue retry_on backs off, and failed rows keep stale last_refreshed_at for the next 02:00 UTC nightly.
 - Auto-discovery: gateless — every discovered league fans out (all leagues treated in-scope; `[39,135,140,61,78]` kept as an informational list only). Country alias via `config/country_aliases.yml` (seeded canonicals; unmatched create + `alias_missing` warn + fork report).
 - First-seen: team missing external_id → full create from profile + always enqueue squad; player missing id in squad → create + enqueue career; country normalize-only; league → record + probe only, never auto-backfill.

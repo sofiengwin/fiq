@@ -1,6 +1,5 @@
 require "test_helper"
 require "tmpdir"
-require "yaml"
 
 # L3 — Capped backfill batch for one convention-range season (live-only,
 # DB-backed scope).
@@ -178,38 +177,46 @@ class LeagueBackfillTest < ActiveSupport::TestCase
     assert_not_requested(:get, /v3\.football\.api-sports\.io/)
   end
 
-  test "refuses an in-range season with no memo and no YML with zero live requests" do
+  test "proceeds live with no memo row and records an ok memo (find-or-create on first run)" do
+    assert_nil LeagueSeason.memo_for(39, 2020)
+    stub_teams(2020, [ { id: 33, name: "T5 First Run FC" } ])
+    stub_players(33, 2020, 1, [ { id: 104, name: "T5 First Run Player" } ])
+    stub_players_empty(33, 2020, 2)
+
+    result = backfill(season: 2020)
+
+    assert_equal :completed, result[:status]
+    assert_operator result[:live_requests], :>, 0
+    row = LeagueSeason.memo_for(39, 2020)
+    assert_equal "ok", row.status
+    assert_equal 1, row.team_count
+  end
+
+  test "empty teams response on a first run writes a dead memo with reason" do
+    assert_nil LeagueSeason.memo_for(39, 2020)
+    stub_teams(2020, [])
+
     result = backfill(season: 2020)
 
     assert_equal :refused, result[:status]
-    assert_equal 0, result[:live_requests]
-    assert_match(/data:probe_pl39/, result[:refusal_reason])
-    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
+    assert_equal 1, result[:live_requests]
+    assert_match(/no teams/, result[:refusal_reason])
+    row = LeagueSeason.memo_for(39, 2020)
+    assert_equal "dead", row.status
+    assert_equal "empty teams response", row.reason
   end
 
-  test "deprecated YML fallback allowlists when no memo rows exist" do
-    LeagueSeason.where(league_id: 39).delete_all
-    write_allowlist_yml([ SEASON ], [])
-    stub_teams(SEASON, [ { id: 70, name: "T5 Fallback FC" } ])
-    stub_players(70, SEASON, 1, [ { id: 701, name: "T5 Fallback Player" } ])
-    stub_players_empty(70, SEASON, 2)
+  test "live errors propagate with no memo write so the retry re-checks" do
+    assert_nil LeagueSeason.memo_for(39, 2020)
+    stub_request(:get, teams_url(2020)).to_return(
+      status: 200,
+      body: { response: [], errors: { rateLimit: "Too many requests" } }.to_json
+    )
 
-    result = backfill(season: SEASON)
-
-    assert_equal :completed, result[:status]
-    assert_equal 1, FootballTeam.where(external_id: "70").count
-  end
-
-  test "deprecated YML fallback refuses a dead-listed season with zero live requests" do
-    LeagueSeason.where(league_id: 39).delete_all
-    write_allowlist_yml([], [ { season: SEASON, reason: "empty teams response" } ])
-
-    result = backfill(season: SEASON)
-
-    assert_equal :refused, result[:status]
-    assert_equal 0, result[:live_requests]
-    assert_match(/dead/, result[:refusal_reason])
-    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
+    assert_raises(FootballClient::FootballClientRateLimitExceeded) do
+      backfill(season: 2020)
+    end
+    assert_nil LeagueSeason.memo_for(39, 2020)
   end
 
   test "low-cap run stops cleanly and the re-run re-walks live to completion" do
@@ -236,15 +243,17 @@ class LeagueBackfillTest < ActiveSupport::TestCase
     assert CoverageGate.call(league_id: 39, season: SEASON).pass?
   end
 
-  test "refuses without a memo row or YML and names the probe task" do
+  test "in-range season without a probe memo proceeds live (probe is an optional bootstrap)" do
     LeagueSeason.where(league_id: 39).delete_all
+    stub_teams(SEASON, [ { id: 70, name: "T5 Unprobed FC" } ])
+    stub_players(70, SEASON, 1, [ { id: 701, name: "T5 Unprobed Player" } ])
+    stub_players_empty(70, SEASON, 2)
 
     result = backfill(season: SEASON)
 
-    assert_equal :refused, result[:status]
-    assert_equal 0, result[:live_requests]
-    assert_match(/data:probe_pl39/, result[:refusal_reason])
-    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
+    assert_equal :completed, result[:status]
+    assert_equal 1, FootballTeam.where(external_id: "70").count
+    assert_equal "ok", LeagueSeason.memo_for(39, SEASON).status
   end
 
   private
@@ -320,17 +329,5 @@ class LeagueBackfillTest < ActiveSupport::TestCase
       errors: {}
     }.to_json
     stub_request(:get, players_url(team_id, season, page)).to_return(status: 200, body: body)
-  end
-
-  def write_allowlist_yml(allowlist, dead)
-    payload = {
-      "league" => 39,
-      "present_year" => PRESENT_YEAR,
-      "window_truncated" => false,
-      "allowlist" => allowlist,
-      "dead" => dead.map { |entry| { "season" => entry[:season], "reason" => entry[:reason] } },
-      "seasons" => {}
-    }
-    File.write(File.join(@config_dir, "allowlist_39.yml"), YAML.dump(payload))
   end
 end
