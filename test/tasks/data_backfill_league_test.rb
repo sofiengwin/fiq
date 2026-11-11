@@ -2,9 +2,11 @@ require "test_helper"
 require "rake"
 
 # data:backfill_league rake wrapper: always enqueues BackfillLeagueJob (never
-# runs inline, so enqueue costs zero HTTP) and exits 1 with nothing enqueued
-# on missing args. End-to-end backfill behavior is covered in
-# LeagueBackfillTest; delegation in BackfillLeagueJobTest.
+# runs inline, so enqueue costs zero HTTP). An explicit season enqueues one
+# job as-is; omitting season fans out one job per convention-range season
+# except fresh-dead memos. Missing league_id exits 1 with nothing enqueued.
+# End-to-end backfill behavior is covered in LeagueBackfillTest; delegation
+# in BackfillLeagueJobTest.
 class DataBackfillLeagueRakeTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include WebMock::API
@@ -56,6 +58,56 @@ class DataBackfillLeagueRakeTest < ActiveSupport::TestCase
     assert_includes out, "BackfillLeagueJob"
     assert_includes out, "job_id="
     assert_includes out, "season=2022"
+    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
+  end
+
+  test "no season enqueues all in-range seasons with zero HTTP" do
+    expected = (LeagueSeason::FIRST_SEASON..Time.zone.now.year).to_a
+
+    out, = capture_io do
+      assert_enqueued_jobs expected.size do
+        @task.invoke("39")
+      end
+    end
+
+    enqueued = ActiveJob::Base.queue_adapter.enqueued_jobs.select do |entry|
+      (entry[:job] || entry["job"]) == BackfillLeagueJob
+    end
+    seasons = enqueued.map { |entry| (entry[:args] || entry["args"])[1] }.sort
+    assert_equal expected, seasons
+
+    assert_includes out, "status=enqueued_all"
+    assert_includes out, "enqueued=#{expected.size}"
+    assert_includes out, "skipped=0"
+    assert_includes out, "enqueued_seasons=#{expected.join(",")}"
+    assert_not_requested(:get, /v3\.football\.api-sports\.io/)
+  end
+
+  test "no season skips fresh-dead memos with zero HTTP" do
+    dead_season = LeagueSeason::FIRST_SEASON
+    LeagueSeason.record_contact!(
+      league_id: 39, season: dead_season,
+      status: LeagueSeason::DEAD, team_count: 0, reason: "empty teams response"
+    )
+    expected = ((LeagueSeason::FIRST_SEASON..Time.zone.now.year).to_a - [ dead_season ])
+
+    out, = capture_io do
+      assert_enqueued_jobs expected.size do
+        @task.invoke("39")
+      end
+    end
+
+    enqueued = ActiveJob::Base.queue_adapter.enqueued_jobs.select do |entry|
+      (entry[:job] || entry["job"]) == BackfillLeagueJob
+    end
+    seasons = enqueued.map { |entry| (entry[:args] || entry["args"])[1] }.sort
+    assert_equal expected, seasons
+    assert_not_includes seasons, dead_season
+
+    assert_includes out, "status=enqueued_all"
+    assert_includes out, "enqueued=#{expected.size}"
+    assert_includes out, "skipped=1"
+    assert_includes out, "skipped_seasons=#{dead_season}"
     assert_not_requested(:get, /v3\.football\.api-sports\.io/)
   end
 end
