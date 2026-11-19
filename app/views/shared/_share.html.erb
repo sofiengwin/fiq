@@ -1,0 +1,25 @@
+<%# Q11 share sheet / desktop copy fallback (shared by saved-quiz results and
+    the public leaderboard). `share_url` is the SAME absolute invite link as
+    Q9 (an `_url` helper). Guests never see this partial — callers render it
+    only when authenticated. %>
+<div id="share"
+     data-controller="share"
+     data-share-url-value="<%= share_url %>"
+     data-share-title-value="<%= share_title %>"
+     data-share-text-value="<%= share_text %>"
+     class="bg-white/10 border border-purple-500/30 rounded-2xl p-6 text-center mb-8">
+  <h2 class="text-xl font-bold text-white mb-4">Share this quiz</h2>
+  <button type="button"
+          data-action="click->share#share"
+          data-share-target="button"
+          class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition">
+    📤 Share
+  </button>
+  <span data-share-target="status" role="status" aria-live="polite" class="block mt-3 text-green-300 font-semibold"></span>
+  <div data-share-target="fallback" hidden class="mt-4">
+    <label class="block text-purple-200 text-sm mb-2">Copy this link</label>
+    <input data-share-target="fallbackInput"
+           type="text" readonly value="<%= share_url %>"
+           class="w-full bg-purple-950/60 border border-purple-500/40 rounded-lg px-3 py-2 text-white text-sm" />
+  </div>
+</div>

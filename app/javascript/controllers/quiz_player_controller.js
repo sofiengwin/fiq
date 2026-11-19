@@ -1,9 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Provides overall quiz player functionality
+// Quiz player setup (tile feedback is visual-only by design).
 export default class extends Controller {
   connect() {
-    // Play entrance sound/animation if needed
     console.log("Quiz player connected")
   }
 

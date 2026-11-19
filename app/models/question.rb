@@ -17,8 +17,15 @@ class Question < ApplicationRecord
   attribute :points, :integer, default: 1000
   attribute :order_index, :integer, default: 0
 
-  # Constants for Kahoot-style colors
+  # Constants for Kahoot-style colors.
+  # COLORS keeps the 6-color legacy list so old rows still validate;
+  # new tile renders use TILE_COLORS only (position i -> TILE_COLORS[i % 4]).
   COLORS = %w[red blue green yellow orange purple].freeze
+  TILE_COLORS = %w[red blue yellow green].freeze
+
+  # Q12: question_type/payload are phase-2 schema shells. They stay writable
+  # at model level but are never read by the play screen or the scorer —
+  # play renders tiles from answer_options (+ is_correct + image_url) only.
 
   def effective_time_limit
     time_limit_seconds || quiz.time_limit_seconds || 20

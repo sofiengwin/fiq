@@ -1,0 +1,69 @@
+<%# frozen_string_literal: true %>
+<%# Shared snap reveal (Q6). Rendered after lock/confirm/timeout instead of %>
+<%# the interactive play screen: correct tile(s) carry .is-correct, wrongly %>
+<%# tapped tile(s) carry .is-wrong-pick (flash), +N (or +0) renders near the %>
+<%# tiles, and the header shows the updated score/streak. No form, no %>
+<%# inputs, no links, no buttons — interactivity is removed, so further %>
+<%# taps cannot change the payload. A snap-advance timer navigates once to %>
+<%# next_url after ~1.5s (frame navigation when `frame` is given, else a %>
+<%# full Turbo visit to next_url, which is the results path when done). %>
+<%# %>
+<%# Required locals: tiles (array of {id:, text:, image_url:, color:, %>
+<%# correct:, picked:}), points (persisted award, shown as +N/+0), score %>
+<%# (updated header total), streak, question_number, total_questions, %>
+<%# next_url. Optional: frame (turbo-frame id for frame navigation). %>
+<%
+  tiles = local_assigns.fetch(:tiles, [])
+  points = local_assigns.fetch(:points, 0).to_i
+  score = local_assigns.fetch(:score, 0)
+  streak = local_assigns.fetch(:streak, 0).to_i
+  frame = local_assigns[:frame]
+%>
+<div id="play-screen"
+     data-controller="snap-advance"
+     data-snap-advance-url-value="<%= local_assigns[:next_url] %>"
+     data-snap-advance-delay-value="1500"
+     <% if frame.present? %>data-snap-advance-frame-value="<%= frame %>"<% end %>>
+  <!-- Header: progress + updated running score/streak -->
+  <div class="mb-8">
+    <div id="play-header" class="flex justify-between items-center mb-2">
+      <span id="play-progress" class="text-purple-300">Question <%= local_assigns[:question_number] %> of <%= local_assigns[:total_questions] %></span>
+      <div class="flex items-center gap-4">
+        <% if streak > 0 %>
+          <span id="play-streak" class="text-yellow-400 font-bold">🔥 <%= streak %> streak</span>
+        <% end %>
+        <span id="play-score" class="text-white font-bold">Score: <%= score %></span>
+      </div>
+    </div>
+    <div class="bg-purple-800/50 rounded-full h-3">
+      <div id="play-progress-bar" class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: <%= local_assigns[:question_number].to_i * 100 / local_assigns[:total_questions].to_i %>%"></div>
+    </div>
+  </div>
+
+  <!-- Points earned on this question (persisted award, never recomputed) -->
+  <div class="text-center mb-6">
+    <span id="snap-points" class="inline-block bg-purple-600/50 px-6 py-2 rounded-full text-2xl font-bold text-white">+<%= points %> points</span>
+  </div>
+
+  <!-- Locked tiles: correct highlighted, wrong picks flash, nothing clickable -->
+  <div id="play-tiles" class="grid grid-cols-2 gap-4 pointer-events-none" aria-disabled="true">
+    <% tiles.each_with_index do |tile, i| %>
+      <% tile_color = tile[:color] || tile_color_for(i) %>
+      <% css = [ answer_button_class(tile_color), "play-tile" ] %>
+      <% css << "is-correct" if tile[:correct] %>
+      <% css << "is-wrong-pick" if tile[:picked] && !tile[:correct] %>
+      <div class="<%= css.join(" ") %>"
+           data-tile-color="<%= tile_color %>"
+           data-answer-id="<%= tile[:id] %>">
+        <span class="mr-3 text-2xl" aria-hidden="true"><%= answer_shape(tile_color) %></span>
+        <span class="sr-only"><%= answer_sr_label(tile_color) %>:</span>
+        <% if tile[:image_url].present? %>
+          <%= image_tag tile[:image_url], class: "play-answer-image w-full h-32 object-contain rounded-lg mb-2", alt: tile[:text].to_s %>
+          <span class="play-answer-label block mt-2"><%= tile[:text] %></span>
+        <% else %>
+          <%= tile[:text] %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -10,6 +10,9 @@ class PlayController < ApplicationController
   end
 
   # POST /play - Start generated quiz
+  # Q12: anonymous /play builds rule-based questions for this session only.
+  # The saved-quiz creation record is never consulted here, and phase-2
+  # shells play no part in tile rendering or scoring.
   def create
     # End any existing active game
     PlaySession.active.where(session_id: browser_session_id).destroy_all
@@ -38,18 +41,59 @@ class PlayController < ApplicationController
 
     @question = @play_session.current_question
     @progress = @play_session.progress
+    @effective_limit = play_effective_limit(@question)
   end
 
   # POST /play/answer - Submit answer
   def answer
     redirect_to play_path and return unless @play_session&.game_active?
 
-    @play_session.process_answer!(params[:selected_ids])
+    # Q5 idempotency: a double-tap / double-submit replays the same
+    # question_index the page was rendered with. The first submit advances
+    # current_index, so a stale index means "already answered" — ignore it
+    # instead of scoring the next question with a duplicated payload.
+    # Absent param (older clients) still processes; correctness is always
+    # re-validated server-side by QuizScoring exact match (the client's
+    # correct_count hint is never trusted for scoring).
+    if params[:question_index].present? &&
+       params[:question_index].to_i != @play_session.current_index
+      redirect_to play_question_path and return
+    end
 
-    if @play_session.game_complete?
-      redirect_to play_results_path
+    @question = @play_session.current_question
+    limit_ms = play_effective_limit_ms(@question)
+    @time_taken_ms = params[:time_taken_ms].to_i
+    # Q7: on zero the timer auto-submits an empty selection with full-limit
+    # elapsed ms. Score it as a timeout (zero) through the same Q6 snap
+    # path as a lock — never as a late correct answer.
+    if play_timed_out?(@time_taken_ms, limit_ms)
+      @selected = []
+      @time_taken_ms = limit_ms
+      @play_session.process_timeout!(effective_limit_ms: limit_ms)
     else
-      redirect_to play_question_path
+      @selected = Array(params[:selected_ids]).map(&:to_i).reject(&:zero?)
+      @play_session.process_answer!(
+        params[:selected_ids],
+        time_taken_ms: @time_taken_ms,
+        effective_limit_ms: limit_ms
+      )
+    end
+    @last_response = @play_session.responses.last || {}
+    @points = @last_response["points"].to_i
+    @tiles = play_snap_tiles(@question, @selected)
+    @snap_next_url = @play_session.game_complete? ? play_results_path : play_question_path
+
+    respond_to do |format|
+      # Q6: Turbo (form_with) submissions get the snap reveal + auto-advance.
+      format.turbo_stream
+      # Non-JS fallback keeps the Q5 redirect behavior.
+      format.html do
+        if @play_session.game_complete?
+          redirect_to play_results_path
+        else
+          redirect_to play_question_path
+        end
+      end
     end
   end
 
@@ -85,6 +129,47 @@ class PlayController < ApplicationController
 
   def browser_session_id
     session.id.to_s.presence || session[:_csrf_token] || SecureRandom.hex(16).tap { |id| session[:browser_id] = id }
+  end
+
+  # Countdown slot value for the shared play screen (Q3). Serialized play
+  # questions rarely carry their own limit, so this falls back to the locked
+  # 20s default. Q7 owns ticking/timeout behavior; this is display only.
+  def play_effective_limit(question)
+    seconds = question["time_limit_seconds"] ||
+              question["effective_limit_seconds"] ||
+              QuizScoring::DEFAULT_LIMIT_SECONDS
+    seconds.to_i
+  end
+
+  def play_effective_limit_ms(question)
+    play_effective_limit(question).to_i * 1000
+  end
+
+  # Q7 timeout check: elapsed ms at/over the limit means the countdown hit
+  # zero, so the submit goes through process_timeout! (zero) rather than
+  # process_answer!. An explicit timeout flag covers clients that send one.
+  def play_timed_out?(time_taken_ms, limit_ms)
+    params[:timeout].to_s == "1" || params[:timeout].to_s == "true" ||
+      time_taken_ms.to_i >= limit_ms.to_i
+  end
+
+  # Q6 snap tiles for a serialized /play question: the exact correct set
+  # from stored data and the picked set from this submit. Colors are left
+  # to the snap partial (position-based cycle, same as the play screen the
+  # user just tapped). Shown +N comes from the persisted PlaySession
+  # response (QuizScoring), never recomputed here.
+  def play_snap_tiles(question, selected_ids)
+    correct_ids = Array(question["correct_answer"]).map(&:to_i)
+    picked_ids = Array(selected_ids).map(&:to_i)
+    Array(question["options"]).map do |opt|
+      opt = opt.is_a?(Hash) ? opt : {}
+      id = (opt["id"] || opt[:id]).to_i
+      { id: id,
+        text: opt["name"] || opt[:name],
+        image_url: opt["image_url"] || opt[:image_url],
+        correct: correct_ids.include?(id),
+        picked: picked_ids.include?(id) }
+    end
   end
 
   def generate_questions

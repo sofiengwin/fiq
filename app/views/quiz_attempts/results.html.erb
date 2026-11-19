@@ -1,74 +1,71 @@
 <% content_for(:title) { "Results - #{@attempt.quiz.title}" } %>
 
 <div class="max-w-4xl mx-auto">
-  <!-- Final Score Card -->
+  <!-- Final Score Card: score + count only, no breakdown -->
   <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 text-center mb-8">
     <h1 class="text-4xl font-bold text-white mb-4">🎉 Quiz Complete!</h1>
-    
-    <div class="inline-flex items-center justify-center w-40 h-40 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 mb-6">
-      <div class="text-center">
-        <p class="text-5xl font-bold text-white"><%= @results[:percentage] %>%</p>
-      </div>
-    </div>
 
     <p class="text-3xl font-bold text-white mb-2">
-      <%= @results[:total_score] %> / <%= @results[:max_possible_score] %> points
+      <%= @results[:total_score] %> points
     </p>
-    
+
     <p class="text-purple-300">
-      <%= @results[:responses].count { |r| r[:correct] } %> of <%= @results[:responses].count %> questions correct
+      <%= @results[:responses].count { |r| r[:correct] } %> of <%= @results[:responses].count %> correct
     </p>
   </div>
 
-  <!-- Question Breakdown -->
-  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-6 mb-8">
-    <h2 class="text-2xl font-bold text-white mb-6">Question Breakdown</h2>
-    
-    <div class="space-y-4">
-      <% @results[:responses].each_with_index do |result, index| %>
-        <div class="flex items-center gap-4 p-4 rounded-lg <%= result[:correct] ? 'bg-green-500/10' : 'bg-red-500/10' %>">
-          <div class="flex-shrink-0">
-            <% if result[:correct] %>
-              <span class="text-2xl">✅</span>
-            <% else %>
-              <span class="text-2xl">❌</span>
-            <% end %>
-          </div>
-          
-          <div class="flex-1">
-            <p class="text-white font-medium">
-              <%= index + 1 %>. <%= result[:question].text %>
-            </p>
-            <div class="flex flex-wrap gap-2 mt-2">
-              <% result[:selected_answers].each do |answer| %>
-                <span class="text-xs px-2 py-1 rounded <%= answer.is_correct ? 'bg-green-600/50 text-green-200' : 'bg-red-600/50 text-red-200' %>">
-                  <%= answer.text %>
-                </span>
-              <% end %>
-              <% if result[:selected_answers].empty? %>
-                <span class="text-xs px-2 py-1 rounded bg-gray-600/50 text-gray-300">No answer</span>
-              <% end %>
-            </div>
-          </div>
-          
-          <div class="flex-shrink-0 text-right">
-            <p class="text-lg font-bold <%= result[:correct] ? 'text-green-400' : 'text-red-400' %>">
-              +<%= result[:score] %>
-            </p>
-          </div>
+  <%# Q10: friend-vs-inviter comparison, invited attempts only. Side-by-side
+      friend score/count + inviter best score/count with a winner callout
+      (higher wins, score tie → faster wall-clock duration wins). When the
+      inviter has never played there is no placeholder, no empty state, and
+      no check-back copy — the friend score above stands alone. %>
+  <% if @inviter_best %>
+    <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 text-center mb-8">
+      <h2 class="text-2xl font-bold text-white mb-6">You vs Inviter</h2>
+
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-purple-800/50 rounded-xl p-4">
+          <p class="text-purple-300 text-sm mb-1">Your score</p>
+          <p class="text-3xl font-bold text-white"><%= @attempt.total_score %> points</p>
+          <p class="text-purple-300">
+            <%= @results[:responses].count { |r| r[:correct] } %> of <%= @results[:responses].count %> correct
+          </p>
         </div>
+        <div class="bg-purple-800/50 rounded-xl p-4">
+          <p class="text-purple-300 text-sm mb-1">Inviter's best</p>
+          <p class="text-3xl font-bold text-white"><%= @inviter_best.total_score %> points</p>
+          <p class="text-purple-300">
+            <%= @inviter_best_correct %> of <%= @inviter_best.responses.size %> correct
+          </p>
+        </div>
+      </div>
+
+      <% if @comparison_winner == :friend %>
+        <p class="text-2xl font-bold text-green-400">🎉 You win!</p>
+      <% elsif @comparison_winner == :inviter %>
+        <p class="text-2xl font-bold text-yellow-300">🏆 Inviter wins!</p>
+      <% else %>
+        <p class="text-2xl font-bold text-white">🤝 It's a tie!</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
-  <!-- Actions -->
-  <div class="flex justify-center gap-4">
-    <%= button_to quiz_attempts_path(quiz_id: @attempt.quiz.id), method: :post, class: "bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-xl font-bold text-lg transition" do %>
-      🔄 Retake Quiz
+  <!-- Q11 share sheet + public leaderboard link. The share section (id
+       anchors #share) renders only when signed-in and carries the SAME
+       absolute invite link as Q9; guests see no send affordance. -->
+  <% if @share_url %>
+    <%= render "shared/share",
+        share_url: @share_url,
+        share_title: @attempt.quiz.title,
+        share_text: "I scored #{@attempt.total_score} points — can you beat me?" %>
+  <% end %>
+
+  <div id="leaderboard" class="flex justify-center gap-4">
+    <%= link_to leaderboard_quiz_path(@attempt.quiz), class: "bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg transition border border-white/20" do %>
+      🏆 Leaderboard
     <% end %>
-    <%= link_to quizzes_path, class: "bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg transition border border-white/20" do %>
-      🔍 Browse Quizzes
+    <%= button_to quiz_attempts_path(quiz_id: @attempt.quiz.id), method: :post, class: "bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg transition border border-white/20" do %>
+      🔄 Retake Quiz
     <% end %>
   </div>
 </div>
-

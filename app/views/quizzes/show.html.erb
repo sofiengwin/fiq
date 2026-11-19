@@ -38,6 +38,13 @@
       <%= button_to quiz_attempts_path(quiz_id: @quiz.id), method: :post, class: "w-full bg-green-600 hover:bg-green-500 text-white py-4 rounded-xl font-bold text-xl transition transform hover:scale-[1.02]" do %>
         🎮 Start Quiz!
       <% end %>
+      <%# Q9: Share affordance is signed-in only — guests see no send button
+          but can still open a link they receive via /i/:token. %>
+      <% if authenticated? %>
+        <%= button_to quiz_invitations_path(@quiz), method: :post, class: "mt-4 w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold text-lg transition" do %>
+          🔗 Share
+        <% end %>
+      <% end %>
     <% else %>
       <div class="text-center py-8">
         <p class="text-purple-300 mb-4">This quiz has no questions yet.</p>
