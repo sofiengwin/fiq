@@ -4,3 +4,77 @@
 @source "../../views/**/*.html.erb";
 @source "../../helpers/**/*.rb";
 @source "../../../app/javascript/**/*.js";
+
+/* Q4: locked Kahoot tile system (test hook: .play-tile).
+ * Lock/color changes must land in <250ms, so the tile transition is
+ * capped at 200ms. No sound anywhere in play: tiles are visual-only. */
+.play-tile {
+  transition-property: background-color, border-color, box-shadow, transform, scale;
+  transition-duration: 200ms;
+  transition-timing-function: ease-out;
+}
+
+/* Snap-reveal final colors (Q6 wires the behavior; colors live here so
+ * reduced-motion still shows the final state, just without animation). */
+.play-tile.is-correct {
+  background-color: var(--color-green-600);
+  border-color: var(--color-green-300);
+}
+
+.play-tile.is-wrong-pick {
+  background-color: var(--color-red-600);
+  border-color: var(--color-red-300);
+}
+
+/* Q6 snap flash: wrongly tapped tile pulses briefly, then the snap
+ * auto-advances (~1.5s). Total flash time stays well under the advance
+ * delay so the final colors + points are readable before navigation. */
+@keyframes snap-wrong-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.play-tile.is-wrong-pick {
+  animation: snap-wrong-flash 300ms ease-out 2;
+}
+
+/* Locked snap: tiles are display-only (no form), so taps do nothing. */
+#play-tiles[aria-disabled="true"] .play-tile {
+  cursor: default;
+}
+
+/* Q7 countdown urgency (visual only): <=10s low, <=5s critical.
+ * JS toggles .is-low/.is-critical on #play-countdown; all visuals here. */
+#play-countdown.is-low {
+  color: var(--color-yellow-400);
+}
+
+#play-countdown.is-critical {
+  color: var(--color-red-500);
+  animation: quiz-timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes quiz-timer-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play-tile,
+  .play-tile.is-correct,
+  .play-tile.is-wrong-pick {
+    transform: none !important;
+    animation: none !important;
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 200ms;
+  }
+
+  #play-tiles .play-tile {
+    scale: none !important;
+  }
+
+  /* Urgency keeps its final colors, just without the pulse. */
+  #play-countdown.is-critical {
+    animation: none;
+  }
+}

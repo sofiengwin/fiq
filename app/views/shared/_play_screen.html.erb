@@ -1,0 +1,165 @@
+<%# frozen_string_literal: true %>
+<%# Shared play screen shell (Q3). Rendered by both PlayController#question %>
+<%# (/play/question) and QuizAttemptsController#show (saved quiz_attempt_path), %>
+<%# including Turbo-frame navigations, so both flows share identical %>
+<%# header/tile/quit DOM and Stimulus hooks. %>
+<%# %>
+<%# Required locals: question (PlaySession Hash or Question AR), %>
+<%# question_number, total_questions, score, streak, effective_limit (seconds). %>
+<%# %>
+<%# Form locals: form_url, form_input_name. Optional: hidden_question_id %>
+<%# (saved attempts), time_field_name, turbo_frame_name, submit_label. %>
+<%# Quit locals: quit_path, quit_method. %>
+<%# %>
+<%# Out of scope (Q5/Q7 own lock/confirm behavior, countdown tick/timeout %>
+<%# wiring; Q6 owns snap reveal). Tile color/shape/image mapping is locked %>
+<%# by Q4: position i renders TILE_PAIRS[i % 4], so >4 options wrap %>
+<%# without DOM changes. %>
+<%# %>
+<%# Q12: tiles render answer_options id/text/image_url (+ is_correct) only. %>
+<%# Phase-2 shells (question_type/payload, text_answer/payload) stay %>
+<%# writable at model level but are never read here, so a fill_blank %>
+<%# question still renders its tiles without crashing. %>
+<%
+  q = local_assigns[:question]
+  is_hash_question = q.is_a?(Hash)
+
+  if is_hash_question
+    prompt_text = q["prompt"]
+    image_url = q["image_url"]
+    tile_sources = Array(q["options"]).map do |o|
+      o = o.is_a?(Hash) ? o : {}
+      { id: o["id"] || o[:id], text: o["name"] || o[:name],
+        image_url: o["image_url"] || o[:image_url] }
+    end
+    correct_count = Array(q["correct_answer"]).length
+    points_label = q["points"] || q[:points]
+    players = Array(q["players"])
+  else
+    prompt_text = q.text
+    image_url = q.image_url
+    tile_sources = q.answer_options.map { |a| { id: a.id, text: a.text, image_url: a.image_url } }
+    correct_count = q.answer_options.count(&:is_correct?)
+    points_label = q.points
+    players = []
+  end
+
+  multi = correct_count.to_i > 1
+  form_input_name = local_assigns.fetch(:form_input_name, "selected_ids[]")
+  time_field_name = local_assigns.fetch(:time_field_name, "time_taken_ms")
+  submit_label = local_assigns.fetch(:submit_label, "Confirm")
+%>
+<div id="play-screen" data-controller="quiz-timer" data-quiz-timer-seconds-value="<%= local_assigns[:effective_limit] %>">
+  <!-- Header: progress, countdown slot, streak (only when > 0), running score -->
+  <div class="mb-8">
+    <div id="play-header" class="flex justify-between items-center mb-2">
+      <span id="play-progress" class="text-purple-300">Question <%= local_assigns[:question_number] %> of <%= local_assigns[:total_questions] %></span>
+      <div class="flex items-center gap-4">
+        <span id="play-countdown" data-quiz-timer-target="display" class="text-white font-bold tabular-nums"><%= local_assigns[:effective_limit] %></span>
+        <% if local_assigns[:streak].to_i > 0 %>
+          <span id="play-streak" class="text-yellow-400 font-bold">🔥 <%= local_assigns[:streak] %> streak</span>
+        <% end %>
+        <span id="play-score" class="text-white font-bold">Score: <%= local_assigns[:score] %></span>
+      </div>
+    </div>
+    <div class="bg-purple-800/50 rounded-full h-3">
+      <div id="play-progress-bar" class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: <%= (local_assigns[:question_number].to_i - 1) * 100 / local_assigns[:total_questions].to_i %>%"></div>
+    </div>
+  </div>
+
+  <!-- Prompt: image (when set) above text, never a button/link -->
+  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 mb-8">
+    <% if players.present? %>
+      <div id="play-players" class="flex flex-wrap justify-center gap-4 mb-6">
+        <% players.each do |player| %>
+          <div class="bg-purple-800/50 rounded-lg px-4 py-2 text-white font-medium">
+            <%= player.is_a?(Hash) ? (player["name"] || player[:name]) : player %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if image_url.present? %>
+      <%= image_tag image_url, id: "play-prompt-image", class: "max-w-full h-64 object-contain mx-auto rounded-lg mb-6", alt: "Question image" %>
+    <% end %>
+
+    <h2 id="play-prompt" class="text-2xl font-bold text-white text-center">
+      <%= prompt_text %>
+    </h2>
+
+    <p class="text-purple-300 text-center mt-4">
+      <span id="play-points" class="inline-block bg-purple-600/50 px-3 py-1 rounded-full text-sm">
+        <%= points_label %> points
+      </span>
+      <% if multi %>
+        <span id="play-multi-badge" class="inline-block bg-blue-600/50 px-3 py-1 rounded-full text-sm ml-2">
+          Select all that apply
+        </span>
+      <% end %>
+    </p>
+  </div>
+
+  <!-- Answer tiles: always 2 columns, extra options wrap to following rows -->
+  <%= form_with url: local_assigns[:form_url], method: :post,
+                id: "play-form",
+                data: {
+                  turbo_frame: local_assigns[:turbo_frame_name],
+                  quiz_timer_target: "form",
+                  controller: "answer-selection",
+                  "answer-selection-correct-count-value": correct_count,
+                  action: "submit->answer-selection#guard"
+                },
+                class: "space-y-4" do %>
+    <% if local_assigns[:hidden_question_id] %>
+      <%= hidden_field_tag "response[question_id]", local_assigns[:hidden_question_id], id: "play-question-id" %>
+    <% end %>
+    <% if local_assigns[:hidden_question_index] %>
+      <%= hidden_field_tag "question_index", local_assigns[:hidden_question_index], id: "play-question-index" %>
+    <% end %>
+    <%= hidden_field_tag time_field_name, 0, id: "play-time-taken", data: { quiz_timer_target: "timeTaken" } %>
+
+    <div id="play-tiles" class="grid grid-cols-2 gap-4">
+      <% tile_sources.each_with_index do |tile, i| %>
+        <% tile_color = tile_color_for(i) %>
+        <label class="play-tile-label block cursor-pointer" data-answer-selection-target="option">
+          <input type="checkbox"
+                 name="<%= form_input_name %>"
+                 value="<%= tile[:id] %>"
+                 class="sr-only peer"
+                 data-action="change->answer-selection#toggle">
+          <div class="<%= answer_button_class(tile_color) %> play-tile peer-checked:ring-4 peer-checked:ring-white peer-checked:scale-105" data-tile-color="<%= tile_color %>">
+            <span class="mr-3 text-2xl" aria-hidden="true"><%= answer_shape(tile_color) %></span>
+            <span class="sr-only"><%= answer_sr_label(tile_color) %>:</span>
+            <% if tile[:image_url].present? %>
+              <%= image_tag tile[:image_url], class: "play-answer-image w-full h-32 object-contain rounded-lg mb-2", alt: tile[:text].to_s %>
+              <span class="play-answer-label block mt-2"><%= tile[:text] %></span>
+            <% else %>
+              <%= tile[:text] %>
+            <% end %>
+          </div>
+        </label>
+      <% end %>
+    </div>
+
+    <%# Q5: Confirm exists only in multi mode (correct_count > 1). Single %>
+    <%# mode locks on first tap and submits immediately, so it renders no %>
+    <%# submit/Confirm/Next control at all. %>
+    <% if multi %>
+      <div class="text-center pt-4">
+        <%= submit_tag submit_label,
+                       id: "play-submit",
+                       disabled: true,
+                       data: { answer_selection_target: "submit", quiz_timer_target: "submit", action: "click->quiz-timer#submit" },
+                       class: "bg-green-600 hover:bg-green-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-12 py-4 rounded-xl font-bold text-xl transition cursor-pointer" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Quit: small control under tiles, never styled as an answer tile -->
+  <div id="play-quit" class="text-center mt-6">
+    <%= button_to "Quit", local_assigns[:quit_path], method: local_assigns.fetch(:quit_method, :get),
+                  id: "play-quit-control",
+                  class: "text-sm text-red-400 hover:text-red-300 transition",
+                  form_class: "inline" %>
+  </div>
+</div>

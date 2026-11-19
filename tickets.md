@@ -1,6 +1,6 @@
 # Tickets — Data-collection pipeline Phase 1 (PL 39 earliest-back)
 
-Source: frozen `doc/data-collection.md` + `doc/quiz.md` + `doc/backend.md` + `doc/README.MD`. Scope notes in `brief.md`. No implementation code in this file — builders build.
+Source: `doc/data-collection.md` + `doc/quiz.md` + `doc/README.MD`. Scope notes in `brief.md`. No implementation code in this file — builders build.
 
 Conventions for every ticket below: small enough for one builder session, independently testable, ordered so earlier tickets unblock later ones. Run dev via `docker compose` with host DB on 54321 (`DATABASE_URL` override). Never add `minutes_played`, errata pipeline, `review_queue`, or leagues beyond PL 39.
 

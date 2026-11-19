@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_19_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,6 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
   create_table "answer_options", force: :cascade do |t|
     t.string "color"
     t.datetime "created_at", null: false
+    t.string "image_url"
     t.boolean "is_correct"
     t.integer "order_index"
     t.bigint "question_id", null: false
@@ -98,6 +99,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
     t.index ["last_refreshed_at"], name: "index_football_teams_on_last_refreshed_at"
   end
 
+  create_table "invitations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "inviter_user_id", null: false
+    t.bigint "quiz_id", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inviter_user_id"], name: "index_invitations_on_inviter_user_id"
+    t.index ["quiz_id", "inviter_user_id"], name: "index_invitations_on_quiz_id_and_inviter_user_id", unique: true
+    t.index ["quiz_id"], name: "index_invitations_on_quiz_id"
+    t.index ["token"], name: "index_invitations_on_token", unique: true
+  end
+
   create_table "league_seasons", force: :cascade do |t|
     t.datetime "checked_at"
     t.datetime "created_at", null: false
@@ -150,7 +163,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
     t.datetime "created_at", null: false
     t.string "image_url"
     t.integer "order_index"
+    t.jsonb "payload", default: {}
     t.integer "points"
+    t.string "question_type", default: "multiple_choice"
     t.bigint "quiz_id", null: false
     t.text "text"
     t.integer "time_limit_seconds"
@@ -161,17 +176,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
   create_table "quiz_attempts", force: :cascade do |t|
     t.datetime "completed_at"
     t.datetime "created_at", null: false
+    t.bigint "invitation_id"
     t.bigint "quiz_id", null: false
     t.datetime "started_at"
     t.integer "streak"
     t.integer "total_score"
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["invitation_id"], name: "index_quiz_attempts_on_invitation_id"
     t.index ["quiz_id"], name: "index_quiz_attempts_on_quiz_id"
+    t.index ["user_id"], name: "index_quiz_attempts_on_user_id"
   end
 
   create_table "quizzes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
+    t.jsonb "generation_metadata", default: {}
     t.string "scoring_mode"
     t.integer "time_limit_seconds"
     t.string "title"
@@ -189,10 +209,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
 
   create_table "responses", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.jsonb "payload", default: {}
     t.bigint "question_id", null: false
     t.bigint "quiz_attempt_id", null: false
     t.integer "score_awarded"
     t.datetime "submitted_at"
+    t.text "text_answer"
     t.integer "time_taken_ms"
     t.datetime "updated_at", null: false
     t.index ["question_id"], name: "index_responses_on_question_id"
@@ -223,9 +245,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_000000) do
   add_foreign_key "careers", "players"
   add_foreign_key "competitions", "countries"
   add_foreign_key "football_teams", "countries"
+  add_foreign_key "invitations", "quizzes"
+  add_foreign_key "invitations", "users", column: "inviter_user_id"
   add_foreign_key "play_sessions", "users"
   add_foreign_key "questions", "quizzes"
+  add_foreign_key "quiz_attempts", "invitations"
   add_foreign_key "quiz_attempts", "quizzes"
+  add_foreign_key "quiz_attempts", "users"
   add_foreign_key "response_answers", "answer_options"
   add_foreign_key "response_answers", "responses"
   add_foreign_key "responses", "questions"

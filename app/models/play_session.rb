@@ -34,33 +34,43 @@ class PlaySession < ApplicationRecord
     }
   end
 
-  def process_answer!(selected_ids)
+  def process_answer!(selected_ids, time_taken_ms: 0, effective_limit_ms: nil)
     question = current_question
     selected = Array(selected_ids).map(&:to_i).reject(&:zero?)
-    correct = Array(question["correct_answer"])
-
-    is_correct = selected.sort == correct.sort
-    points = is_correct ? calculate_points : 0
-    new_streak = is_correct ? streak + 1 : 0
+    scored = QuizScoring.score(
+      correct_ids: question["correct_answer"],
+      selected_ids: selected,
+      base_points: question["points"] || QuizScoring::DEFAULT_BASE_POINTS,
+      time_taken_ms: time_taken_ms,
+      effective_limit_ms: effective_limit_ms || play_question_limit_ms(question),
+      streak: streak
+    )
 
     # Add response
     self.responses << {
       "question_index" => current_index,
       "selected" => selected,
-      "correct_answer" => correct,
-      "is_correct" => is_correct,
-      "points" => points
+      "correct_answer" => Array(question["correct_answer"]),
+      "is_correct" => scored.correct?,
+      "points" => scored.points
     }
 
     # Update game state
-    self.total_score += points
-    self.streak = new_streak
+    self.total_score += scored.points
+    self.streak = scored.new_streak
     self.current_index += 1
 
     # Mark complete if finished
     self.completed_at = Time.current if game_complete?
 
     save!
+  end
+
+  # Timeout scores zero through the same scorer: empty selection + full time.
+  def process_timeout!(effective_limit_ms: nil)
+    question = current_question
+    limit_ms = effective_limit_ms || play_question_limit_ms(question)
+    process_answer!([], time_taken_ms: limit_ms, effective_limit_ms: limit_ms)
   end
 
   def correct_count
@@ -83,11 +93,17 @@ class PlaySession < ApplicationRecord
     end
   end
 
+  # Wall-clock duration in seconds (locked tie-break, shared with QuizAttempt).
+  def duration_seconds
+    QuizScoring.duration_seconds(started_at, completed_at)
+  end
+
   private
 
-  def calculate_points
-    base_points = 1000
-    streak_bonus = [ streak * 100, 300 ].min
-    base_points + streak_bonus
+  def play_question_limit_ms(question)
+    seconds = question["time_limit_seconds"] ||
+              question["effective_limit_seconds"] ||
+              QuizScoring::DEFAULT_LIMIT_SECONDS
+    seconds.to_i * 1000
   end
 end

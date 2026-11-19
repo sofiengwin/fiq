@@ -8,6 +8,9 @@ class Response < ApplicationRecord
   # Callbacks
   before_create :set_submitted_at
 
+  # Q12: text_answer/payload are phase-2 schema shells. They stay writable
+  # at model level but are never read by the play screen or the scorer.
+
   def correct?
     score_awarded.present? && score_awarded > 0
   end

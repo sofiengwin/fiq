@@ -10,7 +10,6 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
-
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
@@ -28,11 +27,18 @@ Rails.application.routes.draw do
     delete "/",         to: "play#destroy",  as: :quit_play
   end
 
+  # Q9 — stable invitation links: guest-openable entry + signed-in minting.
+  get "/i/:token", to: "invitations#show", as: :invite
+
   # Quiz resources with nested questions and answer options
   resources :quizzes do
     member do
       post :duplicate
+      # Q11 — public board, viewable logged-out: /quizzes/:id/leaderboard.
+      get :leaderboard
     end
+    # Q9: POST only — minting requires sign-in (no index/show affordance).
+    resources :invitations, only: [ :create ]
     resources :questions, except: [ :index, :show ] do
       resources :answer_options, except: [ :index, :show ]
     end

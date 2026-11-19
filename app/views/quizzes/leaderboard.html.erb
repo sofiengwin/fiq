@@ -1,0 +1,60 @@
+<% content_for(:title) { "Leaderboard - #{@quiz.title}" } %>
+
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 text-center mb-8">
+    <h1 class="text-4xl font-bold text-white mb-2">🏆 Leaderboard</h1>
+    <p class="text-purple-300 text-lg"><%= @quiz.title %></p>
+  </div>
+
+  <%# Q11 public board: named finished attempts only (score DESC, faster
+      wall-clock duration ASC). Guests stay off the list even when they
+      played via an invite; the page itself is viewable logged-out. %>
+  <div id="leaderboard" class="bg-white/10 border border-purple-500/30 rounded-2xl p-8 mb-8 overflow-x-auto">
+    <% if @entries.any? %>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="text-purple-300 text-sm uppercase">
+            <th class="pb-3 pr-4">Rank</th>
+            <th class="pb-3 pr-4">Player</th>
+            <th class="pb-3 pr-4">Score</th>
+            <th class="pb-3 pr-4">Correct</th>
+            <th class="pb-3">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @entries.each_with_index do |entry, index| %>
+            <tr class="border-t border-white/10 text-white">
+              <td class="py-3 pr-4 font-bold"><%= index + 1 %></td>
+              <td class="py-3 pr-4"><%= entry.user.display_name %></td>
+              <td class="py-3 pr-4 font-bold"><%= entry.total_score %> points</td>
+              <td class="py-3 pr-4"><%= entry.correct_count %> of <%= entry.responses.size %> correct</td>
+              <td class="py-3"><%= leaderboard_duration(entry) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="text-purple-300 text-center">No scores yet — be the first to play!</p>
+    <% end %>
+  </div>
+
+  <%# Same link as Q9 in all paths. Signed-in viewers with a stable link get
+      the share sheet; signed-in viewers without one yet get the POST mint
+      button (minting stays POST-only); guests see no send affordance. %>
+  <% if @share_url %>
+    <%= render "shared/share",
+        share_url: @share_url,
+        share_title: @quiz.title,
+        share_text: "Play #{@quiz.title} with me!" %>
+  <% elsif authenticated? %>
+    <%= button_to quiz_invitations_path(@quiz), method: :post, class: "w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold text-lg transition mb-8" do %>
+      🔗 Share
+    <% end %>
+  <% end %>
+
+  <div class="flex justify-center gap-4">
+    <%= link_to quiz_path(@quiz), class: "bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg transition border border-white/20" do %>
+      ← Back to Quiz
+    <% end %>
+  </div>
+</div>

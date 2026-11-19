@@ -2,6 +2,7 @@ class Quiz < ApplicationRecord
   # Associations
   has_many :questions, -> { order(:order_index) }, dependent: :destroy
   has_many :quiz_attempts, dependent: :destroy
+  has_many :invitations, dependent: :destroy
 
   # Nested attributes
   accepts_nested_attributes_for :questions, allow_destroy: true, reject_if: :all_blank

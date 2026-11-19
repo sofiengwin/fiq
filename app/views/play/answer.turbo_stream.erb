@@ -1,0 +1,16 @@
+<%# frozen_string_literal: true %>
+<%# Q6 /play snap reveal: replaces the interactive play screen with the %>
+<%# locked snap (correct highlighted, wrong pick flashes, +N persisted %>
+<%# award, updated header) and auto-advances via snap-advance. %>
+<turbo-stream action="replace" target="play-screen">
+  <template>
+    <%= render partial: "shared/play_snap", formats: [ :html ], locals: {
+          tiles: @tiles,
+          points: @points,
+          score: @play_session.total_score,
+          streak: @play_session.streak,
+          question_number: @play_session.responses.length,
+          total_questions: @play_session.questions.length,
+          next_url: @snap_next_url } %>
+  </template>
+</turbo-stream>

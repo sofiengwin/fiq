@@ -35,24 +35,20 @@ Users can make quizzes using plain language. They can share quizzes with friends
 - Data collection pipeline - [data-collection.md](data-collection.md):
   This area will focus on getting data needed for the project and ensuring data doesn't become stale
   Scope: 30-day staleness + nightly sync + errata path. Build order: data first.
-- Quiz frontend - [quiz.md](quiz.md):
-  This area will focus on single page application that will become the new quiz frontend
-  Scope: SPA target, LLM NL → preview → save (rule-based fallback). Phase 1 multiple + image-choice.
-- Backend Api - [backend.md](backend.md):
-  The backend that will support the quiz frontend
-  Scope: JSON for NL create/fetch/attempts/leaderboard. Share link replays play_session, leaderboard by score/time.
+- Quiz - [quiz.md](quiz.md):
+  The Rails app is the quiz. No separate frontend.
+  Scope: Hotwire play screen, Kahoot look and snap, solo. LLM NL → preview → save (rule-based fallback). Phase 1 multiple + image-choice. Share link invites play. Leaderboard by score then time.
 
 ## Seams between area
-- Auth ↔ Backend: user_id links quiz_attempts/leaderboard; Google SSO + email fallback.
+- Auth ↔ Quiz: signed-in attempts carry user_id for the leaderboard. Guest invitation plays do not. Google SSO + email fallback.
 - Data ↔ Quiz: nightly stale heal (>30d); LLM JSON validated vs quizzes/questions/answer_options.
-- Quiz SPA ↔ Backend: NL preview/save, fetch quiz/questions, submit attempts.
-- Data errata → frontend flag only (no pipeline re-fetch).
+- Data errata → quiz flag only (no pipeline re-fetch).
 
 ## Existing contract that must not break
 - Public quizzes index/show + duplicate + play_session replay + quizzes/questions/answer_options schema + email login.
 
 ## Decisions
-- Goal: sharpen brief first, no code. Scope 4 areas + 6 gaps. Stack Rails 8.1 + pg.
+- Goal: sharpen brief first, no code. Stack Rails 8.1 + pg. Backend area retired. The Rails app renders the quiz.
 - Auth Google-first, Apple deferred. Data 30-day, PL 39 earliest-back via probe completeness first, data-first build order.
-- Quiz LLM + phase-1 formats, sharing link + leaderboard, friends graph deferred. SPA kept.
+- Quiz LLM + phase-1 formats. Kahoot look and snap on the solo play screen. Share link invites play. Leaderboard by score then time. Friends graph deferred.
 

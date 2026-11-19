@@ -1,6 +1,6 @@
 # Brief — Data-collection pipeline Phase 1 (PL 39 earliest-back)
 
-Source of truth: `doc/data-collection.md`, `doc/quiz.md`, `doc/backend.md`, `doc/README.MD` (frozen). This brief adds no new features beyond those docs.
+Source of truth: `doc/data-collection.md`, `doc/quiz.md`, `doc/README.MD`. This brief adds no new features beyond those docs.
 
 ## What we are building
 
