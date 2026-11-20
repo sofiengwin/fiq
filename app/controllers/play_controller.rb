@@ -217,6 +217,8 @@ class PlayController < ApplicationController
         "answer_hint" => q[:answer_hint],
         "options" => serialize_options(options),
         "players" => serialize_players(q[:players]),
+        "path_display" => q[:path_display] || q["path_display"],
+        "path" => q[:path] || q["path"],
         "points" => q[:points] || q["points"] || QuizScoring::DEFAULT_BASE_POINTS
       }
     end
