@@ -48,9 +48,10 @@ module QuizGenerators
     private
 
     def find_players_with_shared_clubs
-      # Get players with their team IDs as arrays
+      # Get players with their top-5 team IDs as arrays
       players_with_teams = Player
-                           .joins(:careers)
+                           .joins(careers: { football_team: :competitions })
+                           .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
                            .select("players.id, players.name, ARRAY_AGG(DISTINCT careers.football_team_id ORDER BY careers.football_team_id) as team_ids")
                            .group("players.id, players.name")
                            .having("COUNT(DISTINCT careers.football_team_id) >= ?", @shared_clubs)
@@ -90,6 +91,7 @@ module QuizGenerators
       correct_team_ids = correct_teams.map(&:id)
 
       FootballTeam
+        .in_top_five_leagues
         .where.not(id: correct_team_ids)
         .order(Arel.sql("RANDOM()"))
         .limit(4 - correct_teams.size)

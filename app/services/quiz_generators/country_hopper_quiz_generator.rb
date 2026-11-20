@@ -42,7 +42,8 @@ module QuizGenerators
 
     def find_player_with_multiple_countries
       query = Player
-              .joins(careers: { football_team: :country })
+              .joins(careers: { football_team: [ :country, :competitions ] })
+              .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
               .group("players.id")
               .having("COUNT(DISTINCT countries.id) >= ?", @min_countries)
               .order(Arel.sql("RANDOM()"))
@@ -54,7 +55,8 @@ module QuizGenerators
 
     def get_countries_for_player(player)
       player.careers
-            .joins(football_team: :country)
+            .joins(football_team: [ :country, :competitions ])
+            .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
             .pluck(Arel.sql("DISTINCT countries.name"))
     end
 
@@ -62,7 +64,8 @@ module QuizGenerators
       # Find other players who also played in multiple countries
       # to make the question more challenging
       Player
-        .joins(careers: { football_team: :country })
+        .joins(careers: { football_team: [ :country, :competitions ] })
+        .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
         .where.not(id: correct_player.id)
         .group("players.id")
         .having("COUNT(DISTINCT countries.id) >= ?", @min_countries)

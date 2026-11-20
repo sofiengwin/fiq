@@ -12,6 +12,13 @@ class FootballTeam < ApplicationRecord
     where("last_refreshed_at IS NULL OR last_refreshed_at <= ?", threshold)
   }
 
+  # Quiz scope: only teams playing in a top-5 league competition.
+  # Implemented as a WHERE subquery (not a JOIN) so it composes with
+  # GROUP BY + aggregate ORDER BY queries elsewhere.
+  scope :in_top_five_leagues, -> {
+    where(id: Competition.top_five.joins(:football_teams).select("football_teams.id"))
+  }
+
   def self.ransackable_attributes(auth_object = nil)
     %w[code country_id created_at external_id id name updated_at national]
   end

@@ -48,7 +48,8 @@ module QuizGenerators
     def find_players_with_high_appearances
       # Use subquery to avoid DISTINCT + ORDER BY RANDOM() conflict in PostgreSQL
       player_ids = Player
-                   .joins(:careers)
+                   .joins(careers: { football_team: :competitions })
+                   .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
                    .where("careers.appearances >= ?", @threshold)
                    .distinct
                    .pluck(:id)
@@ -61,7 +62,8 @@ module QuizGenerators
       exclude_ids = exclude_players.map(&:id)
 
       player_ids = Player
-                   .joins(:careers)
+                   .joins(careers: { football_team: :competitions })
+                   .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
                    .where.not(id: exclude_ids)
                    .group("players.id")
                    .having("MAX(careers.appearances) < ?", @threshold)

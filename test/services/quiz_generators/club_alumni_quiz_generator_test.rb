@@ -8,6 +8,12 @@ module QuizGenerators
       @country = Country.find_or_create_by!(name: "England")
       @country2 = Country.find_or_create_by!(name: "Spain")
 
+      @competition = Competition.create!(
+        name: "Premier League",
+        external_id: "39",
+        country: @country
+      )
+
       @team = FootballTeam.create!(
         name: "Manchester United",
         country: @country,
@@ -32,6 +38,10 @@ module QuizGenerators
         external_id: "afc_test"
       )
 
+      [ @team, @team2, @team3, @team4 ].each do |team|
+        team.competitions << @competition
+      end
+
       # Create players with careers at @team
       @players = 6.times.map do |i|
         player = Player.create!(
@@ -51,7 +61,9 @@ module QuizGenerators
     teardown do
       Career.delete_all
       Player.delete_all
+      FootballTeam.connection.execute("DELETE FROM competitions_football_teams")
       FootballTeam.delete_all
+      Competition.delete_all
       Country.delete_all
     end
 
@@ -66,7 +78,6 @@ module QuizGenerators
 
     test "generates quiz with correct structure" do
       result = ClubAlumniQuizGenerator.call(player_count: 4)
-      binding.irb
 
       assert_not_nil result
       assert_equal :club_alumni, result[:type]

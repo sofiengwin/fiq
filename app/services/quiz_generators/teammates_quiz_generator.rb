@@ -62,6 +62,7 @@ module QuizGenerators
       SQL
 
       FootballTeam
+        .in_top_five_leagues
         .joins("INNER JOIN (#{subquery}) team_overlaps ON football_teams.id = team_overlaps.football_team_id")
         .order(Arel.sql("team_overlaps.overlap_count DESC, RANDOM()"))
         .limit(10) # Get top 10 teams and check each

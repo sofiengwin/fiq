@@ -43,6 +43,7 @@ module QuizGenerators
 
     def find_suitable_competition
       query = Competition
+              .top_five
               .joins(football_teams: :players)
               .group("competitions.id")
               .having("COUNT(DISTINCT players.id) >= ?", @player_count * 2)
@@ -68,11 +69,12 @@ module QuizGenerators
     def find_players_not_in_competition(competition, exclude_players)
       exclude_ids = exclude_players.map(&:id)
 
-      # Find players who played in OTHER competitions
+      # Find players who played in OTHER top-5 competitions
       # Use subquery to avoid DISTINCT + ORDER BY RANDOM() conflict
       player_ids = Player
                    .joins(careers: { football_team: :competitions })
                    .where.not(competitions: { id: competition.id })
+                   .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
                    .where.not(id: exclude_ids)
                    .distinct
                    .pluck(:id)

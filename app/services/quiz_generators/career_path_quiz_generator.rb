@@ -43,7 +43,8 @@ module QuizGenerators
 
     def find_player_with_career_path
       query = Player
-              .joins(:careers)
+              .joins(careers: { football_team: :competitions })
+              .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
               .group("players.id")
               .having("COUNT(DISTINCT careers.football_team_id) >= ?", @min_clubs)
               .order(Arel.sql("RANDOM()"))
@@ -55,6 +56,8 @@ module QuizGenerators
 
     def build_career_path(player)
       player.careers
+            .joins(football_team: :competitions)
+            .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
             .includes(:football_team)
             .order(Arel.sql("LOWER(duration)"))
             .map { |c| c.football_team.name }
@@ -63,7 +66,8 @@ module QuizGenerators
     def find_decoy_players(correct_player)
       # Find players with similar number of clubs to make it harder
       Player
-        .joins(:careers)
+        .joins(careers: { football_team: :competitions })
+        .where(competitions: { external_id: Competition::TOP_FIVE_EXTERNAL_IDS })
         .where.not(id: correct_player.id)
         .group("players.id")
         .having("COUNT(DISTINCT careers.football_team_id) >= ?", @min_clubs)

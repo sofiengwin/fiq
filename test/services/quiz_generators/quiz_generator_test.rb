@@ -11,7 +11,13 @@ module QuizGenerators
       @competition = Competition.create!(
         name: "Premier League",
         country: @country,
-        external_id: "pl_test"
+        external_id: "39"
+      )
+
+      @laliga = Competition.create!(
+        name: "La Liga",
+        country: @country2,
+        external_id: "140"
       )
 
       @team = FootballTeam.create!(
@@ -33,6 +39,7 @@ module QuizGenerators
         country: @country2,
         external_id: "rm_test"
       )
+      @team3.competitions << @laliga
 
       # Create players with careers
       @players = 8.times.map do |i|
