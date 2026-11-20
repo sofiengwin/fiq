@@ -208,13 +208,16 @@ class PlayController < ApplicationController
   # Store full data since we have no size limits in the database
   def serialize_questions(questions)
     questions.map do |q|
+      options = q[:options] || q["options"] || q[:club_options] || q["club_options"]
+      correct = q[:correct_answer] || q["correct_answer"] || q[:correct_clubs] || q["correct_clubs"]
       {
         "type" => q[:type].to_s,
         "prompt" => q[:prompt],
-        "correct_answer" => Array(q[:correct_answer]),
+        "correct_answer" => Array(correct),
         "answer_hint" => q[:answer_hint],
-        "options" => serialize_options(q[:options]),
-        "players" => serialize_players(q[:players])
+        "options" => serialize_options(options),
+        "players" => serialize_players(q[:players]),
+        "points" => q[:points] || q["points"] || QuizScoring::DEFAULT_BASE_POINTS
       }
     end
   end

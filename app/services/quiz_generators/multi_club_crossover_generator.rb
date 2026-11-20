@@ -26,12 +26,17 @@ module QuizGenerators
 
       decoy_teams = find_decoy_teams(shared_teams)
 
+      club_options = (shared_teams + decoy_teams).shuffle
+      correct_ids = shared_teams.map(&:id)
+
       {
         type: :multi_club_crossover,
         prompt: "These #{players.size} players all played for the same #{@shared_clubs} clubs. Which clubs?",
         players: players,
-        club_options: (shared_teams + decoy_teams).shuffle,
-        correct_clubs: shared_teams.map(&:id),
+        options: club_options,
+        correct_answer: correct_ids,
+        club_options: club_options,
+        correct_clubs: correct_ids,
         config: {
           shared_clubs: @shared_clubs,
           player_count: @player_count
