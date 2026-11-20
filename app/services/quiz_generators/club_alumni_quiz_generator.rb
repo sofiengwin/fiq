@@ -44,7 +44,7 @@ module QuizGenerators
     private
 
     def find_suitable_team
-      query = FootballTeam.joins(:careers)
+      query = FootballTeam.in_top_five_leagues.joins(:careers)
                           .group("football_teams.id")
                           .having("COUNT(DISTINCT careers.player_id) >= ?", @player_count)
                           .order(Arel.sql("COUNT(DISTINCT careers.player_id) DESC, RANDOM()"))
@@ -57,6 +57,7 @@ module QuizGenerators
     def find_decoy_teams(correct_team)
       # Find teams that are similar (same country/competition) but don't have all the players
       FootballTeam
+        .in_top_five_leagues
         .where.not(id: correct_team.id)
         .where(country_id: correct_team.country_id)
         .order(Arel.sql("RANDOM()"))
@@ -66,6 +67,7 @@ module QuizGenerators
           # If not enough teams in same country, add random teams
           if teams.size < 3
             additional = FootballTeam
+                         .in_top_five_leagues
                          .where.not(id: [ correct_team.id ] + teams.map(&:id))
                          .order(Arel.sql("RANDOM()"))
                          .limit(3 - teams.size)
