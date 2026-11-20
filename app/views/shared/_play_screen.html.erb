@@ -33,7 +33,7 @@
         image_url: o["image_url"] || o[:image_url] }
     end
     correct_count = Array(q["correct_answer"]).length
-    points_label = q["points"] || q[:points]
+    points_label = q["points"] || q[:points] || QuizScoring::DEFAULT_BASE_POINTS
     players = Array(q["players"])
   else
     prompt_text = q.text
