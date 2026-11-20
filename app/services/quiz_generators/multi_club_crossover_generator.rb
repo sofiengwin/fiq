@@ -66,14 +66,14 @@ module QuizGenerators
     end
 
     def find_matching_player_group(all_players)
-      # Try to find a pair/group of players sharing exactly @shared_clubs clubs
-      all_players.combination(@player_count).each do |player_group|
+      # Shuffle so repeated calls don't always return the first pair in DB order.
+      all_players.shuffle.combination(@player_count).each do |player_group|
         # Find intersection of all players' teams
         team_id_sets = player_group.map { |p| p.team_ids.to_a.to_set }
         common_team_ids = team_id_sets.reduce(&:&)
 
         if common_team_ids.size >= @shared_clubs
-          shared_team_ids = common_team_ids.to_a.take(@shared_clubs)
+          shared_team_ids = common_team_ids.to_a.sample(@shared_clubs)
           shared_teams = FootballTeam.where(id: shared_team_ids).to_a
 
           # Reload full player objects
