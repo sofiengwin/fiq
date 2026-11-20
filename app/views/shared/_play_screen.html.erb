@@ -35,6 +35,9 @@
     correct_count = Array(q["correct_answer"]).length
     points_label = q["points"] || q[:points] || QuizScoring::DEFAULT_BASE_POINTS
     players = Array(q["players"])
+    raw_path = q["path_display"] || q[:path_display]
+    raw_path = Array(q["path"] || q[:path]).join(" → ") if raw_path.blank?
+    path_display = raw_path.presence
   else
     prompt_text = q.text
     image_url = q.image_url
@@ -42,6 +45,7 @@
     correct_count = q.answer_options.count(&:is_correct?)
     points_label = q.points
     players = []
+    path_display = nil
   end
 
   multi = correct_count.to_i > 1
@@ -86,6 +90,12 @@
     <h2 id="play-prompt" class="text-2xl font-bold text-white text-center">
       <%= prompt_text %>
     </h2>
+
+    <% if path_display.present? %>
+      <div id="play-path" class="text-center mt-4 px-4 py-3 rounded-xl bg-purple-800/50 text-white font-semibold tracking-wide">
+        <%= path_display %>
+      </div>
+    <% end %>
 
     <p class="text-purple-300 text-center mt-4">
       <span id="play-points" class="inline-block bg-purple-600/50 px-3 py-1 rounded-full text-sm">
